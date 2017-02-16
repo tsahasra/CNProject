@@ -1,1 +1,1 @@
-java %1\test %2
+java test %1
