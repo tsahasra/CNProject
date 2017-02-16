@@ -19,6 +19,7 @@ public class test {
 		// TODO Auto-generated method stub
 			File testFile = new File(args[0]);
 			try {
+				System.out.println("Im in in");
 				testFile.createNewFile();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
