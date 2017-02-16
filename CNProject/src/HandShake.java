@@ -7,6 +7,6 @@ public class HandShake {
 		header = "P2PFILESHARINGPROJ";
 		peerID = peerId;
 		zerobits = "0000000000";
-	}
+	} 
 		
 }

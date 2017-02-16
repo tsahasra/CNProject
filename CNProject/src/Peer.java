@@ -37,7 +37,6 @@ public class Peer {
 		result = prime * result + peerPort;
 		return result;
 	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

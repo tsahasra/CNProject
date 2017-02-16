@@ -210,7 +210,6 @@ public class PeerProcess {
             this.peer = PeerProcess.this.peerSocketMap.get(socket);
             inputStream = new ObjectInputStream(socket.getInputStream());
         }
-
         @Override
         public void run() {
             while (true) {

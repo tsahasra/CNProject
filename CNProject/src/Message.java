@@ -7,6 +7,4 @@ public class Message {
 	{
 		this.payload = new byte[payloadsize];
 	}
-	
-	
 }
