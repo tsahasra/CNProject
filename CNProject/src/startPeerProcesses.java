@@ -27,17 +27,18 @@ public class startPeerProcesses {
 		String line , tokens[];
 		try
 		{
-			pireader =   new BufferedReader(new FileReader("peerInfo.cfg"));
+			pireader =   new BufferedReader(new FileReader("peerProp.cfg"));
 		while((line = pireader.readLine()) !=null)
 		{
 			tokens = line.split(" ");
 			String user = "cyguser";
-			String workingDir = System.getProperty("user.dir");
-			File batchFile = new File("startPeerProcessBatch.bat");
-			String startPeerProcessBatch = "startPeerProcessBatch.bat " + "testFile.txt";			
-			Runtime.getRuntime().exec(new String("ssh " + user + "@" + tokens[1] +" && " + " cd " + workingDir + " && " + startPeerProcessBatch));
-			pireader.close();
+			String workingDir = tokens[2];
+			String startPeerProcessBatch = "startPeerProcessBatch.bat " + workingDir + " " + tokens[0];
+			String command = "ssh " + user + "@" + tokens[1] + " " + workingDir + "\\" + startPeerProcessBatch;
+			Runtime.getRuntime().exec(command);
+			
 		}
+		pireader.close();
 		}
 		catch(IOException ie)
 		{
