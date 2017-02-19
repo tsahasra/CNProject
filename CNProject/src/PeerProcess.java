@@ -130,7 +130,7 @@ public class PeerProcess {
 					if(Integer.parseInt(tokens[3])==1)
 						p.isFilePresent = true;
 					if(p.isFilePresent){
-						p.copyFileUsingStream(new File("File.txt"), new File("\\peer_" + peerID + "\\File.txt"));
+						p.copyFileUsingStream(new File("File.txt"), new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
 					}
 					ispeerIdFound = true;
 				}
