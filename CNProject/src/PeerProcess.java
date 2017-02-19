@@ -261,8 +261,9 @@ public class PeerProcess {
 				while(true){
 						Socket socket;
 						
-								socket = serverSocket.accept();
+								socket = serverSocket.accept();								
 								Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+								writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
 								peerSocketMap.put(socket, peerList.get(peerList.indexOf(tempPeer)));
 								ClientHandler clientHandler = new ClientHandler(socket , false);
 								clientHandler.start();
@@ -390,6 +391,7 @@ public class PeerProcess {
                     		this.peer.isHandShakeDone = true;
                     		if(!initiateHandShake)
                     			sendHandShake();
+                    		writeToLog("HandShake completed");
                     	}
                     	PeerProcess.this.noOfPeerHS++;
                     }
