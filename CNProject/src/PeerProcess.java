@@ -40,7 +40,7 @@ public class PeerProcess {
 	int NumberOfPreferredNeighbors;
 	int UnchokingInterval;
 	int OptimisticUnchokingInterval;
-	int FileName;
+	String FileName;
 	int FileSize;
 	int PieceSize;
 	int noOfPieces;
@@ -145,21 +145,44 @@ public class PeerProcess {
 	private void initializePeerParams(PeerProcess p) throws IOException {
 		BufferedReader commonreader = new BufferedReader(new FileReader("common.cfg"));
 		String line, tokens[];
-		int i = 0;
+		int lineno = 1;
 
 		try {
 
 			while ((line = commonreader.readLine()) != null) {
 				tokens = line.split(" ");
+				switch(lineno)
+				{
+				case 1:{
 				p.NumberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
+				}break;
+				
+				case 2:{
 				p.UnchokingInterval = Integer.parseInt(tokens[1]);
+				}break;
+				
+				case 3:{
 				p.OptimisticUnchokingInterval = Integer.parseInt(tokens[1]);
-				p.FileName = Integer.parseInt(tokens[1]);
+				}break;
+				
+				case 4:{
+				p.FileName = tokens[1];
+				}break;
+				
+				case 5:{
 				p.FileSize = Integer.parseInt(tokens[1]);
+				}break;
+				
+				case 6:{
 				p.PieceSize = Integer.parseInt(tokens[1]);
-				p.noOfPieces = Integer.parseInt(tokens[1]);
-
+				}break;
+				
+				default:
+				}
+				
+				lineno++;
 			}
+			p.noOfPieces = p.FileSize / p.PieceSize;
 		} finally {
 			commonreader.close();
 		}
@@ -210,7 +233,7 @@ public class PeerProcess {
 		try {
 
 			new File("peer_" + args[0]).mkdir();
-			File peerLogFile = new File("log_peer_" + args[0] + ".log");
+			File peerLogFile = new File(System.getProperty("user.dir")+"\\" + "log_peer_" + args[0] + ".log");
 			peerLogFile.createNewFile();
 			
 			/***
@@ -224,7 +247,7 @@ public class PeerProcess {
 			proc.createServerSocket(proc.currentPeer.peerPort);
 			
 		} catch (Exception e) {
-
+				e.printStackTrace();
 		}
 	}
 	
