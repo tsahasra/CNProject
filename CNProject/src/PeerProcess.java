@@ -255,16 +255,14 @@ public class PeerProcess {
 			serverSocket = new ServerSocket(portNo);
 				while(true){
 						Socket socket;
-						try {
+						
 								socket = serverSocket.accept();
 								peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
 								ClientHandler clientHandler = new ClientHandler(socket , false);
 								clientHandler.start();
 								if(this.noOfPeerHS == this.noOfPeers - 1)
 									return;
-                			} catch (IOException e) {
-                				e.printStackTrace();
-                			}
+                			
 							}
 		}catch(Exception e){
 			return;
@@ -329,7 +327,7 @@ public class PeerProcess {
         ClientHandler(Socket socket , boolean initiateHS) throws IOException {
             this.socket = socket;
             this.peer = PeerProcess.this.peerSocketMap.get(socket);
-            inputStream = new ObjectInputStream(socket.getInputStream());
+            
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.initiateHandShake = initiateHS;
             
@@ -343,8 +341,9 @@ public class PeerProcess {
 		 */
 		private void sendHandShake() {
 			// TODO Auto-generated method stub
+			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 			try{
-				outputStream.writeObject(new HandShake(PeerProcess.this.currentPeer.peerID)); 
+				outputStream.writeObject((Object)hs); 
 				outputStream.flush(); 
 				} 
 				catch(IOException ioException){ 
@@ -357,7 +356,7 @@ public class PeerProcess {
         public void run() {
             while (true) {
                 try {
-                		
+                	inputStream = new ObjectInputStream(socket.getInputStream());	
                     Object o = inputStream.readObject();
                     if(o instanceof HandShake){
                     	HandShake h = (HandShake)o;
