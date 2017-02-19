@@ -127,7 +127,7 @@ public class PeerProcess {
 				}
 			}
 			Iterator itpeer = p.peerList.iterator();
-			while(itpeer.hasNext())
+			while(itpeer.hasNext() && !currentPeer.equals(peerList.get(0)))
 			{
 				p.connectToPreviousPeer((Peer)itpeer.next());
 				
