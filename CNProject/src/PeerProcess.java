@@ -108,7 +108,7 @@ public class PeerProcess {
 		boolean ispeerIdFound = false;
 		try {
 			
-			while ((line = pireader.readLine()) != null && !ispeerIdFound) {
+			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)){
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
@@ -118,20 +118,21 @@ public class PeerProcess {
 				}
 				else{
 					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					Iterator itpeer = p.peerList.iterator();
-					while(itpeer.hasNext())
-					{
-						p.connectToPreviousPeer((Peer)itpeer.next());
-						
-					}
 					if(Integer.parseInt(tokens[3])==1)
 						p.isFilePresent = true;
 					if(p.isFilePresent){
 						p.copyFileUsingStream(new File("File.txt"), new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
 					}
-					ispeerIdFound = true;
+					//ispeerIdFound = true;
 				}
 			}
+			Iterator itpeer = p.peerList.iterator();
+			while(itpeer.hasNext())
+			{
+				p.connectToPreviousPeer((Peer)itpeer.next());
+				
+			}
+			
 		} finally {
 			pireader.close();
 		}
