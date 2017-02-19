@@ -1,4 +1,7 @@
-public class HandShake {		
+import java.io.Serializable;
+
+public class HandShake implements Serializable{
+	
 	String header ;
 	String zerobits;
 	int peerID;
