@@ -25,6 +25,8 @@ public class Peer {
 		this.peerIP = pip;
 		this.peerPort = pport;
 	}
+	
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
