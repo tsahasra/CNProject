@@ -190,9 +190,10 @@ public class PeerProcess {
 		BufferedWriter br = null;
 		try
 		{
-		br = new BufferedWriter(new FileWriter(new File("log_peer_"+ this.currentPeer.peerID+".log")));
+		br = new BufferedWriter(new FileWriter(new File(System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\" + "log_peer_"+ this.currentPeer.peerID+".log")));
 		StringBuilder sb = new StringBuilder();
-		sb.append("["+ sdf.format(new Date()) +"]");
+		sb.append("["+ sdf.format(new Date()) +"]"); 
+		sb.append(message);
 		br.write(sb.toString());
 		br.close();
 		}
@@ -282,7 +283,7 @@ public class PeerProcess {
 		Socket socket;
 		try {
 			socket = new Socket(p.peerIP, p.peerPort);
-			writeToLog(": Peer " + this.currentPeer + " makes a connection to Peer " + p.peerID);
+			writeToLog(": Peer " + this.currentPeer.peerID + " makes a connection to Peer " + p.peerID);
 			peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
 			ClientHandler clientHandler = new ClientHandler(socket , true);
             clientHandler.start();
