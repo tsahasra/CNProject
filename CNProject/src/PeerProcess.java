@@ -131,7 +131,7 @@ public class PeerProcess {
 			}
 			//Iterator itpeer = p.peerList.iterator();
 			int i = 0; 
-			while(currPeerNo != 1 && i < currPeerNo - 1)
+			while(currPeerNo != 0 && i <= currPeerNo - 1)
 			{
 				
 					p.connectToPreviousPeer(p.peerList.get(i));
@@ -262,7 +262,8 @@ public class PeerProcess {
 						Socket socket;
 						
 								socket = serverSocket.accept();
-								peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
+								Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+								peerSocketMap.put(socket, peerList.get(peerList.indexOf(tempPeer)));
 								ClientHandler clientHandler = new ClientHandler(socket , false);
 								clientHandler.start();
 								if(this.noOfPeerHS == this.noOfPeers - 1)
@@ -286,12 +287,32 @@ public class PeerProcess {
 		
 	}
 	
+	/**
+	 * @param hostAddress
+	 * @param port
+	 * @return
+	 * 
+	 */
+	private Peer getPeerFromPeerList(String hostAddress, int port) {
+		// TODO Auto-generated method stub
+		
+		Iterator it = this.peerList.iterator();
+		while(it.hasNext())
+		{
+			Peer tempPeer = (Peer) it.next();
+			if(tempPeer.peerIP.equals(hostAddress))
+				return tempPeer;
+		}
+		return null;
+	}
+
 	public void connectToPreviousPeer(Peer p){
 		Socket socket;
 		try {
 			socket = new Socket(p.peerIP, p.peerPort);
 			writeToLog(": Peer " + this.currentPeer.peerID + " makes a connection to Peer " + p.peerID);
-			peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
+			//Peer tempPeer = new Peer(p.peerID,p.peerIP,p.peerPort);
+			peerSocketMap.put(socket, peerList.get(this.peerList.indexOf(p)));
 			ClientHandler clientHandler = new ClientHandler(socket , true);
             clientHandler.start();
 		} catch (IOException e) {
@@ -375,7 +396,7 @@ public class PeerProcess {
                     else if(o instanceof Message){
                     	Message message = (Message)o;
                     	switch(message.type){
-                    	
+                    		
                     	}
                     
                     }
