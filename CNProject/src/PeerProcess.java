@@ -1,16 +1,23 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,13 +44,49 @@ public class PeerProcess {
 	int FileSize;
 	int PieceSize;
 	int noOfPieces;
+	int noOfPeerHS;
+	int noOfPeers;
 	boolean isFilePresent;
 	ServerSocket serverSocket;
+	DateFormat sdf;
 	
 	HashMap<Socket, Peer> peerSocketMap = new HashMap<>();
 
 	PeerProcess() {
+			sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			noOfPeers = getNoOfPeers();
+	}
 
+	/**
+	 * @param peerProcess
+	 * @return
+	 * 
+	 */
+	private int getNoOfPeers() {
+		// TODO Auto-generated method stub
+		BufferedReader pireader = null;
+		
+		String line;
+		int count = 0;
+		try {		
+			pireader = new BufferedReader(new FileReader("peerInfo.cfg"));
+			while ((line = pireader.readLine())!= null)
+				count++;
+		}
+		catch(IOException ie)
+		{
+			
+		}
+		{
+			try{
+			pireader.close();
+			}
+			catch(IOException ie)
+			{
+				ie.printStackTrace();
+			}
+		}
+		return count;
 	}
 
 	private void copyFileUsingStream(File source, File dest) throws IOException {
@@ -68,18 +111,28 @@ public class PeerProcess {
 		String line, tokens[];
 		boolean ispeerIdFound = false;
 		try {
-			while ((line = pireader.readLine()) != null) {
+			
+			while ((line = pireader.readLine()) != null && !ispeerIdFound) {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)){
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					peer.isHandShakeDone = false;
 					p.peerList.add(peer);
-					if(!ispeerIdFound)
-						connectToPreviousPeer(peer);
+					
 				}
 				else{
 					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					Iterator itpeer = p.peerList.iterator();
+					while(itpeer.hasNext())
+					{
+						p.connectToPreviousPeer((Peer)itpeer.next());
+						
+					}
 					if(Integer.parseInt(tokens[3])==1)
 						p.isFilePresent = true;
+					if(p.isFilePresent){
+						p.copyFileUsingStream(new File("File.txt"), new File("\\peer_" + peerID + "\\File.txt"));
+					}
 					ispeerIdFound = true;
 				}
 			}
@@ -112,6 +165,38 @@ public class PeerProcess {
 		}
 
 	}
+	
+	private boolean writeToLog(String message) 
+	{
+		BufferedWriter br = null;
+		try
+		{
+		br = new BufferedWriter(new FileWriter(new File("log_peer_"+ this.currentPeer.peerID+".log")));
+		StringBuilder sb = new StringBuilder();
+		sb.append("["+ sdf.format(new Date()) +"]");
+		br.write(sb.toString());
+		br.close();
+		}
+		catch(IOException ioe)
+		{
+			ioe.printStackTrace();
+		}
+		finally{
+			try
+			{
+			  if(br!=null)
+				  br.close();
+			}
+			catch(IOException ioe2)
+			{
+				ioe2.printStackTrace();
+			}
+		}
+		
+		
+		
+		return true;
+	}
 
 	public static void main(String[] args) {
 
@@ -127,16 +212,14 @@ public class PeerProcess {
 			new File("peer_" + args[0]).mkdir();
 			File peerLogFile = new File("log_peer_" + args[0] + ".log");
 			peerLogFile.createNewFile();
-			/*** Reads peerInfo.cfg file and initializes peerList ***/
-			proc.initializePeerList(proc, args[0]);
-
+			
 			/***
 			 * Reads common.cfg file and initializes peer process variables
 			 ***/
 			proc.initializePeerParams(proc);
-			if(proc.isFilePresent){
-				proc.copyFileUsingStream(new File("File.txt"), new File("\\peer_" + args[0] + "\\File.txt"));
-			}
+			
+			/*** Reads peerInfo.cfg file and initializes peerList ***/
+			proc.initializePeerList(proc, args[0]);
 			
 			proc.createServerSocket(proc.currentPeer.peerPort);
 			
@@ -148,18 +231,31 @@ public class PeerProcess {
 	public void createServerSocket(int portNo){
 		try{
 			serverSocket = new ServerSocket(portNo);
+				while(true){
+						Socket socket;
+						try {
+								socket = serverSocket.accept();
+								peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
+								ClientHandler clientHandler = new ClientHandler(socket , false);
+								clientHandler.start();
+								if(this.noOfPeerHS == this.noOfPeers - 1)
+									return;
+                			} catch (IOException e) {
+                				e.printStackTrace();
+                			}
+							}
 		}catch(Exception e){
 			return;
 		}
-		while(true){
-			Socket socket;
-			try {
-				socket = serverSocket.accept();
-				peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
-				ClientHandler clientHandler = new ClientHandler(socket);
-                clientHandler.start();
-			} catch (IOException e) {
+		finally
+		{
+			try{
+			serverSocket.close();
+			}
+			catch(Exception e)
+			{
 				e.printStackTrace();
+				return;
 			}
 		}
 		
@@ -169,8 +265,9 @@ public class PeerProcess {
 		Socket socket;
 		try {
 			socket = new Socket(p.peerIP, p.peerPort);
+			writeToLog(": Peer " + this.currentPeer + " makes a connection to Peer " + p.peerID);
 			peerSocketMap.put(socket, peerList.get(peerList.indexOf(new Peer(socket.getInetAddress().getHostAddress(), socket.getPort()))));
-			ClientHandler clientHandler = new ClientHandler(socket);
+			ClientHandler clientHandler = new ClientHandler(socket , true);
             clientHandler.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -203,29 +300,60 @@ public class PeerProcess {
     class ClientHandler extends Thread{
         private Socket socket;
         ObjectInputStream inputStream;
+        ObjectOutputStream outputStream;
         Peer peer;
+        boolean initiateHandShake;
         
-        ClientHandler(Socket socket) throws IOException {
+        ClientHandler(Socket socket , boolean initiateHS) throws IOException {
             this.socket = socket;
             this.peer = PeerProcess.this.peerSocketMap.get(socket);
             inputStream = new ObjectInputStream(socket.getInputStream());
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            this.initiateHandShake = initiateHS;
+            
+            if(initiateHandShake)
+            	sendHandShake();            	
+            	
         }
-        @Override
+        /**
+		 * 
+		 * 
+		 */
+		private void sendHandShake() {
+			// TODO Auto-generated method stub
+			try{
+				outputStream.writeObject(new HandShake(PeerProcess.this.currentPeer.peerID)); 
+				outputStream.flush(); 
+				} 
+				catch(IOException ioException){ 
+				ioException.printStackTrace(); 
+				}
+		}
+		
+		
+		@Override
         public void run() {
             while (true) {
                 try {
+                		
                     Object o = inputStream.readObject();
                     if(o instanceof HandShake){
                     	HandShake h = (HandShake)o;
                     	if(h.peerID==this.peer.peerID){
                     		this.peer.isHandShakeDone = true;
+                    		if(!initiateHandShake)
+                    			sendHandShake();
                     	}
-                    }else if(o instanceof Message){
+                    	PeerProcess.this.noOfPeerHS++;
+                    }
+                    else if(o instanceof Message){
                     	Message message = (Message)o;
                     	switch(message.type){
                     	
                     	}
+                    
                     }
+                    break;
                 } catch (IOException e) {
                     e.printStackTrace();
 
