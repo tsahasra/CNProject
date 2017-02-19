@@ -106,6 +106,7 @@ public class PeerProcess {
 		BufferedReader pireader = new BufferedReader(new FileReader("peerInfo.cfg"));
 		String line, tokens[];
 		boolean ispeerIdFound = false;
+		int currPeerNo = 0;
 		try {
 			
 			while ((line = pireader.readLine()) != null) {
@@ -114,10 +115,11 @@ public class PeerProcess {
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
 					peer.isHandShakeDone = false;
 					p.peerList.add(peer);
-					
 				}
 				else{
 					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					currPeerNo = p.peerList.size();
+					
 					if(Integer.parseInt(tokens[3])==1)
 						p.isFilePresent = true;
 					if(p.isFilePresent){
@@ -125,11 +127,15 @@ public class PeerProcess {
 					}
 					//ispeerIdFound = true;
 				}
+				
 			}
-			Iterator itpeer = p.peerList.iterator();
-			while(itpeer.hasNext() && !currentPeer.equals(peerList.get(0)))
+			//Iterator itpeer = p.peerList.iterator();
+			int i = 0; 
+			while(currPeerNo != 1 && i < currPeerNo - 1)
 			{
-				p.connectToPreviousPeer((Peer)itpeer.next());
+				
+					p.connectToPreviousPeer(p.peerList.get(i));
+					i++;
 				
 			}
 			
