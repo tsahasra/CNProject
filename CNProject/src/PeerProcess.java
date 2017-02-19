@@ -90,19 +90,18 @@ public class PeerProcess {
 	}
 
 	private void copyFileUsingStream(File source, File dest) throws IOException {
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			is = new FileInputStream(source);
-			os = new FileOutputStream(dest);
-			byte[] buffer = new byte[1024];
-			int length;
-			while ((length = is.read(buffer)) > 0) {
-				os.write(buffer, 0, length);
-			}
-		} finally {
-			is.close();
-			os.close();
+		BufferedReader freader = new BufferedReader(new FileReader(source));
+		BufferedWriter fwriter = new BufferedWriter(new FileWriter(dest));
+		String line;
+		try{
+			while((line = freader.readLine()) != null)
+				fwriter.write(line + "\n");
+			
+		}
+		finally
+		{
+			freader.close();
+			fwriter.close();
 		}
 	}
 
