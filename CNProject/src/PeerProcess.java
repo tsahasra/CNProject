@@ -197,11 +197,12 @@ public class PeerProcess {
 		BufferedWriter br = null;
 		try
 		{
-		br = new BufferedWriter(new FileWriter(new File(System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\" + "log_peer_"+ this.currentPeer.peerID+".log")));
+			File tempFile = new File(System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\" + "log_peer_"+ this.currentPeer.peerID+".log");
+		br = new BufferedWriter(new FileWriter(tempFile));
 		StringBuilder sb = new StringBuilder();
 		sb.append("["+ sdf.format(new Date()) +"]"); 
 		sb.append(message);
-		br.write(sb.toString());
+		br.append(sb.toString() + "\n");
 		br.close();
 		}
 		catch(IOException ioe)
