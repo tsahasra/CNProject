@@ -46,12 +46,14 @@ public class PeerProcess {
 	boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
+	File logfile;
 	
 	HashMap<Socket, Peer> peerSocketMap = new HashMap<>();
 
 	PeerProcess() {
 			sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			noOfPeers = getNoOfPeers();
+			
 	}
 
 	/**
@@ -123,7 +125,7 @@ public class PeerProcess {
 					if(Integer.parseInt(tokens[3])==1)
 						p.isFilePresent = true;
 					if(p.isFilePresent){
-						p.copyFileUsingStream(new File("File.txt"), new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
+						p.copyFileUsingStream(new File("TheFile.dat"), new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
 					}
 					//ispeerIdFound = true;
 				}
@@ -197,8 +199,8 @@ public class PeerProcess {
 		BufferedWriter br = null;
 		try
 		{
-			File tempFile = new File(System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\" + "log_peer_"+ this.currentPeer.peerID+".log");
-		br = new BufferedWriter(new FileWriter(tempFile));
+			
+		br = new BufferedWriter(new FileWriter(logfile));
 		StringBuilder sb = new StringBuilder();
 		sb.append("["+ sdf.format(new Date()) +"]"); 
 		sb.append(message);
@@ -238,8 +240,8 @@ public class PeerProcess {
 		try {
 
 			new File("peer_" + args[0]).mkdir();
-			File peerLogFile = new File(System.getProperty("user.dir")+"\\" + "log_peer_" + args[0] + ".log");
-			peerLogFile.createNewFile();
+			proc.logfile = new File(System.getProperty("user.dir")+"\\peer_"+args[0]+"\\log_peer_" + args[0] + ".log");
+			proc.logfile.createNewFile();
 			
 			/***
 			 * Reads common.cfg file and initializes peer process variables
@@ -397,9 +399,44 @@ public class PeerProcess {
                     	PeerProcess.this.noOfPeerHS++;
                     }
                     else if(o instanceof Message){
+                    	
                     	Message message = (Message)o;
+                    	
                     	switch(message.type){
+                    	
+                    	case 0:{
                     		
+                    	}break;
+                    	
+                    	case 1:{
+                    		
+                    	}break;
+                    	
+                    	case 2:{
+                    		
+                    	}break;
+                    	
+                    	case 3:{
+                    		
+                    	}break;
+
+                    	case 4:{
+                    		
+                    	}break;
+                    	
+                    	case 5:{
+                    		
+                    	}break;
+
+                    	case 6:{
+                    		
+                    	}break;
+                    	
+
+                    	case 7:{
+                    		
+                    	}break;
+                    	
                     	}
                     
                     }
