@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,8 @@ public class PeerProcess {
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
+	List<Peer> chokedByPeers;
+	List<Peer> PreferedNeighbours;
 	
 	HashMap<Socket, Peer> peerSocketMap = new HashMap<>();
 
@@ -386,7 +389,9 @@ public class PeerProcess {
         public void run() {
             while (true) {
                 try {
+                	
                 	inputStream = new ObjectInputStream(socket.getInputStream());	
+                	
                     Object o = inputStream.readObject();
                     if(o instanceof HandShake){
                     	HandShake h = (HandShake)o;
@@ -405,36 +410,86 @@ public class PeerProcess {
                     	switch(message.type){
                     	
                     	case 0:{
-                    		
+                    		if(!chokedByPeers.contains(this.peer))
+                    				chokedByPeers.add(this.peer);
+                    	
                     	}break;
                     	
                     	case 1:{
+                    		if(chokedByPeers.contains(this.peer))
+                				chokedByPeers.remove(this.peer);
                     		
                     	}break;
                     	
                     	case 2:{
-                    		
+                    		if(chokedByPeers.contains(this.peer))
+                    		{
+                    			Message m = createMessage(7);
+                    			try{
+                    				outputStream.writeObject((Object)m); 
+                    				outputStream.flush(); 
+                    				} 
+                    				catch(IOException ioException){ 
+                    				ioException.printStackTrace(); 
+                    				}
+                    		}
                     	}break;
                     	
                     	case 3:{
                     		
+                    		
                     	}break;
 
                     	case 4:{
-                    		
+                    		if(chokedByPeers.contains(this.peer) && currentPeer.bitfield[convertToInt(message.payload)] == 1)
+                    		{
+                    			Message m = createMessage(2);
+                    			try{
+                    				outputStream.writeObject((Object)m); 
+                    				outputStream.flush(); 
+                    				} 
+                    				catch(IOException ioException){ 
+                    				ioException.printStackTrace(); 
+                    				}                    			
+                    		}
                     	}break;
                     	
                     	case 5:{
-                    		
+                    		int missingpiece = getMissingPiece(message.payload);
+                    		if(missingpiece != -1)
+                    		{
+                    		if(chokedByPeers.contains(this.peer) && currentPeer.bitfield[missingpiece] == 1)
+                    		{
+                    			Message m = createMessage(2);
+                    			try{
+                    				outputStream.writeObject((Object)m); 
+                    				outputStream.flush(); 
+                    				} 
+                    				catch(IOException ioException){ 
+                    				ioException.printStackTrace(); 
+                    				}       
+                    		}
+                    		}
                     	}break;
-
-                    	case 6:{
                     		
+                    	case 6:{
+                    		if(chokedByPeers.contains(this.peer))
+                    		{
+                    			Message m = createMessage(7);
+                    			try{
+                    				outputStream.writeObject((Object)m); 
+                    				outputStream.flush(); 
+                    				} 
+                    				catch(IOException ioException){ 
+                    				ioException.printStackTrace(); 
+                    				}
+                    		}
                     	}break;
                     	
 
                     	case 7:{
-                    		
+                    		byte[] piece = message.payload;
+                    		writePieceToFile(piece); 
                     	}break;
                     	
                     	}
@@ -449,6 +504,66 @@ public class PeerProcess {
                 }
             }
         }
+		/**
+		 * @param piece
+		 * 
+		 */
+		private void writePieceToFile(byte[] piece) {
+			// TODO Auto-generated method stub
+			
+		}
+		/**
+		 * @param payload
+		 * @return
+		 * 
+		 */
+		private int getMissingPiece(byte[] payload) {
+			// TODO Auto-generated method stub
+			int index = -1;
+			
+			for(int i = 0; i < payload.length ; i++)
+				if(peer.bitfield[i] != payload[i])
+					return  i;
+			
+			return index;
+		}
+		/**
+		 * @param i
+		 * @return
+		 * 
+		 */
+		private Message createMessage(int type) {
+			// TODO Auto-generated method stub
+			Message m = null;
+			
+			switch(type)
+			{
+			
+			case 2:{
+				
+			}break;
+			
+			case 7:{
+				
+			}break;
+			
+			}
+			return m;
+		}
+		/**
+		 * @param payload
+		 * @return
+		 * 
+		 */
+		private int convertToInt(byte[] payload) {
+			// TODO Auto-generated method stub
+			int result = 0;
+		    for (int i = 0; i < payload.length ; i++) {
+		      result = ( result << 8 ) - Byte.MIN_VALUE + (int) payload[i];
+		    }
+		    return result;
+
+		}
     }
 
 }

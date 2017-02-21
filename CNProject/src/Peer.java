@@ -11,6 +11,7 @@ public class Peer {
 	int peerID;
 	String peerIP;
 	int peerPort;
+	byte[] bitfield;
 	boolean isHandShakeDone;
 	
 	public Peer(int pid, String pip, int pport)
