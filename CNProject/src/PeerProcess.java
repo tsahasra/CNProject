@@ -350,7 +350,7 @@ public class PeerProcess {
         }
     }*/
 
-    class ClientHandler extends Thread{
+	public class ClientHandler extends Thread{
         private Socket socket;
         ObjectInputStream inputStream;
         ObjectOutputStream outputStream;
@@ -376,7 +376,9 @@ public class PeerProcess {
 			// TODO Auto-generated method stub
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 			try{
-				outputStream.writeObject((Object)hs); 
+				outputStream.writeObject((Object)hs);
+				Message bitfield = new Message(5 , PeerProcess.this.noOfPieces);				
+				outputStream.writeObject((Object)bitfield);
 				outputStream.flush(); 
 				} 
 				catch(IOException ioException){ 
