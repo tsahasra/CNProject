@@ -5,8 +5,9 @@ public class Message implements Serializable {
 	int type;
 	byte[] payload;
 	
-	public Message(int payloadsize)
+	public Message(int type , int payloadsize)
 	{
+		this.type = type;
 		this.payload = new byte[payloadsize];
 	}
 }
