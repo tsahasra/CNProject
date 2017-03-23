@@ -118,7 +118,8 @@ public class PeerProcess {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)){
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					peer.bitfield = new byte[noOfPieces];
+					int bfsize = (int) Math.ceil((double)(noOfPieces / 8.0));
+					peer.bitfield = new byte[bfsize];
 					if(Integer.parseInt(tokens[3]) == 0)
 						
 					peer.isHandShakeDone = false;
@@ -431,17 +432,7 @@ public class PeerProcess {
 						case 1:unchoke(peer);
                     	
                     	case 2:{
-                    		if(chokedByPeers.contains(this.peer))
-                    		{
-                    			Message m = createMessage(7);
-                    			try{
-                    				outputStream.writeObject((Object)m); 
-                    				outputStream.flush(); 
-                    				} 
-                    				catch(IOException ioException){ 
-                    				ioException.printStackTrace(); 
-                    				}
-                    		}
+                    		
                     	}break;
                     	
                     	case 3:{
@@ -450,17 +441,7 @@ public class PeerProcess {
                     	}break;
 
                     	case 4:{
-                    		if(chokedByPeers.contains(this.peer) && currentPeer.bitfield[convertToInt(message.payload)] == 1)
-                    		{
-                    			Message m = createMessage(2);
-                    			try{
-                    				outputStream.writeObject((Object)m); 
-                    				outputStream.flush(); 
-                    				} 
-                    				catch(IOException ioException){ 
-                    				ioException.printStackTrace(); 
-                    				}                    			
-                    		}
+                    		
                     	}break;
                     	
                     	case 5:{
@@ -471,17 +452,8 @@ public class PeerProcess {
                     		
                     	
                     	case 6:{
-                    		if(chokedByPeers.contains(this.peer))
-                    		{
-                    			Message m = createMessage(7);
-                    			try{
-                    				outputStream.writeObject((Object)m); 
-                    				outputStream.flush(); 
-                    				} 
-                    				catch(IOException ioException){ 
-                    				ioException.printStackTrace(); 
-                    				}
-                    		}
+                    		sendPiece();
+                    		
                     	}break;
                     	
 
@@ -502,6 +474,14 @@ public class PeerProcess {
                 }
             }
         }
+		/**
+		 * 
+		 * 
+		 */
+		private void sendPiece() {
+			// TODO Auto-generated method stub
+			
+		}
 		/**
 		 * @param piece
 		 * 
