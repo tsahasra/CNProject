@@ -56,7 +56,6 @@ public class PeerProcess {
 	PeerProcess() {
 			sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			noOfPeers = getNoOfPeers();
-			
 	}
 
 	/**
@@ -116,6 +115,9 @@ public class PeerProcess {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)){
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					peer.bitfield = new byte[noOfPieces];
+					if(Integer.parseInt(tokens[3]) == 0)
+						
 					peer.isHandShakeDone = false;
 					p.peerList.add(peer);
 				}
@@ -148,6 +150,7 @@ public class PeerProcess {
 
 	}
 
+	
 	private void initializePeerParams(PeerProcess p) throws IOException {
 		BufferedReader commonreader = new BufferedReader(new FileReader("common.cfg"));
 		String line, tokens[];
@@ -229,6 +232,7 @@ public class PeerProcess {
 		return true;
 	}
 
+	
 	public static void main(String[] args) {
 
 		/***
@@ -259,22 +263,21 @@ public class PeerProcess {
 		}
 	}
 	
+	
 	public void createServerSocket(int portNo){
 		try{
 			serverSocket = new ServerSocket(portNo);
-				while(true){
-						Socket socket;
-						
-								socket = serverSocket.accept();								
-								Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
-								writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
-								peerSocketMap.put(socket, peerList.get(peerList.indexOf(tempPeer)));
-								ClientHandler clientHandler = new ClientHandler(socket , false);
-								clientHandler.start();
-								if(this.noOfPeerHS == this.noOfPeers - 1)
-									return;
-                			
-							}
+			while(true){
+					Socket socket;
+					socket = serverSocket.accept();								
+					Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+					writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
+					peerSocketMap.put(socket, peerList.get(peerList.indexOf(tempPeer)));
+					ClientHandler clientHandler = new ClientHandler(socket , false);
+					clientHandler.start();
+ 					if(this.noOfPeerHS == this.noOfPeers - 1)
+						return;
+        			}
 		}catch(Exception e){
 			return;
 		}
@@ -375,7 +378,7 @@ public class PeerProcess {
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 			try{
 				outputStream.writeObject((Object)hs);
-				Message bitfield = new Message(5 , PeerProcess.this.noOfPieces);				
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.noOfPieces);				
 				outputStream.writeObject((Object)bitfield);
 				outputStream.flush(); 
 				} 
