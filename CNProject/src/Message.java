@@ -10,4 +10,6 @@ public class Message implements Serializable {
 		this.type = type;
 		this.payload = new byte[payloadsize];
 	}
+	
+	
 }

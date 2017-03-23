@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,14 +49,16 @@ public class PeerProcess {
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
-	List<Peer> chokedByPeers;
+	HashSet<Peer> chokedfrom;
+	HashSet<Peer> chokedto;
 	List<Peer> PreferedNeighbours;
-	
+	List<HashMap<Peer, Integer>> unchokingIntervalWisePeerDownloadingRate = new ArrayList<HashMap<Peer, Integer>>();
+
 	HashMap<Socket, Peer> peerSocketMap = new HashMap<>();
 
 	PeerProcess() {
-			sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			noOfPeers = getNoOfPeers();
+		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		noOfPeers = getNoOfPeers();
 	}
 
 	/**
@@ -358,6 +361,7 @@ public class PeerProcess {
         Peer peer;
         boolean initiateHandShake;
         
+        
         ClientHandler(Socket socket , boolean initiateHS) throws IOException {
             this.socket = socket;
             this.peer = PeerProcess.this.peerSocketMap.get(socket);
@@ -373,19 +377,27 @@ public class PeerProcess {
 		 * 
 		 * 
 		 */
-		private void sendHandShake() {
+		private void sendHandShake() throws IOException{
 			// TODO Auto-generated method stub
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
-			try{
-				outputStream.writeObject((Object)hs);
-				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.noOfPieces);				
-				outputStream.writeObject((Object)bitfield);
-				outputStream.flush(); 
-				} 
-				catch(IOException ioException){ 
-				ioException.printStackTrace(); 
-				}
+			outputStream.writeObject((Object)hs);
+			outputStream.flush();
 		}
+		
+		
+		/**
+		 * 
+		 * 
+		 */
+		private void sendBitfield() throws IOException {
+			// TODO Auto-generated method stub
+			if(initiateHandShake){
+			Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.noOfPieces);				
+			outputStream.writeObject((Object)bitfield);
+			}
+			
+			}
+		
 		
 		
 		@Override
@@ -402,27 +414,21 @@ public class PeerProcess {
                     		this.peer.isHandShakeDone = true;
                     		if(!initiateHandShake)
                     			sendHandShake();
-                    		writeToLog("HandShake completed");
+                    		else
+                    			sendBitfield();
                     	}
-                    	PeerProcess.this.noOfPeerHS++;
+                    	
                     }
                     else if(o instanceof Message){
                     	
                     	Message message = (Message)o;
                     	
-                    	switch(message.type){
+                    	int mtype = message.type;
                     	
-                    	case 0:{
-                    		if(!chokedByPeers.contains(this.peer))
-                    				chokedByPeers.add(this.peer);
+                    	switch(mtype){
                     	
-                    	}break;
-                    	
-                    	case 1:{
-                    		if(chokedByPeers.contains(this.peer))
-                				chokedByPeers.remove(this.peer);
-                    		
-                    	}break;
+                    	case 0:choke(peer);
+						case 1:unchoke(peer);
                     	
                     	case 2:{
                     		if(chokedByPeers.contains(this.peer))
@@ -458,23 +464,12 @@ public class PeerProcess {
                     	}break;
                     	
                     	case 5:{
-                    		int missingpiece = getMissingPiece(message.payload);
-                    		if(missingpiece != -1)
-                    		{
-                    		if(chokedByPeers.contains(this.peer) && currentPeer.bitfield[missingpiece] == 1)
-                    		{
-                    			Message m = createMessage(2);
-                    			try{
-                    				outputStream.writeObject((Object)m); 
-                    				outputStream.flush(); 
-                    				} 
-                    				catch(IOException ioException){ 
-                    				ioException.printStackTrace(); 
-                    				}       
-                    		}
-                    		}
+                    		
+                    		sendBitfield();
+                    		
                     	}break;
                     		
+                    	
                     	case 6:{
                     		if(chokedByPeers.contains(this.peer))
                     		{
@@ -567,6 +562,37 @@ public class PeerProcess {
 		    return result;
 
 		}
-    }
+		/**
+		 * 
+		 */
+		private void choke(Peer p) {
+			chokedfrom.add(p);
+		}
+		
+		/**
+		 * @param peer2
+		 */
+		private void unchoke(Peer peer2) {
+			chokedfrom.remove(peer2);
+		}
+	}
+	
+	public class PrefferedNeighborsThread implements Runnable{
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(UnchokingInterval);
+				
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
 
 }
