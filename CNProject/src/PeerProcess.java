@@ -112,7 +112,8 @@ public class PeerProcess {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)) {
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					peer.bitfield = new byte[noOfPieces];
+					int bfsize = (int) Math.ceil((double)(noOfPieces / 8.0));
+					peer.bitfield = new byte[bfsize];
 					if (Integer.parseInt(tokens[3]) == 0)
 
 						peer.isHandShakeDone = false;
@@ -340,10 +341,10 @@ public class PeerProcess {
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			this.initiateHandShake = initiateHS;
-			
+
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.chokedto = new HashSet<>();
-			
+
 			if (initiateHandShake)
 				sendHandShake();
 
@@ -389,14 +390,19 @@ public class PeerProcess {
 
 						switch (Byte.toUnsignedInt(message.type)) {
 
-						case 0:choke(peer);
-						case 1:unchoke(peer);
+						case 0:
+							choke(peer);
+						case 1:
+							unchoke(peer);
 						case 2:
 						case 3:
 
 						case 4:
-						case 5:
-
+							
+						case 5:{
+							sendBitfield();
+						}break;
+						
 						case 6:
 						case 7:
 
@@ -417,6 +423,15 @@ public class PeerProcess {
 		 */
 		private void writePieceToFile(byte[] piece) {
 			// TODO Auto-generated method stub
+
+		}
+
+		private void sendBitfield() throws IOException {
+			// TODO Auto-generated method stub
+			if (initiateHandShake) {
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.noOfPieces);
+				outputStream.writeObject((Object) bitfield);
+			}
 
 		}
 
@@ -475,14 +490,14 @@ public class PeerProcess {
 			return result;
 
 		}
-		
+
 		/**
 		 * 
 		 */
 		private void choke(Peer p) {
 			chokedfrom.add(p);
 		}
-		
+
 		/**
 		 * @param peer2
 		 */
@@ -490,22 +505,24 @@ public class PeerProcess {
 			chokedfrom.remove(peer2);
 		}
 	}
-	
-	public class PrefferedNeighborsThread implements Runnable{
-		
-		/* (non-Javadoc)
+
+	public class PrefferedNeighborsThread implements Runnable {
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
 		public void run() {
 			try {
 				Thread.sleep(UnchokingInterval);
-				
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 	}
 }
