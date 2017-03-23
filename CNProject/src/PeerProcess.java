@@ -77,17 +77,15 @@ public class PeerProcess {
 		}
 		catch(IOException ie)
 		{
-			
-		}
-		{
 			try{
-			pireader.close();
-			}
-			catch(IOException ie)
-			{
-				ie.printStackTrace();
-			}
+				pireader.close();
+				}
+				catch(IOException ie1)
+				{
+					ie1.printStackTrace();
+				}
 		}
+		
 		return count;
 	}
 
