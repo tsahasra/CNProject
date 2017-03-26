@@ -13,11 +13,21 @@ import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * 
@@ -50,11 +60,12 @@ public class PeerProcess {
 	DateFormat sdf;
 	File logfile;
 	HashSet<Peer> chokedfrom;
-	HashSet<Peer> chokedto;
-	List<Peer> PreferedNeighbours;
-	List<HashMap<Peer, Integer>> unchokingIntervalWisePeerDownloadingRate = new ArrayList<HashMap<Peer, Integer>>();
+	// HashSet<Peer> chokedto;
+	HashSet<Peer> PreferedNeighbours;
+	List<List<DownloadingRate>> unchokingIntervalWisePeerDownloadingRate;
+	Logger logger;
 
-	HashMap<Socket, Peer> peerSocketMap = new HashMap<>();
+	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -112,7 +123,8 @@ public class PeerProcess {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)) {
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					peer.bitfield = new byte[noOfPieces];
+					int bfsize = (int) Math.ceil((double)(noOfPieces / 8.0));
+					peer.bitfield = new byte[bfsize];
 					if (Integer.parseInt(tokens[3]) == 0)
 
 						peer.isHandShakeDone = false;
@@ -144,6 +156,23 @@ public class PeerProcess {
 			pireader.close();
 		}
 
+	}
+
+	private void initateLogFile(String peerId) {
+		logger = Logger.getLogger("LogFormatter");
+		FileHandler fh;
+
+		try {
+
+			// This block configure the logger with handler and formatter
+			fh = new FileHandler(System.getProperty("user.dir") + "\\log_peer_" + peerId + ".log");
+			logger.addHandler(fh);
+
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void initializePeerParams(PeerProcess p) throws IOException {
@@ -199,25 +228,17 @@ public class PeerProcess {
 	}
 
 	private boolean writeToLog(String message) {
-		BufferedWriter br = null;
-		try {
-
-			br = new BufferedWriter(new FileWriter(logfile));
-			StringBuilder sb = new StringBuilder();
-			sb.append("[" + sdf.format(new Date()) + "]");
-			sb.append(message);
-			br.append(sb.toString() + "\n");
-			br.close();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-			} catch (IOException ioe2) {
-				ioe2.printStackTrace();
-			}
-		}
+		logger.log(Level.INFO, message);
+		/*
+		 * BufferedWriter br = null; try {
+		 * 
+		 * br = new BufferedWriter(new FileWriter(logfile)); StringBuilder sb =
+		 * new StringBuilder(); sb.append("[" + sdf.format(new Date()) + "]");
+		 * sb.append(message); br.append(sb.toString() + "\n"); br.close(); }
+		 * catch (IOException ioe) { ioe.printStackTrace(); } finally { try { if
+		 * (br != null) br.close(); } catch (IOException ioe2) {
+		 * ioe2.printStackTrace(); } }
+		 */
 
 		return true;
 	}
@@ -256,13 +277,19 @@ public class PeerProcess {
 	public void createServerSocket(int portNo) {
 		try {
 			serverSocket = new ServerSocket(portNo);
+			PeerProcess.this.chokedfrom = new HashSet<>();
+
+			// PeerProcess.this.chokedto = new HashSet<>();
+			ExecutorService exec = Executors.newFixedThreadPool(2);
+			exec.submit(new PrefferedNeighborsThread());
+			exec.submit(new OptimisticallyUnchokedNeighborThread());
 			while (true) {
 				Socket socket;
 				socket = serverSocket.accept();
 				Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
 				writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
-				peerSocketMap.put(socket, peerList.get(peerList.indexOf(tempPeer)));
-				ClientHandler clientHandler = new ClientHandler(socket, false);
+				peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
+				ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 				clientHandler.start();
 				if (this.noOfPeerHS == this.noOfPeers - 1)
 					return;
@@ -304,8 +331,8 @@ public class PeerProcess {
 			socket = new Socket(p.peerIP, p.peerPort);
 			writeToLog(": Peer " + this.currentPeer.peerID + " makes a connection to Peer " + p.peerID);
 			// Peer tempPeer = new Peer(p.peerID,p.peerIP,p.peerPort);
-			peerSocketMap.put(socket, peerList.get(this.peerList.indexOf(p)));
-			ClientHandler clientHandler = new ClientHandler(socket, true);
+			peerSocketMap.put(peerList.get(this.peerList.indexOf(p)), socket);
+			ClientHandler clientHandler = new ClientHandler(p, true);
 			clientHandler.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -334,36 +361,35 @@ public class PeerProcess {
 		Peer peer;
 		boolean initiateHandShake;
 
-		ClientHandler(Socket socket, boolean initiateHS) throws IOException {
-			this.socket = socket;
-			this.peer = PeerProcess.this.peerSocketMap.get(socket);
+		ClientHandler(Peer p, boolean initiateHS) throws IOException {
+			this.socket = PeerProcess.this.peerSocketMap.get(p);
+			this.peer = p;
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			this.initiateHandShake = initiateHS;
-			
-			PeerProcess.this.chokedfrom = new HashSet<>();
-			PeerProcess.this.chokedto = new HashSet<>();
-			
+
+			this.peer.interestedBitfield = new boolean[PeerProcess.this.noOfPieces];
 			if (initiateHandShake)
 				sendHandShake();
 
 		}
 
 		/**
+		 * @throws IOException
 		 * 
 		 * 
 		 */
-		private void sendHandShake() {
+		private void sendHandShake() throws IOException {
 			// TODO Auto-generated method stub
-			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
-			try {
-				outputStream.writeObject((Object) hs);
-				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.noOfPieces);
-				outputStream.writeObject((Object) bitfield);
-				outputStream.flush();
-			} catch (IOException ioException) {
-				ioException.printStackTrace();
-			}
+						HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
+						try {
+							outputStream.writeObject((Object) hs);
+							Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), null);
+							outputStream.writeObject((Object) bitfield);
+							outputStream.flush();
+						} catch (IOException ioException) {
+							ioException.printStackTrace();
+						}
 		}
 
 		@Override
@@ -389,14 +415,19 @@ public class PeerProcess {
 
 						switch (Byte.toUnsignedInt(message.type)) {
 
-						case 0:choke(peer);
-						case 1:unchoke(peer);
+						case 0:
+							choke(peer);
+						case 1:
+							unchoke(peer);
 						case 2:
 						case 3:
 
 						case 4:
-						case 5:
-
+							
+						case 5:{
+							sendBitfield();
+						}break;
+						
 						case 6:
 						case 7:
 
@@ -417,6 +448,15 @@ public class PeerProcess {
 		 */
 		private void writePieceToFile(byte[] piece) {
 			// TODO Auto-generated method stub
+
+		}
+
+		private void sendBitfield() throws IOException {
+			// TODO Auto-generated method stub
+			if (initiateHandShake) {
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
+				outputStream.writeObject((Object) bitfield);
+			}
 
 		}
 
@@ -475,14 +515,14 @@ public class PeerProcess {
 			return result;
 
 		}
-		
+
 		/**
 		 * 
 		 */
 		private void choke(Peer p) {
 			chokedfrom.add(p);
 		}
-		
+
 		/**
 		 * @param peer2
 		 */
@@ -490,22 +530,161 @@ public class PeerProcess {
 			chokedfrom.remove(peer2);
 		}
 	}
-	
-	public class PrefferedNeighborsThread implements Runnable{
-		
-		/* (non-Javadoc)
+
+	public class PrefferedNeighborsThread implements Runnable {
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Runnable#run()
 		 */
 		@Override
 		public void run() {
-			try {
-				Thread.sleep(UnchokingInterval);
-				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			while (true) {
+				try {
+
+					Thread.sleep(UnchokingInterval);
+					if (unchokingIntervalWisePeerDownloadingRate == null) {
+						unchokingIntervalWisePeerDownloadingRate = new ArrayList<List<DownloadingRate>>();
+						// as it is a new arraylist, this thread is run for the
+						// first time
+						// so we do not have previous unchoking interval
+						// available
+						// thus select any random peers and add them to the
+						// preffered neighbors list
+						PreferedNeighbours = new HashSet<Peer>();
+						Random ran = new Random();
+						while (PreferedNeighbours.size() < NumberOfPreferredNeighbors) {
+							PreferedNeighbours.add(peerList.get(ran.nextInt(peerList.size())));
+						}
+					} else {
+						// send unchoke
+
+						// only select top downloading rate neighbors
+						List<DownloadingRate> lastunchokingIntervalDownloadingValues = unchokingIntervalWisePeerDownloadingRate
+								.get(unchokingIntervalWisePeerDownloadingRate.size() - 1);
+						lastunchokingIntervalDownloadingValues.sort(new Comparator<DownloadingRate>() {
+
+							@Override
+							public int compare(DownloadingRate arg0, DownloadingRate arg1) {
+								return arg0.downloadingRate >= arg1.downloadingRate ? 1 : -1;
+							}
+						});
+
+						// select top NumberOfPrefferedNeighbors and update the
+						// preferred neoighbors list
+						HashSet<Peer> NewPreferedNeighbours = new HashSet<Peer>();
+						Random ran = new Random();
+						for (int i = 0; i < NumberOfPreferredNeighbors; i++) {
+							if (i < lastunchokingIntervalDownloadingValues.size()) {
+								NewPreferedNeighbours.add(lastunchokingIntervalDownloadingValues.get(i).p);
+							}
+						}
+						// if the previous downloading rates list is less than
+						// preffered neighbors size
+						while (NewPreferedNeighbours.size() < NumberOfPreferredNeighbors) {
+							NewPreferedNeighbours.add(peerList.get(ran.nextInt(peerList.size())));
+						}
+
+						// send choke messages to other who are not present in
+						// the
+						// new list of preferred neighbors
+						PreferedNeighbours.removeAll(NewPreferedNeighbours);
+						sendChokeMessage(PreferedNeighbours);
+
+						// change to new preferred neighbors
+						PreferedNeighbours = NewPreferedNeighbours;
+						// now send unchoke Messages to all the new preferred
+						// neighbors
+						sendUnChokeMessage(PreferedNeighbours);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-			
 		}
-		
+
+	}
+
+	public class OptimisticallyUnchokedNeighborThread implements Runnable {
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		@Override
+		public void run() {
+			while (true) {
+				try {
+					while (true) {
+						Thread.sleep(OptimisticUnchokingInterval);
+						List<Peer> interestedPeers = new ArrayList<>();
+						for (Peer p : peerSocketMap.keySet()) {
+							for (boolean x : p.interestedBitfield) {
+								if (x) {
+									interestedPeers.add(p);
+									break;
+								}
+							}
+						}
+						Random ran = new Random();
+						Peer optimisticallyUnchokedPeer = interestedPeers.get(ran.nextInt(interestedPeers.size()));
+						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedPeer)));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public class DownloadingRate {
+		Peer p;
+		float downloadingRate;
+
+		/**
+		 * @param p
+		 * @param downloadingRate
+		 */
+		public DownloadingRate(Peer p, float downloadingRate) {
+			super();
+			this.p = p;
+			this.downloadingRate = downloadingRate;
+		}
+
+	}
+
+	private void sendChokeMessage(HashSet<Peer> peers) {
+		Message m = new Message(Byte.valueOf(Integer.toString(0)), null);
+		for (Peer p : peers) {
+
+			ObjectOutputStream o;
+			try {
+				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o.writeObject(m);
+				o.flush();
+				o.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+	}
+
+	private void sendUnChokeMessage(HashSet<Peer> peers) {
+		Message m = new Message(Byte.valueOf(Integer.toString(1)), null);
+		for (Peer p : peers) {
+
+			ObjectOutputStream o;
+			try {
+				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o.writeObject(m);
+				o.flush();
+				o.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 }
