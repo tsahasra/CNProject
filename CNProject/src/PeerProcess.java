@@ -8,26 +8,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 /**
  * 
@@ -123,7 +118,7 @@ public class PeerProcess {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)) {
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					int bfsize = (int) Math.ceil((double)(noOfPieces / 8.0));
+					int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
 					peer.bitfield = new byte[bfsize];
 					if (Integer.parseInt(tokens[3]) == 0)
 
@@ -369,6 +364,7 @@ public class PeerProcess {
 			this.initiateHandShake = initiateHS;
 
 			this.peer.interestedBitfield = new boolean[PeerProcess.this.noOfPieces];
+
 			if (initiateHandShake)
 				sendHandShake();
 
@@ -381,15 +377,15 @@ public class PeerProcess {
 		 */
 		private void sendHandShake() throws IOException {
 			// TODO Auto-generated method stub
-						HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
-						try {
-							outputStream.writeObject((Object) hs);
-							Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), null);
-							outputStream.writeObject((Object) bitfield);
-							outputStream.flush();
-						} catch (IOException ioException) {
-							ioException.printStackTrace();
-						}
+			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
+			try {
+				outputStream.writeObject((Object) hs);
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), null);
+				outputStream.writeObject((Object) bitfield);
+				outputStream.flush();
+			} catch (IOException ioException) {
+				ioException.printStackTrace();
+			}
 		}
 
 		@Override
@@ -417,17 +413,20 @@ public class PeerProcess {
 
 						case 0:
 							choke(peer);
+							break;
 						case 1:
 							unchoke(peer);
+							break;
 						case 2:
 						case 3:
 
 						case 4:
-							
-						case 5:{
+
+						case 5: {
 							sendBitfield();
-						}break;
-						
+						}
+							break;
+
 						case 6:
 						case 7:
 
@@ -454,7 +453,9 @@ public class PeerProcess {
 		private void sendBitfield() throws IOException {
 			// TODO Auto-generated method stub
 			if (initiateHandShake) {
-				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)),
+						PeerProcess.this.currentPeer.bitfield);
+
 				outputStream.writeObject((Object) bitfield);
 			}
 
@@ -601,7 +602,9 @@ public class PeerProcess {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
 			}
+
 		}
 
 	}
