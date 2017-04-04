@@ -13,7 +13,8 @@ public class Peer {
 	int peerPort;
 	byte[] bitfield;
 	boolean isHandShakeDone;
-	boolean[] interestedBitfield;
+	boolean[] interestedFromBitfield;
+	byte[] interestedInPiece;
 	
 	public Peer(int pid, String pip, int pport)
 	{

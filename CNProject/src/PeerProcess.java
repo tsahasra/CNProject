@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,8 +58,10 @@ public class PeerProcess {
 	HashSet<Peer> chokedfrom;
 	// HashSet<Peer> chokedto;
 	HashSet<Peer> PreferedNeighbours;
+	Peer optimisticallyUnchokedNeighbor;
 	List<List<DownloadingRate>> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
+	boolean[][] sentRequestMessageByPiece;
 
 	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
 
@@ -250,9 +253,11 @@ public class PeerProcess {
 		try {
 
 			new File("peer_" + args[0]).mkdir();
-			proc.logfile = new File(
-					System.getProperty("user.dir") + "\\peer_" + args[0] + "\\log_peer_" + args[0] + ".log");
-			proc.logfile.createNewFile();
+			/*
+			 * proc.logfile = new File( System.getProperty("user.dir") +
+			 * "\\peer_" + args[0] + "\\log_peer_" + args[0] + ".log");
+			 * proc.logfile.createNewFile();
+			 */
 
 			/***
 			 * Reads common.cfg file and initializes peer process variables
@@ -264,6 +269,9 @@ public class PeerProcess {
 
 			proc.createServerSocket(proc.currentPeer.peerPort);
 
+			proc.initateLogFile(args[0]);
+
+			proc.sentRequestMessageByPiece = new boolean[proc.noOfPeers][proc.noOfPieces];
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -363,7 +371,7 @@ public class PeerProcess {
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			this.initiateHandShake = initiateHS;
 
-			this.peer.interestedBitfield = new boolean[PeerProcess.this.noOfPieces];
+			this.peer.interestedFromBitfield = new boolean[PeerProcess.this.noOfPieces];
 
 			if (initiateHandShake)
 				sendHandShake();
@@ -529,6 +537,43 @@ public class PeerProcess {
 		 */
 		private void unchoke(Peer peer2) {
 			chokedfrom.remove(peer2);
+			//after receiving unchoke, check if this peer is interested in any of the pieces of the peerUnchokedFrom
+			//if interested check if that piece is not requested to any other peer
+			List<Integer> interestedPieces = new ArrayList<Integer>();
+			int indexOfPeer = peerList.indexOf(peer2);
+			for(int i=0;i<peer2.interestedInPiece.length;i++){
+				if(peer2.interestedInPiece[i]==1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]){
+					boolean alreadySentRequestToSomeOtherPeer = false;
+					for(int j=0; j<PeerProcess.this.sentRequestMessageByPiece.length;j++){
+						
+						if(PeerProcess.this.sentRequestMessageByPiece[j][i] && j!=indexOfPeer){
+							alreadySentRequestToSomeOtherPeer= true;
+							break;
+						}
+					}
+					if(!alreadySentRequestToSomeOtherPeer){
+						interestedPieces.add(i);
+					}
+				}
+			}
+			//select any one piece randomly
+			Random ran = new Random();
+			int index = ran.nextInt(interestedPieces.size());
+			PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index] = true;
+			sendRequest(peer2, index);
+		}
+		
+		private void sendRequest(Peer p, int pieceIndex){
+			Message m = new Message(Byte.valueOf(Integer.toString(6)), ByteBuffer.allocate(4).putInt(pieceIndex).array());
+			ObjectOutputStream o;
+			try {
+				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o.writeObject(m);
+				o.flush();
+				o.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -592,13 +637,15 @@ public class PeerProcess {
 						// new list of preferred neighbors
 						PreferedNeighbours.removeAll(NewPreferedNeighbours);
 						sendChokeMessage(PreferedNeighbours);
-
 						// change to new preferred neighbors
 						PreferedNeighbours = NewPreferedNeighbours;
-						// now send unchoke Messages to all the new preferred
-						// neighbors
-						sendUnChokeMessage(PreferedNeighbours);
 					}
+					
+					// now send unchoke Messages to all the new preferred
+					// neighbors
+					sendUnChokeMessage(PreferedNeighbours);
+					
+					
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -624,7 +671,7 @@ public class PeerProcess {
 						Thread.sleep(OptimisticUnchokingInterval);
 						List<Peer> interestedPeers = new ArrayList<>();
 						for (Peer p : peerSocketMap.keySet()) {
-							for (boolean x : p.interestedBitfield) {
+							for (boolean x : p.interestedFromBitfield) {
 								if (x) {
 									interestedPeers.add(p);
 									break;
@@ -632,8 +679,12 @@ public class PeerProcess {
 							}
 						}
 						Random ran = new Random();
-						Peer optimisticallyUnchokedPeer = interestedPeers.get(ran.nextInt(interestedPeers.size()));
-						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedPeer)));
+						if (optimisticallyUnchokedNeighbor != null) {
+							// send a choke message to the previous neighbor
+							sendChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+						}
+						optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
+						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
