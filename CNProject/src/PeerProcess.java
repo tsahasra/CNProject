@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -427,16 +428,32 @@ public class PeerProcess {
 							break;
 						case 2:
 						case 3:
+							
+						case 4:{							
+						
+						processHaveMessage(message);
+						
+						}break;	
 
-						case 4:
-
-						case 5: {
-							sendBitfield();
-						}
-							break;
-
+						
+						case 5:{
+							
+						sendBitfield();
+						
+						}break;
+						
 						case 6:
-						case 7:
+						{
+							
+						processRequest(message);
+							
+						}break;
+						
+						case 7:{
+							
+						writePieceToFile(message.payload);
+							
+						}break;
 
 						}
 					}
@@ -449,13 +466,101 @@ public class PeerProcess {
 			}
 		}
 
+		
 		/**
-		 * @param piece
+		 * @param message 
+		 * @throws IOException 
+		 * 
 		 * 
 		 */
-		private void writePieceToFile(byte[] piece) {
+		private void processHaveMessage(Message message) throws IOException {
 			// TODO Auto-generated method stub
-
+			
+			int index = ByteBuffer.wrap(message.payload).getInt();
+			
+			if(this.peer.bitfield[index] == 0)
+				this.peer.bitfield[index] = 1;
+			
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the ‘have’ message from " + peer.peerID +" for the piece " + index +".");
+			
+			if(PeerProcess.this.currentPeer.bitfield[index] == 1)
+			{
+				Message notinterested = new Message( (byte) 3 , null);
+				outputStream.writeObject((Object) notinterested);
+				//outputStream.flush();
+			}
+			else
+			{
+				Message interested = new Message( (byte) 2 , null);
+				outputStream.writeObject((Object) interested);
+				peer.interestedInPiece[index] = 1;
+				
+			}
+			
+			
+		}
+		
+		/**
+		 * @param message 
+		 * @throws IOException 
+		 * 
+		 * 
+		 */
+		private void processRequest(Message message) throws IOException {
+			// TODO Auto-generated method stub
+			if(PeerProcess.this.PreferedNeighbours.contains(peer) || PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))
+			{
+				int index = ByteBuffer.wrap(message.payload).getInt();
+				RandomAccessFile rafr = new RandomAccessFile(new File("TheFile.dat") , "r");
+				byte[] piece = new byte[PeerProcess.this.PieceSize];
+				rafr.seek(PeerProcess.this.PieceSize * index);
+				rafr.readFully(piece, 0 , PeerProcess.this.PieceSize);
+				Message mpiece = new Message( (byte) 7 , piece);
+				rafr.close();
+				outputStream.writeObject((Object) mpiece);
+				peer.interestedInPiece[index] = 0;
+				peer.bitfield[index] = 1;
+				
+				//outputStream.flush();
+			}
+		}		
+		
+		/**
+		 * @param piece
+		 * @throws IOException 
+		 * 
+		 */
+		private void writePieceToFile(byte[] payload) throws IOException {
+			// TODO Auto-generated method stub
+			byte[] i = new byte[4];
+			System.arraycopy(payload , 0, i , 0 ,  4);
+			int index = ByteBuffer.wrap(i).getInt();
+			byte[] piece = new byte[PeerProcess.this.PieceSize];
+			System.arraycopy(payload , 4 , piece , 0 ,  PeerProcess.this.PieceSize);
+			RandomAccessFile rafw = new RandomAccessFile(new File("TheFile.dat") , "rw");
+			rafw.seek(PeerProcess.this.PieceSize * index);
+			rafw.write(piece, 0 , PeerProcess.this.PieceSize);
+			rafw.close();
+			PeerProcess.this.currentPeer.bitfield[index] = 1;
+			
+			int nop = 0;
+			for(int j = 0; j < PeerProcess.this.currentPeer.bitfield.length ; j++)
+				if(PeerProcess.this.currentPeer.bitfield[j] == 1)
+					nop++;
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from " + peer.peerID + ". Now the number of pieces it has is " + nop);
+				
+			for(Peer p : peerSocketMap.keySet())
+			{
+				if(!p.equals(peer) && p.interestedInPiece[index] == 1)
+				{
+					Socket s = peerSocketMap.get(p);
+					outputStream = new ObjectOutputStream(s.getOutputStream());
+					Message notinterested = new Message( (byte) 3 , null);
+					outputStream.writeObject((Object) notinterested);
+					p.interestedInPiece[index] = 0;					
+				}
+			}
+			
 		}
 
 		private void sendBitfield() throws IOException {
