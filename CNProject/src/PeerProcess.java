@@ -538,6 +538,7 @@ public class PeerProcess {
 					if(PeerProcess.this.peerList.get(j).bitfield[k] == 1 && !interestingIndices.contains(k) && !PeerProcess.this.sentRequestMessageByPiece[j][k])
 					{
 						sendNIMessage = false;
+						break;
 					}
 				
 				if(sendNIMessage)
