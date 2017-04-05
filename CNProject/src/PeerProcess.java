@@ -288,14 +288,15 @@ public class PeerProcess {
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
 			while (true) {
 				Socket socket;
-				socket = serverSocket.accept();
-				Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
-				writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
-				peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
-				ClientHandler clientHandler = new ClientHandler(tempPeer, false);
-				clientHandler.start();
-				if (this.noOfPeerHS == this.noOfPeers - 1)
-					return;
+				if (this.noOfPeerHS == this.noOfPeers - 1) {
+					socket = serverSocket.accept();
+					Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+					writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
+					peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
+					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
+					clientHandler.start();
+				}
+
 			}
 		} catch (Exception e) {
 			return;
@@ -537,34 +538,37 @@ public class PeerProcess {
 		 */
 		private void unchoke(Peer peer2) {
 			chokedfrom.remove(peer2);
-			//after receiving unchoke, check if this peer is interested in any of the pieces of the peerUnchokedFrom
-			//if interested check if that piece is not requested to any other peer
+			// after receiving unchoke, check if this peer is interested in any
+			// of the pieces of the peerUnchokedFrom
+			// if interested check if that piece is not requested to any other
+			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			for(int i=0;i<peer2.interestedInPiece.length;i++){
-				if(peer2.interestedInPiece[i]==1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]){
+			for (int i = 0; i < peer2.interestedInPiece.length; i++) {
+				if (peer2.interestedInPiece[i] == 1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
-					for(int j=0; j<PeerProcess.this.sentRequestMessageByPiece.length;j++){
-						
-						if(PeerProcess.this.sentRequestMessageByPiece[j][i] && j!=indexOfPeer){
-							alreadySentRequestToSomeOtherPeer= true;
+					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
+
+						if (PeerProcess.this.sentRequestMessageByPiece[j][i] && j != indexOfPeer) {
+							alreadySentRequestToSomeOtherPeer = true;
 							break;
 						}
 					}
-					if(!alreadySentRequestToSomeOtherPeer){
+					if (!alreadySentRequestToSomeOtherPeer) {
 						interestedPieces.add(i);
 					}
 				}
 			}
-			//select any one piece randomly
+			// select any one piece randomly
 			Random ran = new Random();
 			int index = ran.nextInt(interestedPieces.size());
 			PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index] = true;
 			sendRequest(peer2, index);
 		}
-		
-		private void sendRequest(Peer p, int pieceIndex){
-			Message m = new Message(Byte.valueOf(Integer.toString(6)), ByteBuffer.allocate(4).putInt(pieceIndex).array());
+
+		private void sendRequest(Peer p, int pieceIndex) {
+			Message m = new Message(Byte.valueOf(Integer.toString(6)),
+					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 			ObjectOutputStream o;
 			try {
 				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
@@ -640,12 +644,11 @@ public class PeerProcess {
 						// change to new preferred neighbors
 						PreferedNeighbours = NewPreferedNeighbours;
 					}
-					
+
 					// now send unchoke Messages to all the new preferred
 					// neighbors
 					sendUnChokeMessage(PreferedNeighbours);
-					
-					
+
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
