@@ -602,7 +602,7 @@ public class PeerProcess {
 			{
 				Message interested = new Message( (byte) 2 , null);
 				outputStream.writeObject((Object) interested);
-				peer.interestedInPiece[index] = 1;
+				//peer.interestedInPiece[index] = 1;
 			}
 		}
 		
@@ -624,7 +624,7 @@ public class PeerProcess {
 				Message mpiece = new Message( (byte) 7 , piece);
 				rafr.close();
 				outputStream.writeObject((Object) mpiece);
-				peer.interestedInPiece[index] = 0;
+				//peer.interestedInPiece[index] = 0;
 				peer.bitfield[index] = 1;
 				
 				//outputStream.flush();
@@ -744,7 +744,7 @@ public class PeerProcess {
 			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			for (int i = 0; i < peer2.interestedInPiece.length; i++) {
+			/*for (int i = 0; i < peer2.interestedInPiece.length; i++) {
 				if (peer2.interestedInPiece[i] == 1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
@@ -758,7 +758,7 @@ public class PeerProcess {
 						interestedPieces.add(i);
 					}
 				}
-			}
+			}*/
 			// select any one piece randomly
 			Random ran = new Random();
 			int index = ran.nextInt(interestedPieces.size());
