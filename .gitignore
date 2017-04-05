@@ -1,1 +1,10 @@
 /bin/
+
+CNProject/src/HandShake.class
+CNProject/src/Message.class
+CNProject/src/Peer.class
+CNProject/src/PeerProcess$ClientHandler.class
+CNProject/src/PeerProcess.class
+CNProject/src/test.class
+CNProject/test.class
+CNProject/test.class
