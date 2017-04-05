@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -292,6 +293,8 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
+			//boolean terminateOperation = true;
+			
 			while (true) {
 				Socket socket;
 				if (this.noOfPeerHS == this.noOfPeers - 1) {
@@ -301,6 +304,22 @@ public class PeerProcess {
 					peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
 					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 					clientHandler.start();
+				}
+				
+				//check for termination of this process
+				int peerCompleteFileReceived = 0;
+				for(Peer p : peerList){
+					if(checkIfFullFileRecieved(p)){
+						peerCompleteFileReceived++;
+					}
+				}
+				if(peerCompleteFileReceived==peerList.size()){
+					//now terminate the process of executorService
+					exec.shutdown();
+					for(Socket s : peerSocketMap.values()){
+						s.close();
+					}
+					break;
 				}
 			}
 		} catch (Exception e) {
@@ -372,6 +391,15 @@ public class PeerProcess {
 		b[index/8] = (byte) (b[index/8] & (~(1 << ((index) % 8))));
 		
 		
+	}
+	
+	public boolean checkIfFullFileRecieved(Peer p){
+		for(int i=0; i<PeerProcess.this.noOfPieces; i++){
+			if(getBit(p.bitfield, i)==0){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/*
