@@ -302,7 +302,6 @@ public class PeerProcess {
 					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 					clientHandler.start();
 				}
-
 			}
 		} catch (Exception e) {
 			return;
@@ -571,13 +570,13 @@ public class PeerProcess {
 			if(this.peer.bitfield[index] == 0)
 				this.peer.bitfield[index] = 1;
 			
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the ‘have’ message from " + peer.peerID +" for the piece " + index +".");
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the ï¿½haveï¿½ message from " + peer.peerID +" for the piece " + index +".");
 			
 			if(PeerProcess.this.currentPeer.bitfield[index] == 0)
 			{
 				Message interested = new Message( (byte) 2 , null);
 				outputStream.writeObject((Object) interested);
-				peer.interestedInPiece[index] = 1;
+				//peer.interestedInPiece[index] = 1;
 			}
 		}
 		
@@ -715,15 +714,14 @@ public class PeerProcess {
 			chokedfrom.remove(peer2);
 			// after receiving unchoke, check if this peer is interested in any
 			// of the pieces of the peerUnchokedFrom
-			// if interested check if that piece is not requested to any other
+			// if interested, check if that piece is not requested to any other
 			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			for (int i = 0; i < peer2.interestedInPiece.length; i++) {
-				if (peer2.interestedInPiece[i] == 1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+			for (int i = 0; i < peer2.bitfield.length; i++) {
+				if (Byte.toUnsignedInt(peer2.bitfield[i]) == 0 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
-
 						if (PeerProcess.this.sentRequestMessageByPiece[j][i] && j != indexOfPeer) {
 							alreadySentRequestToSomeOtherPeer = true;
 							break;
