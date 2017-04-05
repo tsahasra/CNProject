@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -292,6 +293,8 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
+			//boolean terminateOperation = true;
+			
 			while (true) {
 				Socket socket;
 				if (this.noOfPeerHS == this.noOfPeers - 1) {
@@ -302,7 +305,22 @@ public class PeerProcess {
 					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 					clientHandler.start();
 				}
-
+				
+				//check for termination of this process
+				int peerCompleteFileReceived = 0;
+				for(Peer p : peerList){
+					if(checkIfFullFileRecieved(p)){
+						peerCompleteFileReceived++;
+					}
+				}
+				if(peerCompleteFileReceived==peerList.size()){
+					//now terminate the process of executorService
+					exec.shutdown();
+					for(Socket s : peerSocketMap.values()){
+						s.close();
+					}
+					break;
+				}
 			}
 		} catch (Exception e) {
 			return;
@@ -373,6 +391,15 @@ public class PeerProcess {
 		b[index/8] = (byte) (b[index/8] & (~(1 << ((index) % 8))));
 		
 		
+	}
+	
+	public boolean checkIfFullFileRecieved(Peer p){
+		for(int i=0; i<PeerProcess.this.noOfPieces; i++){
+			if(getBit(p.bitfield, i)==0){
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/*
@@ -619,7 +646,7 @@ public class PeerProcess {
 			if(getBit(this.peer.bitfield , index) == 0)
 				setBit(this.peer.bitfield , index);
 			
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the ‘have’ message from " + peer.peerID +" for the piece " + index +".");
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the ï¿½haveï¿½ message from " + peer.peerID +" for the piece " + index +".");
 			
 			if(getBit(PeerProcess.this.currentPeer.bitfield,index) == 0)
 			{
@@ -766,15 +793,14 @@ public class PeerProcess {
 			chokedfrom.remove(peer2);
 			// after receiving unchoke, check if this peer is interested in any
 			// of the pieces of the peerUnchokedFrom
-			// if interested check if that piece is not requested to any other
+			// if interested, check if that piece is not requested to any other
 			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			/*for (int i = 0; i < peer2.interestedInPiece.length; i++) {
-				if (peer2.interestedInPiece[i] == 1 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+			for (int i = 0; i < peer2.bitfield.length; i++) {
+				if (Byte.toUnsignedInt(peer2.bitfield[i]) == 0 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
-
 						if (PeerProcess.this.sentRequestMessageByPiece[j][i] && j != indexOfPeer) {
 							alreadySentRequestToSomeOtherPeer = true;
 							break;
@@ -784,7 +810,7 @@ public class PeerProcess {
 						interestedPieces.add(i);
 					}
 				}
-			}*/
+			}
 			// select any one piece randomly
 			Random ran = new Random();
 			int index = ran.nextInt(interestedPieces.size());
