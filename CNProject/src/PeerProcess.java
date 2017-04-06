@@ -65,7 +65,7 @@ public class PeerProcess {
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
-	
+
 	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
 
 	PeerProcess() {
@@ -140,7 +140,7 @@ public class PeerProcess {
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
 						p.copyFileUsingStream(new File("TheFile.dat"),
-						new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
+								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
 						fileComplete = true;
 					}
 					// ispeerIdFound = true;
@@ -149,7 +149,7 @@ public class PeerProcess {
 			}
 			// Iterator itpeer = p.peerList.iterator();
 			int i = 0;
-			
+
 			while (currPeerNo != 0 && i <= currPeerNo - 1) {
 
 				p.connectToPreviousPeer(p.peerList.get(i));
@@ -227,7 +227,7 @@ public class PeerProcess {
 			}
 			p.noOfPieces = p.FileSize / p.PieceSize;
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
-			
+
 		} finally {
 			commonreader.close();
 		}
@@ -276,9 +276,9 @@ public class PeerProcess {
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			proc.initializePeerList(proc, args[0]);
-			
+
 			proc.createServerSocket(proc.currentPeer.peerPort);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -293,8 +293,8 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
-			//boolean terminateOperation = true;
-			
+			// boolean terminateOperation = true;
+
 			while (true) {
 				Socket socket;
 				if (this.noOfPeerHS == this.noOfPeers - 1) {
@@ -305,18 +305,18 @@ public class PeerProcess {
 					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 					clientHandler.start();
 				}
-				
-				//check for termination of this process
+
+				// check for termination of this process
 				int peerCompleteFileReceived = 0;
-				for(Peer p : peerList){
-					if(checkIfFullFileRecieved(p)){
+				for (Peer p : peerList) {
+					if (checkIfFullFileRecieved(p)) {
 						peerCompleteFileReceived++;
 					}
 				}
-				if(peerCompleteFileReceived==peerList.size()){
-					//now terminate the process of executorService
+				if (peerCompleteFileReceived == peerList.size()) {
+					// now terminate the process of executorService
 					exec.shutdown();
-					for(Socket s : peerSocketMap.values()){
+					for (Socket s : peerSocketMap.values()) {
 						s.close();
 					}
 					break;
@@ -365,43 +365,38 @@ public class PeerProcess {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
-	
-	public static void setBit(byte[] b , int index)
-	{
-		b[index/8] = (byte) (b[index/8] | 1 << ((index) % 8));
-		
+	public static void setBit(byte[] b, int index) {
+		b[index / 8] = (byte) (b[index / 8] | 1 << ((index) % 8));
+
 	}
-	
-	public static int getBit(byte[] b , int index)
-	{
-		byte b1 = b[index/8];
-		
-		if((b1 & (1 << ((index) % 2))) != 0)
+
+	public static int getBit(byte[] b, int index) {
+		byte b1 = b[index / 8];
+
+		if ((b1 & (1 << ((index) % 2))) != 0)
 			return 1;
-		else 
+		else
 			return 0;
-		
+
 	}
-	
-	public static void clearBit(byte[] b , int index)
-	{
-		b[index/8] = (byte) (b[index/8] & (~(1 << ((index) % 8))));
-		
-		
+
+	public static void clearBit(byte[] b, int index) {
+		b[index / 8] = (byte) (b[index / 8] & (~(1 << ((index) % 8))));
+
 	}
-	
-	public boolean checkIfFullFileRecieved(Peer p){
-		for(int i=0; i<PeerProcess.this.noOfPieces; i++){
-			if(getBit(p.bitfield, i)==0){
+
+	public boolean checkIfFullFileRecieved(Peer p) {
+		for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+			if (getBit(p.bitfield, i) == 0) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	/*
 	 * static class ServerListener extends Thread {
 	 * 
@@ -415,7 +410,7 @@ public class PeerProcess {
 	 * ClientHandler(socketToClient); clientHandler.start(); } catch
 	 * (IOException e) { e.printStackTrace(); } } } }
 	 */
-	
+
 	public class ClientHandler extends Thread {
 		private Socket socket;
 		ObjectInputStream inputStream;
@@ -447,7 +442,7 @@ public class PeerProcess {
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 			try {
 				outputStream.writeObject((Object) hs);
-				Message bitfield = new Message((byte)5, null);
+				Message bitfield = new Message((byte) 5, null);
 				outputStream.writeObject((Object) bitfield);
 				outputStream.flush();
 			} catch (IOException ioException) {
@@ -484,78 +479,76 @@ public class PeerProcess {
 						case 1:
 							unchoke(peer);
 							break;
-							
-						case 2:
-							
-						case 3:
-							
-						case 4:{							
-						
-						processHaveMessage(message);
-						
-						}break;	
 
-						
-						case 5:{
-							
-						sendBitfield();
-						
-						}break;
-						
-						case 6:
-						{
-							
-						processRequest(message);
-							
-						}break;
-						
-						case 7:{
-							
-						writePieceToFile(message.payload);
-						
-						sendHaveMessage(message.payload);
-						
-						sendNIToSomeNeighbours();
-						
-						if(!fileComplete)
-						{
-						List<Integer> pieceIndex = new ArrayList<Integer>();
-						
-						boolean indexRequestSentFlag = false;
-						
-						/* Get list of all pieces not yet received and for which request has not yet been sent */
-						for(int i = 0; i < PeerProcess.this.noOfPieces ; i++)
-						{
-							if(getBit(PeerProcess.this.currentPeer.bitfield,i) != 1)
-							{
-								for(int j = 0; j < PeerProcess.this.noOfPeers ; j++)
-									if(PeerProcess.this.sentRequestMessageByPiece[j][i])
-									{
-										indexRequestSentFlag = true;
-										break;
+						case 2:
+
+						case 3:
+
+						case 4: {
+
+							processHaveMessage(message);
+
+						}
+							break;
+
+						case 5: {
+
+							sendBitfield();
+
+						}
+							break;
+
+						case 6: {
+
+							processRequest(message);
+
+						}
+							break;
+
+						case 7: {
+
+							writePieceToFile(message.payload);
+
+							sendHaveMessage(message.payload);
+
+							sendNIToSomeNeighbours();
+
+							if (!fileComplete) {
+								List<Integer> pieceIndex = new ArrayList<Integer>();
+
+								boolean indexRequestSentFlag = false;
+
+								/*
+								 * Get list of all pieces not yet received and
+								 * for which request has not yet been sent
+								 */
+								for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+									if (getBit(PeerProcess.this.currentPeer.bitfield, i) != 1) {
+										for (int j = 0; j < PeerProcess.this.noOfPeers; j++)
+											if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
+												indexRequestSentFlag = true;
+												break;
+											}
+
+										if (!indexRequestSentFlag) {
+											pieceIndex.add(i);
+											indexRequestSentFlag = false;
+										}
+
 									}
-								
-								if(!indexRequestSentFlag)
-								{
-									pieceIndex.add(i);
-									indexRequestSentFlag = false;
+
 								}
-								
-							}							
-							
+
+								if (pieceIndex.size() > 0) {
+									Random rnd = new Random();
+									int selectedIndex = rnd.nextInt(pieceIndex.size());
+									sendRequest(peer, pieceIndex.get(selectedIndex));
+								}
+
+							}
+
 						}
-						
-						
-						if(pieceIndex.size() > 0)
-						{
-							Random rnd = new Random();						
-							int selectedIndex = rnd.nextInt(pieceIndex.size());						
-							sendRequest(peer,pieceIndex.get(selectedIndex));
-						}
-						
-						}
-						
-						}break;
+							break;
 
 						}
 					}
@@ -568,22 +561,20 @@ public class PeerProcess {
 			}
 		}
 
-		
 		/**
-		 * @throws IOException 
+		 * @throws IOException
 		 * 
 		 * 
 		 */
 		private void sendHaveMessage(byte[] payload) throws IOException {
 			// TODO Auto-generated method stub
-			
+
 			byte[] i = new byte[4];
-			System.arraycopy(payload , 0, i , 0 ,  4);
+			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
-			
-			for(Peer p : PeerProcess.this.peerList)
-			{
-				Message have = new Message( (byte) 4 , ByteBuffer.allocate(4).putInt(index).array());
+
+			for (Peer p : PeerProcess.this.peerList) {
+				Message have = new Message((byte) 4, ByteBuffer.allocate(4).putInt(index).array());
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
 				outputStream = new ObjectOutputStream(socket.getOutputStream());
 				outputStream.writeObject((Object) have);
@@ -591,132 +582,129 @@ public class PeerProcess {
 		}
 
 		/**
-		 * @throws IOException 
+		 * @throws IOException
 		 * 
 		 * 
 		 */
 		private void sendNIToSomeNeighbours() throws IOException {
 			// TODO Auto-generated method stub
-			
+
 			List<Integer> interestingIndices = new ArrayList<Integer>();
-			
+
 			boolean sendNIMessage = true;
-			
-			for(int i = 0; i < PeerProcess.this.noOfPieces ; i++)
-			{
-				if(getBit(PeerProcess.this.currentPeer.bitfield , i) == 1)
+
+			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+				if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 1)
 					interestingIndices.add(i);
-			}	
-			
-			for(int j = 0; j < PeerProcess.this.noOfPeers ; j++)
-			{
-				for(int k = 0; k < PeerProcess.this.noOfPieces ; k++)
-					if(getBit(PeerProcess.this.currentPeer.bitfield , k) == 1 && !interestingIndices.contains(k) && !PeerProcess.this.sentRequestMessageByPiece[j][k])
-					{
+			}
+
+			for (int j = 0; j < PeerProcess.this.noOfPeers; j++) {
+				for (int k = 0; k < PeerProcess.this.noOfPieces; k++)
+					if (getBit(PeerProcess.this.currentPeer.bitfield, k) == 1 && !interestingIndices.contains(k)
+							&& !PeerProcess.this.sentRequestMessageByPiece[j][k]) {
 						sendNIMessage = false;
 						break;
 					}
-				
-				if(sendNIMessage)
-				{
-					Message notinterested = new Message( (byte) 3 , null);
-					outputStream = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(PeerProcess.this.peerList.get(j)).getOutputStream()) ;
+
+				if (sendNIMessage) {
+					Message notinterested = new Message((byte) 3, null);
+					outputStream = new ObjectOutputStream(
+							PeerProcess.this.peerSocketMap.get(PeerProcess.this.peerList.get(j)).getOutputStream());
 					outputStream.writeObject((Object) notinterested);
 					outputStream.flush();
 					break;
 				}
-				
+
 			}
-			
+
 		}
-		
-		
 
 		/**
-		 * @param message 
-		 * @throws IOException 
+		 * @param message
+		 * @throws IOException
 		 * 
 		 * 
 		 */
 		private void processHaveMessage(Message message) throws IOException {
 			// TODO Auto-generated method stub
-			
+
 			int index = ByteBuffer.wrap(message.payload).getInt();
-			
-			if(getBit(this.peer.bitfield , index) == 0)
-				setBit(this.peer.bitfield , index);
-			
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the �have� message from " + peer.peerID +" for the piece " + index +".");
-			
-			if(getBit(PeerProcess.this.currentPeer.bitfield,index) == 0)
-			{
-				Message interested = new Message( (byte) 2 , null);
+
+			if (getBit(this.peer.bitfield, index) == 0)
+				setBit(this.peer.bitfield, index);
+
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the �have� message from " + peer.peerID
+					+ " for the piece " + index + ".");
+
+			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
+				Message interested = new Message((byte) 2, null);
 				outputStream.writeObject((Object) interested);
+				// update the interested from array
+				this.peer.interestedFromBitfield[index] = true;
 			}
 		}
-		
+
 		/**
-		 * @param message 
-		 * @throws IOException 
+		 * @param message
+		 * @throws IOException
 		 * 
 		 * 
 		 */
 		private void processRequest(Message message) throws IOException {
 			// TODO Auto-generated method stub
-			if(PeerProcess.this.PreferedNeighbours.contains(peer) || PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))
-			{
+			if (PeerProcess.this.PreferedNeighbours.contains(peer)
+					|| PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer)) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
-				RandomAccessFile rafr = new RandomAccessFile(new File("TheFile.dat") , "r");
+				RandomAccessFile rafr = new RandomAccessFile(new File("TheFile.dat"), "r");
 				byte[] piece = new byte[PeerProcess.this.PieceSize];
 				rafr.seek(PeerProcess.this.PieceSize * index);
-				rafr.readFully(piece, 0 , PeerProcess.this.PieceSize);
+				rafr.readFully(piece, 0, PeerProcess.this.PieceSize);
 				rafr.close();
 				byte[] payload = new byte[4 + piece.length];
-				System.arraycopy(message , 0, payload , 0 ,  4);
-				System.arraycopy(piece , 0, payload , 4 ,  piece.length);
-				Message mpiece = new Message( (byte) 7 , piece);
+				System.arraycopy(message, 0, payload, 0, 4);
+				System.arraycopy(piece, 0, payload, 4, piece.length);
+				Message mpiece = new Message((byte) 7, piece);
 				outputStream.writeObject((Object) mpiece);
-				//peer.interestedInPiece[index] = 0;
-				setBit(peer.bitfield,index);
-				
-				//outputStream.flush();
+				// peer.interestedInPiece[index] = 0;
+				setBit(peer.bitfield, index);
+
+				// outputStream.flush();
 			}
-		}		
-		
+		}
+
 		/**
 		 * @param piece
-		 * @throws IOException 
+		 * @throws IOException
 		 * 
 		 */
 		private void writePieceToFile(byte[] payload) throws IOException {
 			// TODO Auto-generated method stub
 			byte[] i = new byte[4];
-			System.arraycopy(payload , 0, i , 0 ,  4);
+			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
 			byte[] piece = new byte[PeerProcess.this.PieceSize];
-			System.arraycopy(payload , 4 , piece , 0 ,  PeerProcess.this.PieceSize);
-			RandomAccessFile rafw = new RandomAccessFile(new File("TheFile.dat") , "rw");
+			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.PieceSize);
+			RandomAccessFile rafw = new RandomAccessFile(new File("TheFile.dat"), "rw");
 			rafw.seek(PeerProcess.this.PieceSize * index);
-			rafw.write(piece, 0 , PeerProcess.this.PieceSize);
+			rafw.write(piece, 0, PeerProcess.this.PieceSize);
 			rafw.close();
-			setBit(PeerProcess.this.currentPeer.bitfield,index);
-			
+			setBit(PeerProcess.this.currentPeer.bitfield, index);
+
 			int nop = 0;
-			
-			for(int j = 0; j < PeerProcess.this.currentPeer.bitfield.length ; j++)
-				if(getBit(PeerProcess.this.currentPeer.bitfield ,j) == 1)
+
+			for (int j = 0; j < PeerProcess.this.currentPeer.bitfield.length; j++)
+				if (getBit(PeerProcess.this.currentPeer.bitfield, j) == 1)
 					nop++;
-			
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from " + peer.peerID + ". Now the number of pieces it has is " + nop);
-			
-				
-			}
+
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from "
+					+ peer.peerID + ". Now the number of pieces it has is " + nop);
+
+		}
 
 		private void sendBitfield() throws IOException {
 			// TODO Auto-generated method stub
 			if (initiateHandShake) {
-				Message bitfield = new Message((byte)5,
-						PeerProcess.this.currentPeer.bitfield);
+				Message bitfield = new Message((byte) 5, PeerProcess.this.currentPeer.bitfield);
 
 				outputStream.writeObject((Object) bitfield);
 			}
@@ -784,6 +772,16 @@ public class PeerProcess {
 		 */
 		private void choke(Peer p) {
 			chokedfrom.add(p);
+			int indexOfPeer = peerList.indexOf(p);
+			// reset the sentRequestMessageBy Piece array by comparing the
+			// bitfield array and request array
+			for (int i = 0; i < PeerProcess.this.sentRequestMessageByPiece[indexOfPeer].length; i++) {
+				if (PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+					// check if piece received, if not reset the request message
+					// field
+					PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i] = false;
+				}
+			}
 		}
 
 		/**
@@ -798,7 +796,8 @@ public class PeerProcess {
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
 			for (int i = 0; i < peer2.bitfield.length; i++) {
-				if (Byte.toUnsignedInt(peer2.bitfield[i]) == 0 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+				if (Byte.toUnsignedInt(peer2.bitfield[i]) == 0
+						&& !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
 						if (PeerProcess.this.sentRequestMessageByPiece[j][i] && j != indexOfPeer) {
@@ -814,7 +813,8 @@ public class PeerProcess {
 			// select any one piece randomly
 			Random ran = new Random();
 			int index = ran.nextInt(interestedPieces.size());
-			//PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index] = true;
+			// PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index] =
+			// true;
 			sendRequest(peer2, index);
 		}
 
@@ -927,17 +927,18 @@ public class PeerProcess {
 						Thread.sleep(OptimisticUnchokingInterval);
 						List<Peer> interestedPeers = new ArrayList<>();
 						for (Peer p : peerSocketMap.keySet()) {
-							for (boolean x : p.interestedFromBitfield) {
-								if (x) {
-									interestedPeers.add(p);
-									break;
-								}
+							if (p.interestedInPieces) {
+								interestedPeers.add(p);
 							}
 						}
 						Random ran = new Random();
 						if (optimisticallyUnchokedNeighbor != null) {
-							// send a choke message to the previous neighbor
-							sendChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+							// check if not a preferred neighbor then only send
+							// choke message
+							if (!PeerProcess.this.PreferedNeighbours.contains(optimisticallyUnchokedNeighbor)) {
+								// send a choke message to the previous neighbor
+								sendChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+							}
 						}
 						optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
 						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
