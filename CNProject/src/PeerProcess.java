@@ -875,7 +875,16 @@ public class PeerProcess {
 
 					Thread.sleep(UnchokingInterval);
 					if (unchokingIntervalWisePeerDownloadingRate == null) {
-						unchokingIntervalWisePeerDownloadingRate = new ArrayList<List<DownloadingRate>>();
+						unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(new Comparator<DownloadingRate>() {
+							/* (non-Javadoc)
+							 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+							 */
+							@Override
+							public int compare(DownloadingRate o1, DownloadingRate o2) {
+								return o1.downloadingRate>o2.downloadingRate ? 1 : -1;
+							}
+						});
+						
 						// as it is a new arraylist, this thread is run for the
 						// first time
 						// so we do not have previous unchoking interval
@@ -891,23 +900,23 @@ public class PeerProcess {
 						// send unchoke
 
 						// only select top downloading rate neighbors
-						List<DownloadingRate> lastunchokingIntervalDownloadingValues = unchokingIntervalWisePeerDownloadingRate
-								.get(unchokingIntervalWisePeerDownloadingRate.size() - 1);
-						lastunchokingIntervalDownloadingValues.sort(new Comparator<DownloadingRate>() {
+						/*List<DownloadingRate> lastunchokingIntervalDownloadingValues = unchokingIntervalWisePeerDownloadingRate
+								.get(unchokingIntervalWisePeerDownloadingRate.size() - 1);*/
+						/*lastunchokingIntervalDownloadingValues.sort(new Comparator<DownloadingRate>() {
 
 							@Override
 							public int compare(DownloadingRate arg0, DownloadingRate arg1) {
 								return arg0.downloadingRate >= arg1.downloadingRate ? 1 : -1;
 							}
-						});
+						});*/
 
 						// select top NumberOfPrefferedNeighbors and update the
 						// preferred neoighbors list
 						HashSet<Peer> NewPreferedNeighbours = new HashSet<Peer>();
 						Random ran = new Random();
 						for (int i = 0; i < NumberOfPreferredNeighbors; i++) {
-							if (i < lastunchokingIntervalDownloadingValues.size()) {
-								NewPreferedNeighbours.add(lastunchokingIntervalDownloadingValues.get(i).p);
+							if(!unchokingIntervalWisePeerDownloadingRate.isEmpty()){
+								NewPreferedNeighbours.add(unchokingIntervalWisePeerDownloadingRate.poll().p);
 							}
 						}
 						// if the previous downloading rates list is less than
