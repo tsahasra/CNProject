@@ -481,8 +481,9 @@ public class PeerProcess {
 							break;
 
 						case 2:
-
+							this.peer.interestedInPieces = true;
 						case 3:
+							this.peer.interestedInPieces = false;
 
 						case 4: {
 
@@ -771,6 +772,7 @@ public class PeerProcess {
 		 * 
 		 */
 		private void choke(Peer p) {
+			writeToLog("Peer "+PeerProcess.this.currentPeer.peerID+" is choked by "+p.peerID+".");
 			chokedfrom.add(p);
 			int indexOfPeer = peerList.indexOf(p);
 			// reset the sentRequestMessageBy Piece array by comparing the
@@ -788,6 +790,7 @@ public class PeerProcess {
 		 * @param peer2
 		 */
 		private void unchoke(Peer peer2) {
+			writeToLog("Peer "+PeerProcess.this.currentPeer.peerID+" is unchoked by "+peer2.peerID+".");
 			chokedfrom.remove(peer2);
 			// after receiving unchoke, check if this peer is interested in any
 			// of the pieces of the peerUnchokedFrom
@@ -901,6 +904,11 @@ public class PeerProcess {
 					// now send unchoke Messages to all the new preferred
 					// neighbors
 					sendUnChokeMessage(PreferedNeighbours);
+					String peerIdList = "";
+					for(Peer p : PreferedNeighbours){
+						peerIdList = p.peerID+",";
+					}
+					writeToLog("Peer "+PeerProcess.this.currentPeer.peerID+" has the preferred neighbors "+peerIdList.substring(0, peerIdList.length()-1)+".");
 
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -942,6 +950,7 @@ public class PeerProcess {
 						}
 						optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
 						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+						writeToLog("Peer "+PeerProcess.this.currentPeer.peerID+" has the optimistically unchoked neighbor "+optimisticallyUnchokedNeighbor.peerID+".");
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
