@@ -8,3 +8,7 @@ CNProject/src/PeerProcess.class
 CNProject/src/test.class
 CNProject/test.class
 CNProject/test.class
+CNProject/src/PeerProcess$DownloadingRate.class
+CNProject/src/PeerProcess$OptimisticallyUnchokedNeighborThread.class
+CNProject/src/PeerProcess$PrefferedNeighborsThread$1.class
+CNProject/src/PeerProcess$PrefferedNeighborsThread.class
