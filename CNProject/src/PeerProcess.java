@@ -518,7 +518,7 @@ public class PeerProcess {
 							
 						writePieceToFile(message.payload);
 						
-						sendHaveMessage(message.payload);
+						sendHaveMessageToAll(message.payload);
 						
 						sendNIToSomeNeighbours();
 						
@@ -593,7 +593,7 @@ public class PeerProcess {
 		 * 
 		 * 
 		 */
-		private void sendHaveMessage(byte[] payload) throws IOException {
+		private void sendHaveMessageToAll(byte[] payload) throws IOException {
 			// TODO Auto-generated method stub
 			
 			byte[] i = new byte[4];
