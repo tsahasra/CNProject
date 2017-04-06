@@ -127,6 +127,7 @@ public class PeerProcess {
 			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)) {
+					System.out.println("t:"+tokens[0]+" "+tokens[1]+" "+tokens[2]);
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
 					int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
 					peer.bitfield = new byte[bfsize];
@@ -141,7 +142,7 @@ public class PeerProcess {
 					if (Integer.parseInt(tokens[3]) == 1)
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
-						p.copyFileUsingStream(new File(System.getProperty("user.dir")+this.FileName),
+						p.copyFileUsingStream(new File(System.getProperty("user.dir")+"\\"+this.FileName),
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\"+this.FileName));
 						fileComplete = true;
 					}
