@@ -61,7 +61,7 @@ public class PeerProcess {
 	// HashSet<Peer> chokedto;
 	HashSet<Peer> PreferedNeighbours;
 	Peer optimisticallyUnchokedNeighbor;
-	List<List<DownloadingRate>> unchokingIntervalWisePeerDownloadingRate;
+	HashMap<Peer,Double> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
@@ -422,6 +422,8 @@ public class PeerProcess {
 		ObjectOutputStream outputStream;
 		Peer peer;
 		boolean initiateHandShake;
+		long starttime , endtime;
+	
 
 		ClientHandler(Peer p, boolean initiateHS) throws IOException {
 			this.socket = PeerProcess.this.peerSocketMap.get(p);
@@ -461,8 +463,9 @@ public class PeerProcess {
 				try {
 
 					inputStream = new ObjectInputStream(socket.getInputStream());
-
+					starttime = System.currentTimeMillis();
 					Object o = inputStream.readObject();
+					endtime = System.currentTimeMillis();
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
@@ -510,6 +513,8 @@ public class PeerProcess {
 						}break;
 						
 						case 7:{
+						
+						updatePeerDownloadingRate();	
 							
 						writePieceToFile(message.payload);
 						
@@ -569,6 +574,20 @@ public class PeerProcess {
 		}
 
 		
+		/**
+		 * 
+		 * 
+		 */
+		private void updatePeerDownloadingRate() {
+			// TODO Auto-generated method stub
+			double downloadingRate = PeerProcess.this.PieceSize / (this.endtime - this.starttime) ;
+			
+			if(!unchokingIntervalWisePeerDownloadingRate.containsKey(peer))
+				unchokingIntervalWisePeerDownloadingRate.put(peer, downloadingRate);
+			else
+				unchokingIntervalWisePeerDownloadingRate.replace(peer, downloadingRate);
+		}
+
 		/**
 		 * @throws IOException 
 		 * 
@@ -708,7 +727,6 @@ public class PeerProcess {
 					nop++;
 			
 			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from " + peer.peerID + ". Now the number of pieces it has is " + nop);
-			
 				
 			}
 
