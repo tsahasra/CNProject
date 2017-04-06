@@ -13,7 +13,9 @@ public class Peer {
 	int peerPort;
 	byte[] bitfield;
 	boolean isHandShakeDone;
+	//I am interested in pieces of other peers according to the have message update
 	boolean[] interestedFromBitfield;
+	//this peer interested in my Pieces
 	boolean interestedInPieces;
 	//byte[] interestedInPiece;
 	
