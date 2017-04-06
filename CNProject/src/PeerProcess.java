@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,7 +63,7 @@ public class PeerProcess {
 	// HashSet<Peer> chokedto;
 	HashSet<Peer> PreferedNeighbours;
 	Peer optimisticallyUnchokedNeighbor;
-	HashMap<Peer,Double> unchokingIntervalWisePeerDownloadingRate;
+	PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
@@ -573,12 +575,16 @@ public class PeerProcess {
 		 */
 		private void updatePeerDownloadingRate() {
 			// TODO Auto-generated method stub
-			double downloadingRate = PeerProcess.this.PieceSize / (this.endtime - this.starttime) ;
 			
-			if(!unchokingIntervalWisePeerDownloadingRate.containsKey(peer))
-				unchokingIntervalWisePeerDownloadingRate.put(peer, downloadingRate);
+			DownloadingRate dr = new DownloadingRate(peer , (double)(PeerProcess.this.PieceSize / (this.endtime - this.starttime)));
+			
+			if(!unchokingIntervalWisePeerDownloadingRate.contains(dr))
+				unchokingIntervalWisePeerDownloadingRate.add(dr);
 			else
-				unchokingIntervalWisePeerDownloadingRate.replace(peer, downloadingRate);
+			{
+				unchokingIntervalWisePeerDownloadingRate.remove(dr);
+				unchokingIntervalWisePeerDownloadingRate.add(dr);
+			}
 		}
 
 		/**
@@ -716,7 +722,7 @@ public class PeerProcess {
 				if (getBit(PeerProcess.this.currentPeer.bitfield, j) == 1)
 					nop++;
 
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from "
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece " + index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + nop); 
 
 		}
 
@@ -979,17 +985,57 @@ public class PeerProcess {
 
 	public class DownloadingRate {
 		Peer p;
-		float downloadingRate;
+		double downloadingRate;
 
 		/**
 		 * @param p
 		 * @param downloadingRate
 		 */
-		public DownloadingRate(Peer p, float downloadingRate) {
+		public DownloadingRate(Peer p, double downloadingRate) {
 			super();
 			this.p = p;
 			this.downloadingRate = downloadingRate;
 		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + getOuterType().hashCode();
+			result = prime * result + ((p == null) ? 0 : p.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			DownloadingRate other = (DownloadingRate) obj;
+			if (!getOuterType().equals(other.getOuterType()))
+				return false;
+			if (p == null) {
+				if (other.p != null)
+					return false;
+			} else if (!p.equals(other.p))
+				return false;
+			return true;
+		}
+
+		private PeerProcess getOuterType() {
+			return PeerProcess.this;
+		}
+		
+		
 
 	}
 
