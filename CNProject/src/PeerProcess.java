@@ -88,7 +88,7 @@ public class PeerProcess {
 		String line;
 		int count = 0;
 		try {
-			pireader = new BufferedReader(new FileReader("peerInfo.cfg"));
+			pireader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "\\peerInfo.cfg"));
 			while ((line = pireader.readLine()) != null)
 				count++;
 			count--;
@@ -141,8 +141,8 @@ public class PeerProcess {
 					if (Integer.parseInt(tokens[3]) == 1)
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
-						p.copyFileUsingStream(new File("TheFile.dat"),
-								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\File.txt"));
+						p.copyFileUsingStream(new File(System.getProperty("user.dir")+this.FileName),
+								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\"+this.FileName));
 						fileComplete = true;
 					}
 					// ispeerIdFound = true;
