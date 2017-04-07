@@ -734,7 +734,7 @@ public class PeerProcess {
 			if (getBit(this.peer.bitfield, index) == 0)
 				setBit(this.peer.bitfield, index);
 
-			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + "received the 'have' message from " + peer.peerID
+			writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " received the 'have' message from " + peer.peerID
 					+ " for the piece " + index + ".");
 
 			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
