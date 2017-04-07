@@ -459,6 +459,7 @@ public class PeerProcess {
 					starttime = System.currentTimeMillis();
 					Object o = inputStream.readObject();
 					endtime = System.currentTimeMillis();
+					inputStream.close();
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
@@ -726,12 +727,9 @@ public class PeerProcess {
 		}
 
 		private void sendBitfield() throws IOException {
-			if (initiateHandShake) {
 				Message bitfield = new Message((byte) 5, PeerProcess.this.currentPeer.bitfield);
 				outputStream.writeObject((Object) bitfield);
 				outputStream.flush();
-			}
-
 		}
 
 		/**
