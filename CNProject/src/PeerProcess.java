@@ -867,8 +867,8 @@ public class PeerProcess {
 			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			for (int i = 0; i < peer2.bitfield.length; i++) {
-				if (Byte.toUnsignedInt(peer2.bitfield[i]) == 0
+			for (int i = 0; i < currentPeer.bitfield.length; i++) {
+				if (Byte.toUnsignedInt(currentPeer.bitfield[i]) == 0
 						&& !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
