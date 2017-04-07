@@ -151,8 +151,9 @@ public class PeerProcess {
 						System.out.println(FileName);
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
-						for(int i = 0; i<currentPeer.bitfield.length;i++)
+						for(int i = 0; i<8 ;i++)
 							setBit(currentPeer.bitfield,i);
+						System.out.println(getBit(currentPeer.bitfield,0));
 					} else {
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 0);
