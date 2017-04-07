@@ -68,7 +68,9 @@ public class PeerProcess {
 	boolean fileComplete;
 	int lastPeerID;
 
-	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
+	HashMap<Peer, Socket> peerSocketMap;
+	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
+	HashMap<Peer, ObjectInputStream> peerObjectInputStream;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -238,6 +240,9 @@ public class PeerProcess {
 			p.noOfPieces = p.FileSize / p.PieceSize;
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
+			PeerProcess.this.peerSocketMap = new HashMap<>();
+			PeerProcess.this.peerObjectInputStream = new HashMap<>();
+			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
 		} finally {
 			commonreader.close();
 		}
@@ -299,15 +304,15 @@ public class PeerProcess {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(2);
-			exec.submit(new PrefferedNeighborsThread());
-			exec.submit(new OptimisticallyUnchokedNeighborThread());
-			
+			//exec.submit(new PrefferedNeighborsThread());
+			//exec.submit(new OptimisticallyUnchokedNeighborThread());
+
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
-			
+
 			while (true) {
 				if (currentPeer.peerID != lastPeerID) {
-					
+
 					Socket socket;
 					if (this.noOfPeerHS != this.noOfPeers) {
 						socket = serverSocket.accept();
@@ -325,7 +330,7 @@ public class PeerProcess {
 							peerCompleteFileReceived++;
 						}
 					}
-				
+
 					// now terminate the process of executorService
 					exec.shutdown();
 					for (Socket s : peerSocketMap.values()) {
@@ -440,6 +445,8 @@ public class PeerProcess {
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
+			PeerProcess.this.peerObjectInputStream.put(p, inputStream);
+			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 
 			this.peer.interestedFromBitfield = new boolean[PeerProcess.this.noOfPieces];
@@ -901,6 +908,10 @@ public class PeerProcess {
 		}
 	}
 
+	/**
+	 * @author apurv
+	 *
+	 */
 	public class PrefferedNeighborsThread implements Runnable {
 
 		/*
@@ -1125,7 +1136,7 @@ public class PeerProcess {
 
 			ObjectOutputStream o;
 			try {
-				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
 				o.close();
@@ -1142,7 +1153,7 @@ public class PeerProcess {
 
 			ObjectOutputStream o;
 			try {
-				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
 				o.close();
