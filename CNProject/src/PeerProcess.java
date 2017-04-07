@@ -657,7 +657,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(i).getInt();
 
 			for (Peer p : PeerProcess.this.peerList) {
-				Message have = new Message((byte) 4, ByteBuffer.allocate(4).putInt(index).array());
+				Message have = new Message((byte) 4, i);
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
 				outputStream = new ObjectOutputStream(socket.getOutputStream());
 				outputStream.writeObject((Object) have);
@@ -672,20 +672,21 @@ public class PeerProcess {
 		private void sendNIToSomeNeighbours() throws IOException {
 			// TODO Auto-generated method stub
 
-			List<Integer> interestingIndices = new ArrayList<Integer>();
+			List<Integer> NIIndices = new ArrayList<Integer>();
 
 			boolean sendNIMessage = true;
 
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 				if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 1)
-					interestingIndices.add(i);
+					NIIndices.add(i);
 			}
 
 			for (int j = 0; j < PeerProcess.this.noOfPeers; j++) {
 				for (int k = 0; k < PeerProcess.this.noOfPieces; k++)
-					if (getBit(PeerProcess.this.currentPeer.bitfield, k) == 1 && !interestingIndices.contains(k)
-							&& !PeerProcess.this.sentRequestMessageByPiece[j][k]) {
-						sendNIMessage = false;
+					if (getBit(PeerProcess.this.currentPeer.bitfield, k) == 1 && !NIIndices.contains(k)) {
+						for(int m = 0 ; m < PeerProcess.this.noOfPeers; m++)
+							if(PeerProcess.this.sentRequestMessageByPiece[m][k])
+								sendNIMessage = false;
 						break;
 					}
 
@@ -874,8 +875,8 @@ public class PeerProcess {
 			// peer
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
-			for (int i = 0; i < currentPeer.bitfield.length; i++) {
-				if (Byte.toUnsignedInt(currentPeer.bitfield[i]) == 0
+			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+				if (getBit(currentPeer.bitfield,i) == 0
 						&& !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
