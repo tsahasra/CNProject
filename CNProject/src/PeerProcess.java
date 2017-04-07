@@ -897,7 +897,7 @@ public class PeerProcess {
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 			ObjectOutputStream o;
 			try {
-				o = new ObjectOutputStream(PeerProcess.this.peerSocketMap.get(p).getOutputStream());
+				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
 				o.close();

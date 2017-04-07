@@ -23,6 +23,8 @@ public class LogFormatter extends Formatter {
         /*builder.append("[").append(record.getSourceClassName()).append(".");
         builder.append(record.getSourceMethodName()).append("] - ");
         builder.append("[").append(record.getLevel()).append("] - ");*/
+        System.out.println("Record message:"+record.getMessage());
+        System.out.println("Record:"+record);
         builder.append(record.getMessage());
         builder.append("\n");
         return builder.toString();
