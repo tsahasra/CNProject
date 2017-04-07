@@ -26,7 +26,7 @@ public class LogFormatter extends SimpleFormatter {
         
         
         builder.append(record.getMessage());
-        builder.append("\\n");
+        builder.append(System.getProperty("line.separator"));
         System.out.println("Record message:"+builder);
         
         return builder.toString();
