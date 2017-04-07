@@ -731,7 +731,7 @@ public class PeerProcess {
 			if (PeerProcess.this.PreferedNeighbours.contains(peer)
 					|| PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer)) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
-				RandomAccessFile rafr = new RandomAccessFile(new File("TheFile.dat"), "r");
+				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
 				byte[] piece = new byte[PeerProcess.this.PieceSize];
 				rafr.seek(PeerProcess.this.PieceSize * index);
 				rafr.readFully(piece, 0, PeerProcess.this.PieceSize);
@@ -760,7 +760,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(i).getInt();
 			byte[] piece = new byte[PeerProcess.this.PieceSize];
 			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.PieceSize);
-			RandomAccessFile rafw = new RandomAccessFile(new File("TheFile.dat"), "rw");
+			RandomAccessFile rafw = new RandomAccessFile(new File(FileName), "rw");
 			rafw.seek(PeerProcess.this.PieceSize * index);
 			rafw.write(piece, 0, PeerProcess.this.PieceSize);
 			rafw.close();
