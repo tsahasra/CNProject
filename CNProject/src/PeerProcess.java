@@ -121,14 +121,14 @@ public class PeerProcess {
 		boolean ispeerIdFound = false;
 		int currPeerNo = 0;
 		try {
-
+			int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
 			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
 				if (!tokens[0].equals(peerID)) {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
-					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
+					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));					
 					peer.bitfield = new byte[bfsize];
+					Arrays.fill( currentPeer.bitfield, (byte) 0 );
 					if (Integer.parseInt(tokens[3]) == 0)
 
 						peer.isHandShakeDone = false;
@@ -136,13 +136,20 @@ public class PeerProcess {
 				} else {
 					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
 					currPeerNo = p.peerList.size();
-
+					
 					if (Integer.parseInt(tokens[3]) == 1)
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
 						p.copyFileUsingStream(new File(System.getProperty("user.dir") + "\\" + this.FileName),
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
 						fileComplete = true;
+						currentPeer.bitfield = new byte[bfsize];
+						Arrays.fill( currentPeer.bitfield, (byte) 1 );
+					}
+					else
+					{
+						currentPeer.bitfield = new byte[bfsize];
+						Arrays.fill( currentPeer.bitfield, (byte) 0 );
 					}
 					// ispeerIdFound = true;
 				}
@@ -496,8 +503,8 @@ public class PeerProcess {
 							break;
 
 						case 5: {
-
-							sendBitfield();
+							if(!initiateHandShake)
+								sendBitfield();
 
 						}
 							break;
