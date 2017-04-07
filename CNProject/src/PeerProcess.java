@@ -729,8 +729,8 @@ public class PeerProcess {
 			// TODO Auto-generated method stub
 			if (initiateHandShake) {
 				Message bitfield = new Message((byte) 5, PeerProcess.this.currentPeer.bitfield);
-
 				outputStream.writeObject((Object) bitfield);
+				outputStream.flush();
 			}
 
 		}
