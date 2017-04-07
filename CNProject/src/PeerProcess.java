@@ -951,11 +951,10 @@ public class PeerProcess {
 							// preffered neighbors list
 							PreferedNeighbours = new HashSet<Peer>();
 							Random ran = new Random();
-							if (peerList.size() > 0) {
-								while (PreferedNeighbours.size() < NumberOfPreferredNeighbors) {
-									PreferedNeighbours.add(peerList.get(ran.nextInt(peerList.size())));
-								}
+							while (PreferedNeighbours.size() < NumberOfPreferredNeighbors) {
+								PreferedNeighbours.add(peerList.get(ran.nextInt(peerList.size())));
 							}
+
 						} else {
 							// send unchoke
 
