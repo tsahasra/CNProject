@@ -247,6 +247,20 @@ public class PeerProcess {
 			PeerProcess.this.peerSocketMap = new HashMap<>();
 			PeerProcess.this.peerObjectInputStream = new HashMap<>();
 			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
+			PeerProcess.this.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
+					new Comparator<DownloadingRate>() {
+						/*
+						 * (non-Javadoc)
+						 * 
+						 * @see
+						 * java.util.Comparator#compare(java.
+						 * lang. Object, java.lang.Object)
+						 */
+						@Override
+						public int compare(DownloadingRate o1, DownloadingRate o2) {
+							return o1.downloadingRate > o2.downloadingRate ? 1 : -1;
+						}
+					});
 		} finally {
 			commonreader.close();
 		}
@@ -937,21 +951,8 @@ public class PeerProcess {
 
 					Thread.sleep(UnchokingInterval * 1000);
 					if (PeerProcess.this.peerList.size() > 0) {
-						if (unchokingIntervalWisePeerDownloadingRate == null) {
-							unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
-									new Comparator<DownloadingRate>() {
-										/*
-										 * (non-Javadoc)
-										 * 
-										 * @see
-										 * java.util.Comparator#compare(java.
-										 * lang. Object, java.lang.Object)
-										 */
-										@Override
-										public int compare(DownloadingRate o1, DownloadingRate o2) {
-											return o1.downloadingRate > o2.downloadingRate ? 1 : -1;
-										}
-									});
+						if (unchokingIntervalWisePeerDownloadingRate.size()==0) {
+							
 
 							// as it is a new arraylist, this thread is run for
 							// the
