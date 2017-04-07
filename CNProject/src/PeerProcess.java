@@ -65,6 +65,7 @@ public class PeerProcess {
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
+	int lastPeerID ;
 
 	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
 
@@ -124,6 +125,7 @@ public class PeerProcess {
 			int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
 			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
+				lastPeerID = Integer.parseInt(tokens[0]);
 				if (!tokens[0].equals(peerID)) {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));					
@@ -235,7 +237,7 @@ public class PeerProcess {
 			}
 			p.noOfPieces = p.FileSize / p.PieceSize;
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
-
+			PeerProcess.this.chokedfrom = new HashSet<>();
 		} finally {
 			commonreader.close();
 		}
@@ -294,14 +296,17 @@ public class PeerProcess {
 
 	public void createServerSocket(int portNo) {
 		try {
-			serverSocket = new ServerSocket(portNo);
-			PeerProcess.this.chokedfrom = new HashSet<>();
-
+			
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
 			 boolean terminateOperation = true;
+			 int peerCompleteFileReceived = 0;
+			 
+			if(currentPeer.peerID != lastPeerID) 
+			{
+			serverSocket = new ServerSocket(portNo);			
 
 			while (true) {
 				Socket socket;
@@ -315,7 +320,25 @@ public class PeerProcess {
 				}
 
 				// check for termination of this process
-				int peerCompleteFileReceived = 0;
+				
+				for (Peer p : peerList) {
+					if (checkIfFullFileRecieved(p)) {
+						peerCompleteFileReceived++;
+					}
+				}
+				if (peerCompleteFileReceived == peerList.size()) {
+					// now terminate the process of executorService
+					exec.shutdown();
+					for (Socket s : peerSocketMap.values()) {
+						s.close();
+					}
+					break;
+				}
+			}
+			}
+			
+			if(peerCompleteFileReceived != peerList.size())
+			while (true) {
 				for (Peer p : peerList) {
 					if (checkIfFullFileRecieved(p)) {
 						peerCompleteFileReceived++;
