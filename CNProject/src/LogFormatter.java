@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
 
 /**
  * 
@@ -13,7 +14,7 @@ import java.util.logging.LogRecord;
  * @author apurv
  *
  */
-public class LogFormatter extends Formatter {
+public class LogFormatter extends SimpleFormatter {
 	// Create a DateFormat to format the logger timestamp.
     private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
 

@@ -182,7 +182,7 @@ public class PeerProcess {
 
 			// This block configure the logger with handler and formatter
 			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_" + peerId + "\\log_peer_" + peerId + ".log");
-			fh.setFormatter(new SimpleFormatter());
+			//fh.setFormatter(new SimpleFormatter());
 			logger.addHandler(fh);
 
 		} catch (SecurityException e) {
@@ -897,7 +897,7 @@ public class PeerProcess {
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 			ObjectOutputStream o;
 			try {
-				o = PeerProcess.this.peerObjectOutputStream.get(p);
+				o = this.outputStream;
 				o.writeObject(m);
 				o.flush();
 				o.close();
@@ -1139,7 +1139,7 @@ public class PeerProcess {
 				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
-				o.close();
+				//o.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -1156,7 +1156,7 @@ public class PeerProcess {
 				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
-				o.close();
+				//o.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
