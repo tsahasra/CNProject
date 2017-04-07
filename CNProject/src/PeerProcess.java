@@ -459,7 +459,6 @@ public class PeerProcess {
 					starttime = System.currentTimeMillis();
 					Object o = inputStream.readObject();
 					endtime = System.currentTimeMillis();
-					inputStream.close();
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
