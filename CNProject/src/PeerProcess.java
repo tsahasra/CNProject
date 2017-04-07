@@ -304,8 +304,8 @@ public class PeerProcess {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(2);
-			//exec.submit(new PrefferedNeighborsThread());
-			//exec.submit(new OptimisticallyUnchokedNeighborThread());
+			exec.submit(new PrefferedNeighborsThread());
+			exec.submit(new OptimisticallyUnchokedNeighborThread());
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
