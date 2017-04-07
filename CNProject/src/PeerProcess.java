@@ -882,12 +882,15 @@ public class PeerProcess {
 					}
 				}
 			}
-			// select any one piece randomly
-			Random ran = new Random();
-			int index = ran.nextInt(interestedPieces.size());
-			// PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index] =
-			// true;
-			sendRequest(peer2, index);
+			if (interestedPieces.size() > 0) {
+				// select any one piece randomly
+				Random ran = new Random();
+				int index = ran.nextInt(interestedPieces.size());
+				// PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index]
+				// =
+				// true;
+				sendRequest(peer2, index);
+			}
 		}
 
 		private void sendRequest(Peer p, int pieceIndex) {
@@ -1136,7 +1139,7 @@ public class PeerProcess {
 				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
-				//o.close();
+				// o.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -1153,7 +1156,7 @@ public class PeerProcess {
 				o = PeerProcess.this.peerObjectOutputStream.get(p);
 				o.writeObject(m);
 				o.flush();
-				//o.close();
+				// o.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
