@@ -529,6 +529,7 @@ public class PeerProcess {
 							break;
 
 						case 5: {
+							peer.bitfield = message.payload;
 							if (!initiateHandShake)
 								sendBitfield();
 
