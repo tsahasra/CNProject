@@ -927,7 +927,7 @@ public class PeerProcess {
 				try {
 
 					Thread.sleep(UnchokingInterval * 1000);
-					if (peerList.size() > 0) {
+					if (PeerProcess.this.peerList.size() > 0) {
 						if (unchokingIntervalWisePeerDownloadingRate == null) {
 							unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
 									new Comparator<DownloadingRate>() {
