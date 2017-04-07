@@ -736,9 +736,6 @@ public class PeerProcess {
 				rafr.seek(PeerProcess.this.PieceSize * index);
 				rafr.readFully(piece, 0, PeerProcess.this.PieceSize);
 				rafr.close();
-				byte[] payload = new byte[4 + piece.length];
-				System.arraycopy(message, 0, payload, 0, 4);
-				System.arraycopy(piece, 0, payload, 4, piece.length);
 				Message mpiece = new Message((byte) 7, piece);
 				outputStream.writeObject((Object) mpiece);
 				// peer.interestedInPiece[index] = 0;
