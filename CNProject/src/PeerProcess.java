@@ -399,7 +399,7 @@ public class PeerProcess {
 	public static int getBit(byte[] b, int index) {
 		byte b1 = b[index / 8];
 
-		if ((b1 & (1 << ((index) % 2))) != 0)
+		if ((b1 & (1 << ((index) % 8))) != 0)
 			return 1;
 		else
 			return 0;
