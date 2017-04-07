@@ -15,18 +15,20 @@ import java.util.logging.SimpleFormatter;
  */
 public class LogFormatter extends SimpleFormatter {
 	// Create a DateFormat to format the logger timestamp.
-    private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
+    private static final DateFormat df = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss.SSS");
 
-    public String formatMessage(LogRecord record) {
+    public String format(LogRecord record) {
         StringBuilder builder = new StringBuilder();
-        builder.append("[").append((new String(df.format(new Date(record.getMillis()))))).append("]\\: ");
+        builder.append("[").append(df.format(new Date(record.getMillis()))).append("]: ");
         /*builder.append("[").append(record.getSourceClassName()).append(".");
         builder.append(record.getSourceMethodName()).append("] - ");
         builder.append("[").append(record.getLevel()).append("] - ");*/
-        System.out.println("Record message:"+record.getMessage());
-        System.out.println("Record:"+record);
+        
+        
         builder.append(record.getMessage());
         builder.append("\n");
+        System.out.println("Record message:"+builder);
+        
         return builder.toString();
     }
 
