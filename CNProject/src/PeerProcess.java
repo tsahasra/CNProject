@@ -505,6 +505,9 @@ public class PeerProcess {
 						case 5: {
 							if(!initiateHandShake)
 								sendBitfield();
+							
+							if(!PeerProcess.this.isFilePresent)
+								sendInterestedifApplicable();
 
 						}
 							break;
@@ -572,6 +575,32 @@ public class PeerProcess {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		/**
+		 * @throws IOException 
+		 * 
+		 * 
+		 */
+		private void sendInterestedifApplicable() throws IOException {
+			// TODO Auto-generated method stub
+			
+			int index = 0;
+			
+			for(byte b : peer.bitfield)
+			{
+				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield , index);
+				int bitAtIndexOfPeer = getBit(peer.bitfield , index);
+				if(bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1)
+					{
+					Message interested = new Message((byte) 2, null);
+					outputStream.writeObject((Object) interested);
+					// update the interested from array
+					this.peer.interestedFromBitfield[index] = true;
+					break;
+					}
+			}
+			
 		}
 
 		/**
