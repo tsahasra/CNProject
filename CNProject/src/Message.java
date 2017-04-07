@@ -5,7 +5,7 @@ public class Message implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int length ;
+	//int length ;
 	byte type;
 	byte[] payload;
 	
