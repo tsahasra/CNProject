@@ -26,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * 
@@ -176,9 +177,10 @@ public class PeerProcess {
 		FileHandler fh;
 
 		try {
-
+			
 			// This block configure the logger with handler and formatter
 			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_" + peerId + "\\log_peer_" + peerId + ".log");
+			fh.setFormatter(new SimpleFormatter());
 			logger.addHandler(fh);
 
 		} catch (SecurityException e) {
