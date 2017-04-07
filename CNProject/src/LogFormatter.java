@@ -18,8 +18,8 @@ public class LogFormatter extends SimpleFormatter {
     private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
 
     public String formatMessage(LogRecord record) {
-        StringBuilder builder = new StringBuilder(1000);
-        builder.append("[").append((new String(df.format(new Date(record.getMillis())))).replace(":", "\\:")).append("]\\: ");
+        StringBuilder builder = new StringBuilder();
+        builder.append("[").append((new String(df.format(new Date(record.getMillis()))))).append("]\\: ");
         /*builder.append("[").append(record.getSourceClassName()).append(".");
         builder.append(record.getSourceMethodName()).append("] - ");
         builder.append("[").append(record.getLevel()).append("] - ");*/
