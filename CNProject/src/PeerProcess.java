@@ -147,6 +147,8 @@ public class PeerProcess {
 					if (p.isFilePresent) {
 						p.copyFileUsingStream(new File(System.getProperty("user.dir") + "\\" + this.FileName),
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
+						FileName = System.getProperty("user.dir") + "\\" + this.FileName;
+						System.out.println(FileName);
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 1);
@@ -507,11 +509,11 @@ public class PeerProcess {
 						case 2:
 							this.peer.interestedInPieces = true;
 							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
-									+ " received the �interested� message from " + peer.peerID);
+									+ " received the 'interested' message from " + peer.peerID);
 						case 3:
 							this.peer.interestedInPieces = false;
 							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
-									+ " received the �not interested� message from " + peer.peerID);
+									+ " received the 'not interested' message from " + peer.peerID);
 
 						case 4: {
 
