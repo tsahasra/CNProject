@@ -731,10 +731,11 @@ public class PeerProcess {
 			if (PeerProcess.this.PreferedNeighbours.contains(peer)
 					|| PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer)) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
+				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
+				System.arraycopy(message.payload, 0, piece, 0, 4);
 				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
-				byte[] piece = new byte[PeerProcess.this.PieceSize];
 				rafr.seek(PeerProcess.this.PieceSize * index);
-				rafr.readFully(piece, 0, PeerProcess.this.PieceSize);
+				rafr.readFully(piece, 4, PeerProcess.this.PieceSize);
 				rafr.close();
 				Message mpiece = new Message((byte) 7, piece);
 				outputStream.writeObject((Object) mpiece);
