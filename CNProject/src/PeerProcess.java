@@ -147,6 +147,8 @@ public class PeerProcess {
 					if (p.isFilePresent) {
 						p.copyFileUsingStream(new File(System.getProperty("user.dir") + "\\" + this.FileName),
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
+						FileName = System.getProperty("user.dir") + "\\" + this.FileName;
+						System.out.println(FileName);
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 1);
