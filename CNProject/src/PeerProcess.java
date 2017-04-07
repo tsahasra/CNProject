@@ -868,7 +868,7 @@ public class PeerProcess {
 			while (true) {
 				try {
 
-					Thread.sleep(UnchokingInterval);
+					Thread.sleep(UnchokingInterval*1000);
 					if (peerList.size() > 0) {
 						if (unchokingIntervalWisePeerDownloadingRate == null) {
 							unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
@@ -981,7 +981,7 @@ public class PeerProcess {
 			while (true) {
 				try {
 					while (true) {
-						Thread.sleep(OptimisticUnchokingInterval);
+						Thread.sleep(OptimisticUnchokingInterval*1000);
 
 						List<Peer> interestedPeers = new ArrayList<>();
 						for (Peer p : peerSocketMap.keySet()) {
