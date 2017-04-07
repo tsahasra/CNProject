@@ -444,8 +444,6 @@ public class PeerProcess {
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 			try {
 				outputStream.writeObject((Object) hs);
-				Message bitfield = new Message((byte) 5, null);
-				outputStream.writeObject((Object) bitfield);
 				outputStream.flush();
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
@@ -467,6 +465,8 @@ public class PeerProcess {
 							this.peer.isHandShakeDone = true;
 							if (!initiateHandShake)
 								sendHandShake();
+							else
+								sendBitfield();
 							writeToLog("HandShake completed");
 						}
 						PeerProcess.this.noOfPeerHS++;

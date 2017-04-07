@@ -22,7 +22,7 @@ public class startPeerProcesses {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
+		Process p = null;
 		BufferedReader pireader ;
 		String line , tokens[];
 		try
@@ -35,13 +35,16 @@ public class startPeerProcesses {
 			String workingDir = tokens[2];
 			String startPeerProcessBatch = "startPeerProcessBatch.bat " + workingDir + " " + tokens[0];
 			String command = "ssh " + user + "@" + tokens[1] + " " + workingDir + "\\" + startPeerProcessBatch;
-			Runtime.getRuntime().exec(command);
+			p = Runtime.getRuntime().exec(command);
+			
 			
 		}
 		pireader.close();
 		}
 		catch(IOException ie)
 		{
+			
+			System.out.println(p.getErrorStream().toString());
 			ie.printStackTrace();
 		}
 		finally
