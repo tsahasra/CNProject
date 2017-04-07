@@ -726,7 +726,7 @@ public class PeerProcess {
 		}
 
 		private void sendBitfield() throws IOException {
-				Message bitfield = new Message((byte) 5, PeerProcess.this.currentPeer.bitfield);
+				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
 				outputStream.writeObject((Object) bitfield);
 				outputStream.flush();
 		}
