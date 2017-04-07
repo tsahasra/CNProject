@@ -294,11 +294,11 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
-			// boolean terminateOperation = true;
+			 boolean terminateOperation = true;
 
 			while (true) {
 				Socket socket;
-				if (this.noOfPeerHS != this.noOfPeers - 1) {
+				if (this.noOfPeerHS != this.noOfPeers) {
 					socket = serverSocket.accept();
 					Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
 					writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
@@ -970,7 +970,7 @@ public class PeerProcess {
 	}
 
 	public class OptimisticallyUnchokedNeighborThread implements Runnable {
-
+		List<Peer> interestedPeers;
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -983,7 +983,7 @@ public class PeerProcess {
 
 					Thread.sleep(OptimisticUnchokingInterval * 1000);
 
-					List<Peer> interestedPeers = new ArrayList<>();
+					interestedPeers = new ArrayList<>();
 					for (Peer p : peerSocketMap.keySet()) {
 						if (p.interestedInPieces) {
 							interestedPeers.add(p);
