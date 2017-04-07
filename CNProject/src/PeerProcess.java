@@ -128,7 +128,7 @@ public class PeerProcess {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
 					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));					
 					peer.bitfield = new byte[bfsize];
-					Arrays.fill( currentPeer.bitfield, (byte) 0 );
+					Arrays.fill( peer.bitfield, (byte) 0 );
 					if (Integer.parseInt(tokens[3]) == 0)
 
 						peer.isHandShakeDone = false;
