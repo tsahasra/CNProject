@@ -147,13 +147,14 @@ public class PeerProcess {
 					if (p.isFilePresent) {
 						p.copyFileUsingStream(new File(System.getProperty("user.dir") + "\\" + this.FileName),
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
-						FileName = System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID +"\\" + this.FileName;
+						FileName = System.getProperty("user.dir") + "\\" + currentPeer.peerID + "\\"+ this.FileName;
 						System.out.println(FileName);
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
 						for(int i = 0; i<noOfPieces ;i++)
 							setBit(currentPeer.bitfield,i);
 					} else {
+						FileName = System.getProperty("user.dir") + "\\" + currentPeer.peerID + "\\"+ this.FileName;
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 0);
 					}
@@ -661,8 +662,8 @@ public class PeerProcess {
 			for (Peer p : PeerProcess.this.peerList) {
 				Message have = new Message((byte) 4, i);
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
-				outputStream = new ObjectOutputStream(socket.getOutputStream());
 				outputStream.writeObject((Object) have);
+				outputStream.flush();
 			}
 		}
 
