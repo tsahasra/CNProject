@@ -298,7 +298,7 @@ public class PeerProcess {
 
 			while (true) {
 				Socket socket;
-				if (this.noOfPeerHS == this.noOfPeers - 1) {
+				if (this.noOfPeerHS != this.noOfPeers - 1) {
 					socket = serverSocket.accept();
 					Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
 					writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
