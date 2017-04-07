@@ -425,6 +425,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
+			inputStream = new ObjectInputStream(socket.getInputStream());
 			this.initiateHandShake = initiateHS;
 
 			this.peer.interestedFromBitfield = new boolean[PeerProcess.this.noOfPieces];
@@ -454,8 +455,6 @@ public class PeerProcess {
 		public void run() {
 			while (true) {
 				try {
-
-					inputStream = new ObjectInputStream(socket.getInputStream());
 					starttime = System.currentTimeMillis();
 					Object o = inputStream.readObject();
 					endtime = System.currentTimeMillis();
