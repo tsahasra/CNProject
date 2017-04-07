@@ -151,9 +151,8 @@ public class PeerProcess {
 						System.out.println(FileName);
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
-						for(int i = 0; i<8 ;i++)
+						for(int i = 0; i<noOfPieces ;i++)
 							setBit(currentPeer.bitfield,i);
-						System.out.println(getBit(currentPeer.bitfield,0));
 					} else {
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 0);
@@ -607,16 +606,14 @@ public class PeerProcess {
 		private void sendInterestedifApplicable() throws IOException {
 			// TODO Auto-generated method stub
 
-			int index = 0;
-
-			for (byte b : peer.bitfield) {
-				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield, index);
-				int bitAtIndexOfPeer = getBit(peer.bitfield, index);
+			for (int i=0; i<noOfPieces; i++) {
+				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield, i);
+				int bitAtIndexOfPeer = getBit(peer.bitfield, i);
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
 					Message interested = new Message((byte) 2, null);
 					outputStream.writeObject((Object) interested);
 					// update the interested from array
-					this.peer.interestedFromBitfield[index] = true;
+					this.peer.interestedFromBitfield[i] = true;
 					break;
 				}
 			}
@@ -1008,15 +1005,15 @@ public class PeerProcess {
 							PreferedNeighbours = NewPreferedNeighbours;
 						}
 
-						// now send unchoke Messages to all the new preferred
-						// neighbors
-						sendUnChokeMessage(PreferedNeighbours);
 						String peerIdList = "";
 						for (Peer p : PreferedNeighbours) {
 							peerIdList = p.peerID + ",";
 						}
-						writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has the preferred neighbors "
-								+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
+						writeToLog("Peer " + PeerProcess.this.currentPeer.peerID + " has the preferred neighbors "+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
+						// now send unchoke Messages to all the new preferred
+						// neighbors
+						sendUnChokeMessage(PreferedNeighbours);
+						
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
