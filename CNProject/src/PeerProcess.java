@@ -391,26 +391,31 @@ public class PeerProcess {
 
 	}
 
-	public static void setBit(byte[] b, int index) {
-		b[index / 8] = (byte) (b[index / 8] | 1 << ((index) % 8));
-
+	public static void setBit(byte[] b , int index)
+	{
+		byte b1 = 1;
+		b[index/8] = (byte) (b[index/8] | b1 << ((index) % 8));
 	}
-
-	public static int getBit(byte[] b, int index) {
-		byte b1 = b[index / 8];
-
-		if ((b1 & (1 << ((index) % 8))) != 0)
+	
+	public static int getBit(byte[] b , int index)
+	{
+		byte b1 = b[index/8];
+		byte be = 1;
+		
+		if((b1 & (be << ((index) % 8))) != 0)
 			return 1;
 		else
 			return 0;
-
+		
+		
 	}
-
-	public static void clearBit(byte[] b, int index) {
-		b[index / 8] = (byte) (b[index / 8] & (~(1 << ((index) % 8))));
-
+	
+	public static void clearBit(byte[] b , int index)
+	{
+		byte b1 = 1;
+		b[index/8] = (byte) (b[index/8] & (~(b1 << ((index) % 8))));
+		
 	}
-
 	public boolean checkIfFullFileRecieved(Peer p) {
 		for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 			if (getBit(p.bitfield, i) == 0) {
