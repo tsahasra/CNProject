@@ -171,7 +171,7 @@ public class PeerProcess {
 		try {
 
 			// This block configure the logger with handler and formatter
-			fh = new FileHandler(System.getProperty("user.dir") + "\\log_peer_" + peerId + ".log");
+			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_"+peerId+"\\log_peer_" + peerId + ".log");
 			logger.addHandler(fh);
 
 		} catch (SecurityException e) {
