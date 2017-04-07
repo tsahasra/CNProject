@@ -740,6 +740,7 @@ public class PeerProcess {
 			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
 				Message interested = new Message((byte) 2, null);
 				outputStream.writeObject((Object) interested);
+				outputStream.flush();
 				// update the interested from array
 				this.peer.interestedFromBitfield[index] = true;
 			}
