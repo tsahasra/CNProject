@@ -66,7 +66,7 @@ public class PeerProcess {
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
-	int lastPeerID ;
+	int lastPeerID;
 
 	HashMap<Peer, Socket> peerSocketMap = new HashMap<>();
 
@@ -129,9 +129,9 @@ public class PeerProcess {
 				lastPeerID = Integer.parseInt(tokens[0]);
 				if (!tokens[0].equals(peerID)) {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
-					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));					
+					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
 					peer.bitfield = new byte[bfsize];
-					Arrays.fill( peer.bitfield, (byte) 0 );
+					Arrays.fill(peer.bitfield, (byte) 0);
 					if (Integer.parseInt(tokens[3]) == 0)
 
 						peer.isHandShakeDone = false;
@@ -139,7 +139,7 @@ public class PeerProcess {
 				} else {
 					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
 					currPeerNo = p.peerList.size();
-					
+
 					if (Integer.parseInt(tokens[3]) == 1)
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
@@ -147,12 +147,10 @@ public class PeerProcess {
 								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
 						fileComplete = true;
 						currentPeer.bitfield = new byte[bfsize];
-						Arrays.fill( currentPeer.bitfield, (byte) 1 );
-					}
-					else
-					{
+						Arrays.fill(currentPeer.bitfield, (byte) 1);
+					} else {
 						currentPeer.bitfield = new byte[bfsize];
-						Arrays.fill( currentPeer.bitfield, (byte) 0 );
+						Arrays.fill(currentPeer.bitfield, (byte) 0);
 					}
 					// ispeerIdFound = true;
 				}
@@ -179,7 +177,7 @@ public class PeerProcess {
 		FileHandler fh;
 
 		try {
-			
+
 			// This block configure the logger with handler and formatter
 			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_" + peerId + "\\log_peer_" + peerId + ".log");
 			fh.setFormatter(new SimpleFormatter());
@@ -298,55 +296,36 @@ public class PeerProcess {
 
 	public void createServerSocket(int portNo) {
 		try {
-			
+
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(2);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
-			 boolean terminateOperation = true;
-			 int peerCompleteFileReceived = 0;
-			 
-			if(currentPeer.peerID != lastPeerID) 
-			{
-			serverSocket = new ServerSocket(portNo);			
-
-			while (true) {
-				Socket socket;
-				if (this.noOfPeerHS != this.noOfPeers) {
-					socket = serverSocket.accept();
-					Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
-					writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
-					peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
-					ClientHandler clientHandler = new ClientHandler(tempPeer, false);
-					clientHandler.start();
-				}
-
-				// check for termination of this process
-				
-				for (Peer p : peerList) {
-					if (checkIfFullFileRecieved(p)) {
-						peerCompleteFileReceived++;
-					}
-				}
-				if (peerCompleteFileReceived == peerList.size()) {
-					// now terminate the process of executorService
-					exec.shutdown();
-					for (Socket s : peerSocketMap.values()) {
-						s.close();
-					}
-					break;
-				}
-			}
-			}
 			
-			if(peerCompleteFileReceived != peerList.size())
+			int peerCompleteFileReceived = 0;
+			serverSocket = new ServerSocket(portNo);
+			
 			while (true) {
-				for (Peer p : peerList) {
-					if (checkIfFullFileRecieved(p)) {
-						peerCompleteFileReceived++;
+				if (currentPeer.peerID != lastPeerID) {
+					
+					Socket socket;
+					if (this.noOfPeerHS != this.noOfPeers) {
+						socket = serverSocket.accept();
+						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+						writeToLog(": Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
+						peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
+						ClientHandler clientHandler = new ClientHandler(tempPeer, false);
+						clientHandler.start();
 					}
 				}
+				// check for termination of this process
 				if (peerCompleteFileReceived == peerList.size()) {
+					for (Peer p : peerList) {
+						if (checkIfFullFileRecieved(p)) {
+							peerCompleteFileReceived++;
+						}
+					}
+				
 					// now terminate the process of executorService
 					exec.shutdown();
 					for (Socket s : peerSocketMap.values()) {
@@ -355,7 +334,10 @@ public class PeerProcess {
 					break;
 				}
 			}
-		} catch (Exception e) {
+
+		} catch (
+
+		Exception e) {
 			return;
 		} finally {
 			try {
@@ -517,10 +499,12 @@ public class PeerProcess {
 
 						case 2:
 							this.peer.interestedInPieces = true;
-							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID +" received the ‘interested’ message from " + peer.peerID);
+							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
+									+ " received the ï¿½interestedï¿½ message from " + peer.peerID);
 						case 3:
 							this.peer.interestedInPieces = false;
-							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID +" received the ‘not interested’ message from " + peer.peerID);
+							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
+									+ " received the ï¿½not interestedï¿½ message from " + peer.peerID);
 
 						case 4: {
 
@@ -530,10 +514,10 @@ public class PeerProcess {
 							break;
 
 						case 5: {
-							if(!initiateHandShake)
+							if (!initiateHandShake)
 								sendBitfield();
-							
-							if(!PeerProcess.this.isFilePresent)
+
+							if (!PeerProcess.this.isFilePresent)
 								sendInterestedifApplicable();
 
 						}
@@ -605,29 +589,27 @@ public class PeerProcess {
 		}
 
 		/**
-		 * @throws IOException 
+		 * @throws IOException
 		 * 
 		 * 
 		 */
 		private void sendInterestedifApplicable() throws IOException {
 			// TODO Auto-generated method stub
-			
+
 			int index = 0;
-			
-			for(byte b : peer.bitfield)
-			{
-				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield , index);
-				int bitAtIndexOfPeer = getBit(peer.bitfield , index);
-				if(bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1)
-					{
+
+			for (byte b : peer.bitfield) {
+				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield, index);
+				int bitAtIndexOfPeer = getBit(peer.bitfield, index);
+				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
 					Message interested = new Message((byte) 2, null);
 					outputStream.writeObject((Object) interested);
 					// update the interested from array
 					this.peer.interestedFromBitfield[index] = true;
 					break;
-					}
+				}
 			}
-			
+
 		}
 
 		/**
@@ -1034,6 +1016,7 @@ public class PeerProcess {
 
 	public class OptimisticallyUnchokedNeighborThread implements Runnable {
 		List<Peer> interestedPeers;
+
 		/*
 		 * (non-Javadoc)
 		 * 
