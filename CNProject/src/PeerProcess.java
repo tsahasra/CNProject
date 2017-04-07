@@ -635,6 +635,7 @@ public class PeerProcess {
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
 					Message interested = new Message((byte) 2, null);
 					outputStream.writeObject((Object) interested);
+					outputStream.flush();
 					// update the interested from array
 					this.peer.interestedFromBitfield[i] = true;
 					break;
@@ -768,7 +769,7 @@ public class PeerProcess {
 				// peer.interestedInPiece[index] = 0;
 				setBit(peer.bitfield, index);
 
-				// outputStream.flush();
+				outputStream.flush();
 			}
 		}
 
