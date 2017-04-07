@@ -171,7 +171,7 @@ public class PeerProcess {
 		try {
 
 			// This block configure the logger with handler and formatter
-			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_"+peerId+"\\log_peer_" + peerId + ".log");
+			fh = new FileHandler(System.getProperty("user.dir") + "\\peer_" + peerId + "\\log_peer_" + peerId + ".log");
 			logger.addHandler(fh);
 
 		} catch (SecurityException e) {
@@ -458,7 +458,7 @@ public class PeerProcess {
 					starttime = System.currentTimeMillis();
 					Object o = inputStream.readObject();
 					endtime = System.currentTimeMillis();
-					
+
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
@@ -726,9 +726,9 @@ public class PeerProcess {
 		}
 
 		private void sendBitfield() throws IOException {
-				Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
-				outputStream.writeObject((Object) bitfield);
-				outputStream.flush();
+			Message bitfield = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
+			outputStream.writeObject((Object) bitfield);
+			outputStream.flush();
 		}
 
 		/**
@@ -868,7 +868,7 @@ public class PeerProcess {
 			while (true) {
 				try {
 
-					Thread.sleep(UnchokingInterval*1000);
+					Thread.sleep(UnchokingInterval * 1000);
 					if (peerList.size() > 0) {
 						if (unchokingIntervalWisePeerDownloadingRate == null) {
 							unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
@@ -980,34 +980,34 @@ public class PeerProcess {
 		public void run() {
 			while (true) {
 				try {
-					while (true) {
-						Thread.sleep(OptimisticUnchokingInterval*1000);
 
-						List<Peer> interestedPeers = new ArrayList<>();
-						for (Peer p : peerSocketMap.keySet()) {
-							if (p.interestedInPieces) {
-								interestedPeers.add(p);
-							}
-						}
-						if (interestedPeers.size() > 0) {
-							Random ran = new Random();
-							if (optimisticallyUnchokedNeighbor != null) {
-								// check if not a preferred neighbor then only
-								// send
-								// choke message
-								if (!PeerProcess.this.PreferedNeighbours.contains(optimisticallyUnchokedNeighbor)) {
-									// send a choke message to the previous
-									// neighbor
-									sendChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
-								}
-							}
-							optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
-							sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
-							writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
-									+ " has the optimistically unchoked neighbor "
-									+ optimisticallyUnchokedNeighbor.peerID + ".");
+					Thread.sleep(OptimisticUnchokingInterval * 1000);
+
+					List<Peer> interestedPeers = new ArrayList<>();
+					for (Peer p : peerSocketMap.keySet()) {
+						if (p.interestedInPieces) {
+							interestedPeers.add(p);
 						}
 					}
+					if (interestedPeers.size() > 0) {
+						Random ran = new Random();
+						if (optimisticallyUnchokedNeighbor != null) {
+							// check if not a preferred neighbor then only
+							// send
+							// choke message
+							if (!PeerProcess.this.PreferedNeighbours.contains(optimisticallyUnchokedNeighbor)) {
+								// send a choke message to the previous
+								// neighbor
+								sendChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+							}
+						}
+						optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
+						sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+						writeToLog("Peer " + PeerProcess.this.currentPeer.peerID
+								+ " has the optimistically unchoked neighbor " + optimisticallyUnchokedNeighbor.peerID
+								+ ".");
+					}
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
