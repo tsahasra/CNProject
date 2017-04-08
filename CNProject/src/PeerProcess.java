@@ -21,12 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 /**
  * 
@@ -67,7 +68,8 @@ public class PeerProcess {
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
 	int lastPeerID;
-
+	BlockingQueue<Message> bqm ;
+	BlockingQueue<String>  bql;
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
 	HashMap<Peer, ObjectInputStream> peerObjectInputStream;
@@ -247,6 +249,8 @@ public class PeerProcess {
 			PeerProcess.this.peerSocketMap = new HashMap<>();
 			PeerProcess.this.peerObjectInputStream = new HashMap<>();
 			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
+			PeerProcess.this.bqm = new LinkedBlockingQueue<Message>();
+			PeerProcess.this.bql = new LinkedBlockingQueue<String>();
 			PeerProcess.this.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
 					new Comparator<DownloadingRate>() {
 						/*
@@ -1175,4 +1179,77 @@ public class PeerProcess {
 			}
 		}
 	}
-}
+	
+	class MessageManager implements Runnable
+	{
+		BlockingQueue<Message> bqm;
+		ObjectOutputStream outputStream;
+		
+		public MessageManager(BlockingQueue<Message> b)
+		{
+			this.bqm = b;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try 
+			{
+				while(true) 
+				{ 
+					if(!bqm.isEmpty())
+					writeMessageToOutputStream(bqm.take()); 
+				}
+			} 
+			catch (InterruptedException | IOException ex){
+				ex.printStackTrace();
+			}
+			
+			}
+			
+		void writeMessageToOutputStream(Message m) throws IOException { 
+				   outputStream.writeObject((Object)m);
+				   outputStream.flush();
+			   }
+		}
+		
+	
+	class LogManager implements Runnable
+	{
+		BlockingQueue<String> bql;
+		
+		public LogManager(BlockingQueue<String> b)
+		{
+			this.bql = b;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			try 
+			{
+				while(true) 
+				{ 
+					if(!bql.isEmpty())
+					PeerProcess.this.writeToLog(bql.take()); 
+				}
+			} 
+			catch (InterruptedException ex){
+				ex.printStackTrace();
+			}
+			
+			}
+			
+		
+		}
+	
+	
+	}
+
+
