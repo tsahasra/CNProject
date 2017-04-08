@@ -9,6 +9,9 @@ public class Message implements Serializable {
 	byte type;
 	byte[] payload;
 	
+	public Message(){
+		super();
+	}
 	public Message(byte type , byte[] p)
 	{
 		this.type = type;
