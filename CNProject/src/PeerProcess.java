@@ -766,6 +766,7 @@ public class PeerProcess {
 				rafr.close();
 				Message mpiece = new Message((byte) 7, piece);
 				outputStream.writeObject((Object) mpiece);
+				
 				// peer.interestedInPiece[index] = 0;
 				setBit(peer.bitfield, index);
 
