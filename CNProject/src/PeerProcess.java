@@ -1172,8 +1172,10 @@ public class PeerProcess {
 		}
 
 		void writeMessageToOutputStream(MessageQueueOutputStream mos) throws IOException {
-			mos.os.writeObject((Object) mos.m);
-			mos.os.flush();
+			if (mos.os != null) {
+				mos.os.writeObject((Object) mos.m);
+				mos.os.flush();
+			}
 		}
 	}
 
