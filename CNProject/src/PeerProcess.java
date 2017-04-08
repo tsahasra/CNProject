@@ -307,6 +307,7 @@ public class PeerProcess {
 			serverSocket = new ServerSocket(portNo);
 
 			while (true) {
+				peerCompleteFileReceived = 0;
 				if (currentPeer.peerID != lastPeerID) {
 
 					Socket socket;
@@ -321,13 +322,13 @@ public class PeerProcess {
 					}
 				}
 				// check for termination of this process
-				if (peerCompleteFileReceived == peerList.size()) {
-					for (Peer p : peerList) {
-						if (checkIfFullFileRecieved(p)) {
-							peerCompleteFileReceived++;
-						}
-					}
 
+				for (Peer p : peerList) {
+					if (checkIfFullFileRecieved(p)) {
+						peerCompleteFileReceived++;
+					}
+				}
+				if (peerCompleteFileReceived == peerList.size()) {
 					// now terminate the process of executorService
 					exec.shutdown();
 					for (Socket s : peerSocketMap.values()) {
