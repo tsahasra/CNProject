@@ -297,7 +297,7 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(2);
+			ExecutorService exec = Executors.newFixedThreadPool(4);
 			exec.submit(new PrefferedNeighborsThread());
 			exec.submit(new OptimisticallyUnchokedNeighborThread());
 			exec.submit(new MessageManager(PeerProcess.this.bqm));
