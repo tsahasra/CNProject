@@ -243,7 +243,7 @@ public class PeerProcess {
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.peerSocketMap = new HashMap<>();
 			PeerProcess.this.peerObjectInputStream = new HashMap<>();
-			// PeerProcess.this.peerObjectOutputStream = new HashMap<>();
+			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
 			PeerProcess.this.bqm = new LinkedBlockingQueue<MessageQueueOutputStream>();
 			PeerProcess.this.bql = new LinkedBlockingQueue<String>();
 			PeerProcess.this.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
