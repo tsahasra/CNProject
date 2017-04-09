@@ -1,6 +1,7 @@
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * 
@@ -37,7 +38,9 @@ public class MessageReader extends DataInputStream {
 			}
 		} else {
 			readFully(new byte[28], 0, 28);
-			int peerID = readInt();
+			byte[] peerid = new byte[4];
+			readFully(peerid, 0, 4);
+			int peerID = ByteBuffer.wrap(peerid).getInt();
 			m = new HandShake(peerID);
 			isHandshakeDone = true;
 		}
