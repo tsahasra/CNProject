@@ -73,7 +73,6 @@ public class PeerProcess {
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
-	HashMap<Peer, ObjectInputStream> peerObjectInputStream;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -243,7 +242,6 @@ public class PeerProcess {
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.peerSocketMap = new HashMap<>();
-			PeerProcess.this.peerObjectInputStream = new HashMap<>();
 			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
 			PeerProcess.this.bqm = new LinkedBlockingQueue<MessageQueueOutputStream>();
 			PeerProcess.this.bql = new LinkedBlockingQueue<String>();
@@ -449,7 +447,7 @@ public class PeerProcess {
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
-			PeerProcess.this.peerObjectInputStream.put(p, inputStream);
+
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 
@@ -483,9 +481,11 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
+						inputStream = new ObjectInputStream(socket.getInputStream());
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
+						socket.shutdownInput();
 					} catch (EOFException e) {
 						continue;
 					}

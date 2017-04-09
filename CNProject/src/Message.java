@@ -1,10 +1,11 @@
 import java.io.Serializable;
 
 public class Message implements Serializable {		
+	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 985205199122584865L;
 	//int length ;
 	byte type;
 	byte[] payload;
