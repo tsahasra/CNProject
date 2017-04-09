@@ -73,6 +73,7 @@ public class PeerProcess {
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
+	public final Object inputSynchronize = new Object();
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -305,10 +306,10 @@ public class PeerProcess {
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
 			int totalConnectedPeers = 0;
-			
+
 			while (true) {
 				peerCompleteFileReceived = 0;
-				if (currentPeer.peerID != lastPeerID && totalConnectedPeers<peerList.size()) {
+				if (currentPeer.peerID != lastPeerID && totalConnectedPeers < peerList.size()) {
 
 					Socket socket;
 					if (this.noOfPeerHS != this.noOfPeers) {
@@ -481,18 +482,17 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
-						//inputStream = new ObjectInputStream(socket.getInputStream());
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
-						//inputStream.wait(UnchokingInterval*100);
-						//socket.shutdownInput();
-					}catch(Exception e){
-						System.out.println("is socket closed:"+socket.isClosed());
+					} catch (Exception e) {
+						System.out.println("is socket closed:" + socket.isClosed());
 						e.printStackTrace();
 						continue;
 					}
-
+					if(o==null){
+						continue;
+					}
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
@@ -612,7 +612,7 @@ public class PeerProcess {
 				} catch (IOException e) {
 					e.printStackTrace();
 
-				} 
+				}
 			}
 		}
 
@@ -635,7 +635,7 @@ public class PeerProcess {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					
+
 					break;
 				}
 			}
@@ -866,7 +866,8 @@ public class PeerProcess {
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-				if (getBit(currentPeer.bitfield, i) == 0
+				int bitPresent = getBit(currentPeer.bitfield, i);
+				if (bitPresent == 0
 						&& !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
@@ -1176,6 +1177,12 @@ public class PeerProcess {
 						MessageQueueOutputStream ms = bqm.take();
 						System.out.println(ms.m.type);
 						writeMessageToOutputStream(ms);
+					}else{
+						for(ObjectOutputStream o: peerObjectOutputStream.values()){
+							o.writeObject(null);
+							o.flush();
+						}
+						Thread.sleep(10000);
 					}
 				}
 			} catch (InterruptedException | IOException ex) {
