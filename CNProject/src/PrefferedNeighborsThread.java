@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 public class PrefferedNeighborsThread implements Runnable {
@@ -66,15 +69,25 @@ public class PrefferedNeighborsThread implements Runnable {
 								NewPreferedNeighbours.add(p);
 							}
 						}
-
+						
+						//send unchoke only to the new ones
+						List<Peer> sendUnchokePrefNeig = new ArrayList<>();
+						Collections.copy(sendUnchokePrefNeig,  new ArrayList<>(NewPreferedNeighbours));
+						sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
+						
 						// send choke messages to other who are not present
 						// in
 						// the
 						// new list of preferred neighbors
 						peerProces.PreferedNeighbours.removeAll(NewPreferedNeighbours);
 						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
+						
+						
+						peerProces.sendUnChokeMessage(new HashSet<>(sendUnchokePrefNeig));
+						
 						// change to new preferred neighbors
 						peerProces.PreferedNeighbours = NewPreferedNeighbours;
+						
 					}
 
 					String peerIdList = "";
@@ -85,7 +98,7 @@ public class PrefferedNeighborsThread implements Runnable {
 							+ " has the preferred neighbors " + peerIdList.substring(0, peerIdList.length() - 1) + ".");
 					// now send unchoke Messages to all the new preferred
 					// neighbors
-					peerProces.sendUnChokeMessage(peerProces.PreferedNeighbours);
+					
 
 				}
 			} catch (InterruptedException e) {
