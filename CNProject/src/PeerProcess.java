@@ -867,7 +867,8 @@ public class PeerProcess {
 			List<Integer> interestedPieces = new ArrayList<Integer>();
 			int indexOfPeer = peerList.indexOf(peer2);
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-				if (getBit(currentPeer.bitfield, i) == 0
+				int bitPresent = getBit(currentPeer.bitfield, i);
+				if (bitPresent == 0
 						&& !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
@@ -1182,6 +1183,7 @@ public class PeerProcess {
 							o.writeObject(null);
 							o.flush();
 						}
+						Thread.sleep(10000);
 					}
 				}
 			} catch (InterruptedException | IOException ex) {
