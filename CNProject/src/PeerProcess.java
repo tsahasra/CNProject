@@ -307,10 +307,10 @@ public class PeerProcess {
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
 			int totalConnectedPeers = 0;
-			
+
 			while (true) {
 				peerCompleteFileReceived = 0;
-				if (currentPeer.peerID != lastPeerID && totalConnectedPeers<peerList.size()) {
+				if (currentPeer.peerID != lastPeerID && totalConnectedPeers < peerList.size()) {
 
 					Socket socket;
 					if (this.noOfPeerHS != this.noOfPeers) {
@@ -483,21 +483,17 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
-						synchronized (inputSynchronize) {
-							//inputStream = new ObjectInputStream(socket.getInputStream());
-							starttime = System.currentTimeMillis();
-							o = inputStream.readObject();
-							endtime = System.currentTimeMillis();
-							wait();
-							//socket.shutdownInput();
-						}
-						
-					}catch(Exception e){
-						System.out.println("is socket closed:"+socket.isClosed());
+						starttime = System.currentTimeMillis();
+						o = inputStream.readObject();
+						endtime = System.currentTimeMillis();
+					} catch (Exception e) {
+						System.out.println("is socket closed:" + socket.isClosed());
 						e.printStackTrace();
 						continue;
 					}
-
+					if(o==null){
+						continue;
+					}
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (h.peerID == this.peer.peerID) {
@@ -617,7 +613,7 @@ public class PeerProcess {
 				} catch (IOException e) {
 					e.printStackTrace();
 
-				} 
+				}
 			}
 		}
 
@@ -640,7 +636,7 @@ public class PeerProcess {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					
+
 					break;
 				}
 			}
@@ -1178,11 +1174,14 @@ public class PeerProcess {
 			try {
 				while (true) {
 					if (!bqm.isEmpty()) {
-						
 						MessageQueueOutputStream ms = bqm.take();
 						System.out.println(ms.m.type);
 						writeMessageToOutputStream(ms);
-						
+					}else{
+						for(ObjectOutputStream o: peerObjectOutputStream.values()){
+							o.writeObject(null);
+							o.flush();
+						}
 					}
 				}
 			} catch (InterruptedException | IOException ex) {
@@ -1193,10 +1192,8 @@ public class PeerProcess {
 
 		void writeMessageToOutputStream(MessageQueueOutputStream mos) throws IOException {
 			if (mos.os != null) {
-				
 				mos.os.writeObject((Object) mos.m);
 				mos.os.flush();
-				inputSynchronize.notify();
 			}
 		}
 	}
