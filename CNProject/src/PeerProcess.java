@@ -481,45 +481,11 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
-			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
-			this.initiateHandShake = initiateHS;
-
-			this.peer.interestedFromBitfield = new boolean[PeerProcess.this.noOfPieces];
-
-			if (initiateHandShake)
-				sendHandShake();
-
-		}
-
-		/**
-		 * @throws IOException
-		 * 
-		 * 
-		 */
-		private void sendHandShake() throws IOException {
-			// TODO Auto-generated method stub
-			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
-
-			try {
-				PeerProcess.this.bqm.put(new MessageQueueOutputStream(hs, outputStream));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-		}
-
-		@Override
-		public void run() {
-			while (true) {
-				try {
-					Object o;
-					try {
 						//inputStream = new ObjectInputStream(socket.getInputStream());
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
 						//socket.shutdownInput();
-						
 					}catch(Exception e){
 						System.out.println("is socket closed:"+socket.isClosed());
 						e.printStackTrace();
