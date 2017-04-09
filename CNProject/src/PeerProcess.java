@@ -485,7 +485,7 @@ public class PeerProcess {
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
-						inputStream.wait(UnchokingInterval*100);
+						Thread.sleep(UnchokingInterval*100);
 						//socket.shutdownInput();
 					}catch(Exception e){
 						System.out.println("is socket closed:"+socket.isClosed());
