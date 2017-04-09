@@ -306,10 +306,11 @@ public class PeerProcess {
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
-
+			int totalConnectedPeers = 0;
+			
 			while (true) {
 				peerCompleteFileReceived = 0;
-				if (currentPeer.peerID != lastPeerID) {
+				if (currentPeer.peerID != lastPeerID && totalConnectedPeers<peerList.size()) {
 
 					Socket socket;
 					if (this.noOfPeerHS != this.noOfPeers) {
@@ -320,6 +321,7 @@ public class PeerProcess {
 						peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
 						ClientHandler clientHandler = new ClientHandler(tempPeer, false);
 						clientHandler.start();
+						totalConnectedPeers++;
 					}
 				}
 				// check for termination of this process
@@ -480,13 +482,11 @@ public class PeerProcess {
 			while (true) {
 				try {
 					Object o;
-					try{
-					starttime = System.currentTimeMillis();
-					o = inputStream.readObject();
-					endtime = System.currentTimeMillis();
-					}
-					catch(EOFException e)
-					{
+					try {
+						starttime = System.currentTimeMillis();
+						o = inputStream.readObject();
+						endtime = System.currentTimeMillis();
+					} catch (EOFException e) {
 						continue;
 					}
 
@@ -627,13 +627,14 @@ public class PeerProcess {
 				int bitAtIndexOfPeer = getBit(peer.bitfield, i);
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
 					Message interested = new Message((byte) 2, null);
+					// update the interested from array
+					this.peer.interestedFromBitfield[i] = true;
 					try {
 						PeerProcess.this.bqm.put(new MessageQueueOutputStream(interested, outputStream));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					// update the interested from array
-					this.peer.interestedFromBitfield[i] = true;
+					
 					break;
 				}
 			}
