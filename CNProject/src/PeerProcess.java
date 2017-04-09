@@ -488,7 +488,7 @@ public class PeerProcess {
 							starttime = System.currentTimeMillis();
 							o = inputStream.readObject();
 							endtime = System.currentTimeMillis();
-							
+							wait();
 							//socket.shutdownInput();
 						}
 						
@@ -1183,8 +1183,6 @@ public class PeerProcess {
 						System.out.println(ms.m.type);
 						writeMessageToOutputStream(ms);
 						
-					}else{
-						inputSynchronize.wait();
 					}
 				}
 			} catch (InterruptedException | IOException ex) {
