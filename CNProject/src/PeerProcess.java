@@ -1,3 +1,4 @@
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -73,6 +74,7 @@ public class PeerProcess {
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
+	Object inputSynchronize;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -446,7 +448,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
-			inputStream = new ObjectInputStream(socket.getInputStream());
+			inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 			socket.setSoLinger(true, 70);
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
@@ -481,12 +483,15 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
-						//inputStream = new ObjectInputStream(socket.getInputStream());
-						starttime = System.currentTimeMillis();
-						o = inputStream.readObject();
-						endtime = System.currentTimeMillis();
-						Thread.sleep(UnchokingInterval*100);
-						//socket.shutdownInput();
+						synchronized (inputSynchronize) {
+							//inputStream = new ObjectInputStream(socket.getInputStream());
+							starttime = System.currentTimeMillis();
+							o = inputStream.readObject();
+							endtime = System.currentTimeMillis();
+							
+							//socket.shutdownInput();
+						}
+						
 					}catch(Exception e){
 						System.out.println("is socket closed:"+socket.isClosed());
 						e.printStackTrace();
@@ -1173,9 +1178,13 @@ public class PeerProcess {
 			try {
 				while (true) {
 					if (!bqm.isEmpty()) {
+						
 						MessageQueueOutputStream ms = bqm.take();
 						System.out.println(ms.m.type);
 						writeMessageToOutputStream(ms);
+						
+					}else{
+						inputSynchronize.wait();
 					}
 				}
 			} catch (InterruptedException | IOException ex) {
@@ -1186,8 +1195,10 @@ public class PeerProcess {
 
 		void writeMessageToOutputStream(MessageQueueOutputStream mos) throws IOException {
 			if (mos.os != null) {
+				
 				mos.os.writeObject((Object) mos.m);
 				mos.os.flush();
+				inputSynchronize.notify();
 			}
 		}
 	}
