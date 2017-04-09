@@ -74,7 +74,7 @@ public class PeerProcess {
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
-	Object inputSynchronize;
+	public final Object inputSynchronize = new Object();
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
