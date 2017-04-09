@@ -301,7 +301,7 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(4);
 			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
-			exec.submit(new MessageQueueOutputStream(PeerProcess.this.bqm, PeerProcess.this.peerObjectOutputStream));
+			exec.submit(new MessageQueueOutputStream(PeerProcess.this));
 			exec.submit(new LogManager(PeerProcess.this.bql, logger));
 
 			int peerCompleteFileReceived = 0;
@@ -449,6 +449,7 @@ public class PeerProcess {
 
 			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
 			socket.setSoLinger(true, 70);
+			outputStream = new DataOutputStream(socket.getOutputStream());
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 
@@ -490,9 +491,9 @@ public class PeerProcess {
 						e.printStackTrace();
 						continue;
 					}
-					if (o == null) {
+					/*if (o == null) {
 						continue;
-					}
+					}*/
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (ByteBuffer.wrap(h.peerID).getInt() == this.peer.peerID) {

@@ -1,17 +1,16 @@
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.concurrent.BlockingQueue;
 
 public class MessageQueueOutputStream implements Runnable {
-	BlockingQueue<MessageWriter> bqm;
-	HashMap<Peer, DataOutputStream> peerObjectOutputStream;
-	// ObjectOutputStream outputStream;
-
-	public MessageQueueOutputStream(BlockingQueue<MessageWriter> b, HashMap<Peer, DataOutputStream> pos) {
-		this.bqm = b;
-		this.peerObjectOutputStream = pos;
+	PeerProcess peerProcess;
+	
+	/**
+	 * @param peerProcess
+	 */
+	public MessageQueueOutputStream(PeerProcess peerProcess) {
+		super();
+		this.peerProcess = peerProcess;
 	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -22,8 +21,8 @@ public class MessageQueueOutputStream implements Runnable {
 	public void run() {
 		try {
 			while (true) {
-				if (!bqm.isEmpty()) {
-					MessageWriter ms = bqm.take();
+				if (!peerProcess.bqm.isEmpty()) {
+					MessageWriter ms = peerProcess.bqm.take();
 					System.out.println(ms.m.type);
 					((MessageWriter) ms.os).writeObject();
 				} /*
