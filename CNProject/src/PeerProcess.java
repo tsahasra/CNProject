@@ -447,7 +447,7 @@ public class PeerProcess {
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
 			inputStream = new ObjectInputStream(socket.getInputStream());
-
+			socket.setSoLinger(true, 70);
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 
@@ -481,11 +481,11 @@ public class PeerProcess {
 				try {
 					Object o;
 					try {
-						inputStream = new ObjectInputStream(socket.getInputStream());
+						//inputStream = new ObjectInputStream(socket.getInputStream());
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
-						socket.shutdownInput();
+						//socket.shutdownInput();
 					}catch(Exception e){
 						System.out.println("is socket closed:"+socket.isClosed());
 						e.printStackTrace();
