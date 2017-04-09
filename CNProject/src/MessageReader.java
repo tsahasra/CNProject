@@ -29,13 +29,13 @@ public class MessageReader extends DataInputStream {
 		if (isHandshakeDone) {
 			byte[] ir = new byte[4];
 			readFully(ir,0,4);
-			int messageLength = ByteBuffer.wrap(ir).getInt() - 1;
+			int messageLength = ByteBuffer.wrap(ir).getInt();
 			System.out.println(messageLength);
 			byte type = readByte();
 			byte[] payload = null;
 			if (messageLength > 1) {
-				payload = new byte[messageLength];
-				readFully(payload, 0, messageLength);
+				payload = new byte[messageLength-1];
+				readFully(payload, 0, messageLength-1);
 			}
 			m = new Message(messageLength, type, payload);
 		} else {

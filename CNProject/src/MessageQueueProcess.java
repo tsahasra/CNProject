@@ -23,7 +23,6 @@ public class MessageQueueProcess implements Runnable {
 			while (true) {
 				if (!peerProcess.bqm.isEmpty()) {
 					MessageWriter ms = peerProcess.bqm.take();
-					System.out.println(ms.m.type);
 					ms.writeObject();
 				} /*
 					 * else { /*for (DataOutputStream o :
