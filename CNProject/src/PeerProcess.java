@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -479,12 +480,15 @@ public class PeerProcess {
 			while (true) {
 				try {
 					Object o;
+					try{
 					starttime = System.currentTimeMillis();
-					if(inputStream.available() != 0)
-						o = inputStream.readObject();
-					else
-						continue;
+					o = inputStream.readObject();
 					endtime = System.currentTimeMillis();
+					}
+					catch(EOFException e)
+					{
+						continue;
+					}
 
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
