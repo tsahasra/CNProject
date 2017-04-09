@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 public class HandShake extends Message implements Serializable{
 	
@@ -9,7 +10,7 @@ public class HandShake extends Message implements Serializable{
 	private static final long serialVersionUID = 8799977982265952720L;
 	byte[] header;
 	byte[] zerobits;
-	int peerID;
+	byte[] peerID;
 	
 	public HandShake(int peerId){
 		String h = "P2PFILESHARINGPROJ";
@@ -18,7 +19,8 @@ public class HandShake extends Message implements Serializable{
 		for(int i=0;i<h.length();i++){
 			header[i]=(byte)(h.charAt(i));
 		}
-		peerID = peerId;
+		peerID = new byte[4];
+		peerID = ByteBuffer.allocate(4).putInt(peerId).array();
 		zerobits = new byte[10];
 		for(int i =0 ; i<10 ; i++)
 			zerobits[i] = (byte)0;

@@ -29,9 +29,11 @@ public class MessageReader extends DataInputStream {
 			int messageLength = readInt() - 1;
 			System.out.println(messageLength);
 			byte type = readByte();
-			byte[] payload = new byte[messageLength];
-			readFully(payload, 0, messageLength);
-			m = new Message(messageLength, type, payload);
+			if (messageLength > 0) {
+				byte[] payload = new byte[messageLength];
+				readFully(payload, 0, messageLength);
+				m = new Message(messageLength, type, payload);
+			}
 		} else {
 			skipBytes(28);
 			int peerID = readInt();
