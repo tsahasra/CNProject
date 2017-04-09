@@ -1,7 +1,7 @@
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class MessageWriter extends DataOutputStream {
+public class MessageWriter {
 	public Message m;
 	public DataOutputStream os;
 
@@ -10,7 +10,6 @@ public class MessageWriter extends DataOutputStream {
 	 * @param os
 	 */
 	public MessageWriter(Message m, DataOutputStream os) {
-		super(os);
 		this.m = m;
 		this.os = os;
 	}
@@ -26,7 +25,7 @@ public class MessageWriter extends DataOutputStream {
 			os.writeInt(m.length);
 			os.writeByte(m.type);
 			if ((m.payload != null) && (m.payload.length > 0)) {
-				out.write(m.payload, 0, m.payload.length);
+				os.write(m.payload, 0, m.payload.length);
 			}
 		}
 		os.flush();

@@ -26,7 +26,8 @@ public class MessageReader extends DataInputStream {
 	public Object readObject() throws IOException {
 		Message m = null;
 		if (isHandshakeDone) {
-			int messageLength = readInt() - 1;
+			int inputRead = readInt();
+			int messageLength = inputRead - 1;
 			System.out.println(messageLength);
 			byte type = readByte();
 			if (messageLength > 0) {
@@ -35,7 +36,7 @@ public class MessageReader extends DataInputStream {
 				m = new Message(messageLength, type, payload);
 			}
 		} else {
-			skipBytes(28);
+			readFully(new byte[28], 0, 28);
 			int peerID = readInt();
 			m = new HandShake(peerID);
 			isHandshakeDone = true;

@@ -301,7 +301,7 @@ public class PeerProcess {
 			ExecutorService exec = Executors.newFixedThreadPool(4);
 			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
-			exec.submit(new MessageQueueOutputStream(PeerProcess.this));
+			exec.submit(new MessageQueueProcess(PeerProcess.this));
 			exec.submit(new LogManager(PeerProcess.this.bql, logger));
 
 			int peerCompleteFileReceived = 0;

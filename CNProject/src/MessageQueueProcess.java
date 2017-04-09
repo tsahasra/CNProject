@@ -1,12 +1,12 @@
 import java.io.IOException;
 
-public class MessageQueueOutputStream implements Runnable {
+public class MessageQueueProcess implements Runnable {
 	PeerProcess peerProcess;
 	
 	/**
 	 * @param peerProcess
 	 */
-	public MessageQueueOutputStream(PeerProcess peerProcess) {
+	public MessageQueueProcess(PeerProcess peerProcess) {
 		super();
 		this.peerProcess = peerProcess;
 	}
@@ -24,7 +24,7 @@ public class MessageQueueOutputStream implements Runnable {
 				if (!peerProcess.bqm.isEmpty()) {
 					MessageWriter ms = peerProcess.bqm.take();
 					System.out.println(ms.m.type);
-					((MessageWriter) ms.os).writeObject();
+					ms.writeObject();
 				} /*
 					 * else { /*for (DataOutputStream o :
 					 * peerObjectOutputStream.values()) { o.writeObject(null);
