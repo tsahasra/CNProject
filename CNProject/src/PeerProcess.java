@@ -486,7 +486,9 @@ public class PeerProcess {
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
-					} catch (EOFException e) {
+					} catch (Exception e) {
+						System.out.println("is socket closed:"+socket.isClosed());
+						e.printStackTrace();
 						continue;
 					}
 
@@ -609,9 +611,7 @@ public class PeerProcess {
 				} catch (IOException e) {
 					e.printStackTrace();
 
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
+				} 
 			}
 		}
 
@@ -1173,7 +1173,7 @@ public class PeerProcess {
 				while (true) {
 					if (!bqm.isEmpty()) {
 						MessageQueueOutputStream ms = bqm.take();
-						System.out.println(ms.m);
+						System.out.println(ms.m.type);
 						writeMessageToOutputStream(ms);
 					}
 				}
