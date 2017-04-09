@@ -497,7 +497,7 @@ public class PeerProcess {
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (ByteBuffer.wrap(h.peerID).getInt() == this.peer.peerID) {
-							this.peer.isHandShakeDone = true;
+							
 							if (!initiateHandShake)
 								sendHandShake();
 							else {
@@ -545,6 +545,7 @@ public class PeerProcess {
 							break;
 
 						case 5: {
+							this.peer.isHandShakeDone = true;
 							peer.bitfield = message.payload;
 							if (!initiateHandShake)
 								sendBitfield();
