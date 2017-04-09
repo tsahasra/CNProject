@@ -1,6 +1,6 @@
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -446,7 +446,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
-			inputStream = new ObjectInputStream(socket.getInputStream());
+			inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 			socket.setSoLinger(true, 70);
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
@@ -485,7 +485,7 @@ public class PeerProcess {
 						starttime = System.currentTimeMillis();
 						o = inputStream.readObject();
 						endtime = System.currentTimeMillis();
-						inputStream.wait(UnchokingInterval*100);
+						//inputStream.wait(UnchokingInterval*100);
 						//socket.shutdownInput();
 					}catch(Exception e){
 						System.out.println("is socket closed:"+socket.isClosed());
@@ -627,7 +627,7 @@ public class PeerProcess {
 				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield, i);
 				int bitAtIndexOfPeer = getBit(peer.bitfield, i);
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
-					Message interested = new Message((byte) 2, null);
+					Message interested = new Message(1 ,(byte) 2, null);
 					// update the interested from array
 					this.peer.interestedFromBitfield[i] = true;
 					try {
@@ -673,7 +673,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(i).getInt();
 			System.out.println(index);
 			for (Peer p : PeerProcess.this.peerList) {
-				Message have = new Message((byte) 4, i);
+				Message have = new Message(5, (byte) 4, i);
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
 				try {
 					PeerProcess.this.bqm.put(new MessageQueueOutputStream(have, outputStream));
@@ -710,7 +710,7 @@ public class PeerProcess {
 					}
 
 				if (sendNIMessage) {
-					Message notinterested = new Message((byte) 3, null);
+					Message notinterested = new Message(1,(byte) 3, null);
 					try {
 						PeerProcess.this.bqm.put(new MessageQueueOutputStream(notinterested, outputStream));
 					} catch (InterruptedException e) {
@@ -745,7 +745,7 @@ public class PeerProcess {
 			}
 
 			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
-				Message interested = new Message((byte) 2, null);
+				Message interested = new Message(1,(byte) 2, null);
 				try {
 					PeerProcess.this.bqm.put(new MessageQueueOutputStream(interested, outputStream));
 				} catch (InterruptedException e) {
@@ -773,7 +773,7 @@ public class PeerProcess {
 				rafr.seek(PeerProcess.this.PieceSize * index);
 				rafr.readFully(piece, 4, PeerProcess.this.PieceSize);
 				rafr.close();
-				Message mpiece = new Message((byte) 7, piece);
+				Message mpiece = new Message(PeerProcess.this.PieceSize + 5 ,(byte) 7, piece);
 				try {
 					PeerProcess.this.bqm.put(new MessageQueueOutputStream(mpiece, outputStream));
 				} catch (InterruptedException e) {
@@ -817,7 +817,7 @@ public class PeerProcess {
 		}
 
 		private void sendBitfield() throws IOException {
-			Message m = new Message(Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
+			Message m = new Message(PeerProcess.this.currentPeer.bitfield.length+1,Byte.valueOf(Integer.toString(5)), PeerProcess.this.currentPeer.bitfield);
 			try {
 				PeerProcess.this.bqm.put(new MessageQueueOutputStream(m, outputStream));
 			} catch (InterruptedException e) {
@@ -892,7 +892,7 @@ public class PeerProcess {
 		}
 
 		private void sendRequest(Peer p, int pieceIndex) {
-			Message m = new Message(Byte.valueOf(Integer.toString(6)),
+			Message m = new Message(5,Byte.valueOf(Integer.toString(6)),
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 
 			try {
@@ -1115,7 +1115,7 @@ public class PeerProcess {
 	}
 
 	private void sendChokeMessage(HashSet<Peer> peers) {
-		Message m = new Message(Byte.valueOf(Integer.toString(0)), null);
+		Message m = new Message(1,Byte.valueOf(Integer.toString(0)), null);
 		for (Peer p : peers) {
 			try {
 				PeerProcess.this.bqm
@@ -1128,7 +1128,7 @@ public class PeerProcess {
 	}
 
 	private void sendUnChokeMessage(HashSet<Peer> peers) {
-		Message m = new Message(Byte.valueOf(Integer.toString(1)), null);
+		Message m = new Message(1,Byte.valueOf(Integer.toString(1)), null);
 		for (Peer p : peers) {
 			try {
 				PeerProcess.this.bqm
