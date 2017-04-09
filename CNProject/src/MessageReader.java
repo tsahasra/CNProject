@@ -28,7 +28,7 @@ public class MessageReader extends DataInputStream {
 		if (isHandshakeDone) {
 			int messageLength = readInt() - 1;
 			byte type = readByte();
-			byte[] payload = null;
+			byte[] payload = new byte[messageLength];
 			readFully(payload, 0, messageLength);
 			m = new Message(messageLength, type, payload);
 		} else {
