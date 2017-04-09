@@ -1,11 +1,10 @@
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
@@ -74,7 +73,7 @@ public class PeerProcess {
 	HashMap<Peer, Socket> peerSocketMap;
 	HashMap<Peer, ObjectOutputStream> peerObjectOutputStream;
 	public final Object inputSynchronize = new Object();
-
+	
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		noOfPeers = getNoOfPeers();
@@ -436,7 +435,7 @@ public class PeerProcess {
 
 	public class ClientHandler extends Thread {
 		private Socket socket;
-		ObjectInputStream inputStream;
+		MessageReader  mread;
 		ObjectOutputStream outputStream;
 		Peer peer;
 		boolean initiateHandShake;
@@ -447,7 +446,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			outputStream = new ObjectOutputStream(socket.getOutputStream());
-			inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
 			socket.setSoLinger(true, 70);
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
@@ -483,7 +482,7 @@ public class PeerProcess {
 					Object o;
 					try {
 						starttime = System.currentTimeMillis();
-						o = inputStream.readObject();
+						o = mread.readObject();
 						endtime = System.currentTimeMillis();
 					} catch (Exception e) {
 						System.out.println("is socket closed:" + socket.isClosed());
@@ -499,8 +498,9 @@ public class PeerProcess {
 							this.peer.isHandShakeDone = true;
 							if (!initiateHandShake)
 								sendHandShake();
-							else
+							else{
 								sendBitfield();
+							}
 						}
 						PeerProcess.this.noOfPeerHS++;
 					} else if (o instanceof Message) {

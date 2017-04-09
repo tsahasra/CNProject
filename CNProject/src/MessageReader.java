@@ -18,12 +18,11 @@ public class MessageReader extends DataInputStream{
 	 * @throws IOException
 	 */
 	
-	boolean isHandshakeDone;
+	private boolean isHandshakeDone = false;
 	
-	public MessageReader(InputStream in , boolean isHSDone) throws IOException {
+	public MessageReader(InputStream in) throws IOException {
 		super(in);
 		// TODO Auto-generated constructor stub
-		this.isHandshakeDone = isHSDone;
 	}
 	
 	
@@ -32,16 +31,17 @@ public class MessageReader extends DataInputStream{
 		if(isHandshakeDone)
 		{
 		int messageLength = readInt() - 1;
+		byte type = readByte();
 		byte[] payload = null;
-		readFully(payload, 5 , messageLength);
-		m = new Message(messageLength,readByte(),payload);
+		readFully(payload, 0 , messageLength);
+		m = new Message(messageLength,type,payload);
 		}
 		else
 		{
 			skipBytes(28);
 			int peerID = readInt() - 1;
 			m = new HandShake(peerID); 
-			
+			isHandshakeDone = true;
 		}
 	
 		return m;
