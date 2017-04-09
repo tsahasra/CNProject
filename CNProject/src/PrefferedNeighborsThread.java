@@ -45,7 +45,7 @@ public class PrefferedNeighborsThread implements Runnable {
 								peerProces.PreferedNeighbours.add(p);
 							}
 						}
-
+						peerProces.sendUnChokeMessage(new HashSet<>(peerProces.PreferedNeighbours));
 					} else {
 						// send unchoke
 
