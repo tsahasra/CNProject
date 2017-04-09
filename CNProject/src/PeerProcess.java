@@ -1170,8 +1170,11 @@ public class PeerProcess {
 		public void run() {
 			try {
 				while (true) {
-					if (!bqm.isEmpty())
-						writeMessageToOutputStream(bqm.take());
+					if (!bqm.isEmpty()) {
+						MessageQueueOutputStream ms = bqm.take();
+						System.out.println(ms.m);
+						writeMessageToOutputStream(ms);
+					}
 				}
 			} catch (InterruptedException | IOException ex) {
 				ex.printStackTrace();
