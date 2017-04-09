@@ -32,11 +32,12 @@ public class MessageReader extends DataInputStream {
 			int messageLength = ByteBuffer.wrap(ir).getInt() - 1;
 			System.out.println(messageLength);
 			byte type = readByte();
+			byte[] payload = null;
 			if (messageLength > 1) {
-				byte[] payload = new byte[messageLength];
+				payload = new byte[messageLength];
 				readFully(payload, 0, messageLength);
-				m = new Message(messageLength, type, payload);
 			}
+			m = new Message(messageLength, type, payload);
 		} else {
 			readFully(new byte[28], 0, 28);
 			byte[] peerid = new byte[4];
