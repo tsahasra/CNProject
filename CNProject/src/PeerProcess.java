@@ -478,8 +478,12 @@ public class PeerProcess {
 		public void run() {
 			while (true) {
 				try {
+					Object o;
 					starttime = System.currentTimeMillis();
-					Object o = inputStream.readObject();
+					if(inputStream.available() != 0)
+						o = inputStream.readObject();
+					else
+						continue;
 					endtime = System.currentTimeMillis();
 
 					if (o instanceof HandShake) {
