@@ -31,17 +31,33 @@ public class MessageReader extends DataInputStream {
 			readFully(ir,0,4);
 			int messageLength = ByteBuffer.wrap(ir).getInt();
 			System.out.println(messageLength);
+			byte[] b = new byte[messageLength];
+			messageLength = this.read(b);
+			byte type = (Byte) null;
+			System.arraycopy(b, 0 , type, 0, 1);
+			byte[] payload = null;
+			if (messageLength > 1) {
+				payload = new byte[messageLength-1];
+				readFully(payload, 0, messageLength-1);
+			}
+			
+			
+			/*byte[] ir = new byte[4];
+			readFully(ir,0,4);
+			int messageLength = ByteBuffer.wrap(ir).getInt();
+			System.out.println(messageLength);
 			byte type = readByte();
 			byte[] payload = null;
 			if (messageLength > 1) {
 				payload = new byte[messageLength-1];
 				readFully(payload, 0, messageLength-1);
 			}
-			m = new Message(messageLength, type, payload);
+			m = new Message(messageLength, type, payload);*/
 		} else {
-			readFully(new byte[28], 0, 28);
+			byte[] b = new byte[32];
+			int messageLength = this.read(b);
 			byte[] peerid = new byte[4];
-			readFully(peerid, 0, 4);
+			System.arraycopy(peerid, 0,b,28, 4);
 			int peerID = ByteBuffer.wrap(peerid).getInt();
 			m = new HandShake(peerID);
 			isHandshakeDone = true;
