@@ -33,12 +33,12 @@ public class MessageReader extends DataInputStream {
 			System.out.println(messageLength);
 			byte[] b = new byte[messageLength];
 			messageLength = this.read(b);
-			byte type = (Byte) null;
+			byte type = 0;
 			System.arraycopy(b, 0 , type, 0, 1);
 			byte[] payload = null;
 			if (messageLength > 1) {
 				payload = new byte[messageLength-1];
-				readFully(payload, 0, messageLength-1);
+				System.arraycopy(b, 1, payload, 0, messageLength-1);
 			}
 			
 			
