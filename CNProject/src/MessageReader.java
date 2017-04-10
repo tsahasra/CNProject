@@ -52,8 +52,8 @@ public class MessageReader extends DataInputStream {
 			if (messageLength > 1) {
 				payload = new byte[messageLength-1];
 				readFully(payload, 0, messageLength-1);
-			}
-			m = new Message(messageLength, type, payload);*/
+			}*/
+			m = new Message(messageLength, type, payload);
 		} else {
 			byte[] b = new byte[32];
 			int messageLength = this.read(b);
