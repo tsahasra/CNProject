@@ -32,9 +32,10 @@ public class MessageReader extends DataInputStream {
 			int messageLength = ByteBuffer.wrap(ir).getInt();
 			System.out.println(messageLength);
 			byte[] b = new byte[messageLength];
+			
 			messageLength = this.read(b);
-			byte type = 0;
-			System.arraycopy(b, 0 , type, 0, 1);
+			System.out.println("After reading message:"+messageLength);
+			byte type = b[0];
 			byte[] payload = null;
 			if (messageLength > 1) {
 				payload = new byte[messageLength-1];
