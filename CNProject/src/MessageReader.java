@@ -50,7 +50,7 @@ public class MessageReader {
 			if(length>1){
 				payload = new byte[length-1];
 				try {
-					din.readFully(payload, 0, length-1);
+					din.readFully(payload);
 				} catch (IOException e) {
 					e.printStackTrace();
 					throw e;

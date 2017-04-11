@@ -33,7 +33,7 @@ public class MessageWriter {
 			System.out.println("payload length tp be sent:"+m.payload.length);
 			if ((m.payload != null) && (m.payload.length > 0)) {
 				System.out.println(Arrays.toString(m.payload));
-				os.write(m.payload, 0, m.payload.length);
+				os.write(m.payload);
 			}
 		}
 		//bos.flush();
