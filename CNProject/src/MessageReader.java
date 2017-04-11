@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 /**
@@ -12,7 +13,7 @@ import java.nio.ByteBuffer;
  */
 public class MessageReader {
 
-	InputStream inputStream;
+	Socket socket;
 	/**
 	 * @param in
 	 * @throws IOException
@@ -20,17 +21,19 @@ public class MessageReader {
 
 	private boolean isHandshakeDone = false;
 
-	public MessageReader(InputStream in) throws IOException {
+	public MessageReader(Socket socket) throws IOException {
 		// super(in);
-		inputStream = in;
+		this.socket = socket;
 	}
 
 	public Object readObject() throws Exception {
-
+		InputStream inputStream = socket.getInputStream();
 		if (isHandshakeDone) {
-			while (inputStream.available() < 4)
+			while (!socket.isClosed() && inputStream.available() < 4)
 				;
-
+			if(socket.isClosed()){
+				throw new Exception();
+			}
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
 			int length = ByteBuffer.wrap(lengthBytes).getInt();

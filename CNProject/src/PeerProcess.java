@@ -81,7 +81,6 @@ public class PeerProcess {
 	Future<?> optimisticallyUnchokeNeighborTask;
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
-	List<Future<?>> clientHandlerTasks;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -308,8 +307,6 @@ public class PeerProcess {
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			proc.initializePeerList(proc, args[0]);
 
-			proc.clientHandlerTasks = new ArrayList<>();
-
 			proc.createServerSocket(proc.currentPeer.peerPort);
 
 		} catch (Exception e) {
@@ -321,7 +318,7 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(4+PeerProcess.this.peerList.size());
+			ExecutorService exec = Executors.newFixedThreadPool(4);
 			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
@@ -343,7 +340,7 @@ public class PeerProcess {
 								.put("Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
 						peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
 						ClientHandler clientHandler = new ClientHandler(tempPeer, false);
-						clientHandlerTasks.add(exec.submit(clientHandler));
+						clientHandler.start();
 						totalConnectedPeers++;
 					}
 				}
@@ -369,9 +366,7 @@ public class PeerProcess {
 							if (s.isClosed())
 								s.close();
 						}
-						for (Future<?> t : clientHandlerTasks) {
-							t.cancel(true);
-						}
+						
 						while (!exec.isTerminated()) {
 							exec.shutdownNow();
 						}
@@ -488,7 +483,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			socket.setSoLinger(true, 70);
-			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
+			mread = new MessageReader(socket);
 			// outputStream = new DataOutputStream(socket.getOutputStream());
 			// PeerProcess.this.peerObjectOutputStream.put(p, new
 			// DataOutputStream(socket.getOutputStream()));
@@ -605,13 +600,9 @@ public class PeerProcess {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 					break;
 				}
+				
 			}
 		}
 
