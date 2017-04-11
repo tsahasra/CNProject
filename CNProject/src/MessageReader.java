@@ -67,7 +67,7 @@ public class MessageReader extends DataInputStream {
 			m = new Message(messageLength, type, payload);
 		} else {
 			byte[] b = new byte[32];
-			int messageLength = this.read(b);
+			readFully(b);
 			byte[] peerid = new byte[4];
 			System.arraycopy(b, 28,peerid,0, 4);
 			int peerID = ByteBuffer.wrap(peerid).getInt();
