@@ -26,7 +26,7 @@ public class PrefferedNeighborsThread implements Runnable {
 		while (true) {
 			try {
 
-				Thread.sleep(peerProces.UnchokingInterval * 1000);
+				Thread.sleep(peerProces.UnchokingInterval * 100);
 				if (peerProces.peerList.size() > 0) {
 					if (peerProces.unchokingIntervalWisePeerDownloadingRate.size() == 0) {
 
@@ -37,15 +37,29 @@ public class PrefferedNeighborsThread implements Runnable {
 						// available
 						// thus select any random peers and add them to the
 						// preferred neighbors list
-						peerProces.PreferedNeighbours = new HashSet<Peer>();
+						HashSet<Peer> NewPreferedNeighbours = new HashSet<Peer>();
 						Random ran = new Random();
-						while (peerProces.PreferedNeighbours.size() < peerProces.NumberOfPreferredNeighbors) {
+						while (NewPreferedNeighbours.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
 							if (p.isHandShakeDone) {
-								peerProces.PreferedNeighbours.add(p);
+								NewPreferedNeighbours.add(p);
 							}
 						}
-						peerProces.sendUnChokeMessage(new HashSet<>(peerProces.PreferedNeighbours));
+						//send unchoke only to the new ones
+						List<Peer> sendUnchokePrefNeig = new ArrayList<>();
+						Collections.copy(sendUnchokePrefNeig,  new ArrayList<>(NewPreferedNeighbours));
+						sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
+						
+						// send choke messages to other who are not present
+						// in
+						// the
+						// new list of preferred neighbors
+						peerProces.PreferedNeighbours.removeAll(NewPreferedNeighbours);
+						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
+						
+						
+						peerProces.sendUnChokeMessage(new HashSet<>(sendUnchokePrefNeig));
+						peerProces.PreferedNeighbours = NewPreferedNeighbours;
 					} else {
 						// send unchoke
 
