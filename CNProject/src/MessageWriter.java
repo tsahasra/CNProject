@@ -39,6 +39,7 @@ public class MessageWriter {
 			}
 		}
 		//bos.flush();
+		System.out.println("writing buffer size:"+bos.size());
 		os.write(bos.toByteArray());
 		os.flush();
 	}
