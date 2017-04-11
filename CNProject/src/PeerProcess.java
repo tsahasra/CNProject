@@ -238,7 +238,7 @@ public class PeerProcess {
 				lineno++;
 			}
 			p.noOfPieces = (p.FileSize / p.PieceSize) +1  ;
-			/*pieceMatrix = new int[noOfPieces][2];
+			pieceMatrix = new int[noOfPieces][2];
 			int startPos = 0;
 			int psize = p.PieceSize;
 			int cumpsize = p.PieceSize;
@@ -254,7 +254,7 @@ public class PeerProcess {
 				
 				cumpsize += psize;
 				
-			}*/
+			}
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.peerSocketMap = new HashMap<>();
@@ -838,8 +838,8 @@ public class PeerProcess {
 				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
 				System.arraycopy(message.payload, 0, piece, 0, 4);
 				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
-				rafr.seek(PeerProcess.this.PieceSize * index);
-				rafr.readFully(piece, 4, PeerProcess.this.PieceSize);
+				rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
+				rafr.readFully(piece, 4,PeerProcess.this.pieceMatrix[index][1] );
 				rafr.close();
 				Message mpiece = new Message(PeerProcess.this.PieceSize + 5, (byte) 7, piece);
 				try {
@@ -861,11 +861,11 @@ public class PeerProcess {
 			byte[] i = new byte[4];
 			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
-			byte[] piece = new byte[PeerProcess.this.PieceSize];
-			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.PieceSize);
+			byte[] piece = new byte[PeerProcess.this.pieceMatrix[index][1]];
+			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			RandomAccessFile rafw = new RandomAccessFile(new File(FileName), "rw");
-			rafw.seek(PeerProcess.this.PieceSize * index);
-			rafw.write(piece, 0, PeerProcess.this.PieceSize);
+			rafw.seek(PeerProcess.this.pieceMatrix[index][0]);
+			rafw.write(piece, PeerProcess.this.pieceMatrix[index][0], PeerProcess.this.pieceMatrix[index][1]);
 			rafw.close();
 			setBit(PeerProcess.this.currentPeer.bitfield, index);
 
