@@ -32,7 +32,7 @@ public class MessageWriter {
 				bos.write(m.payload, 0, m.payload.length);
 			}
 		}
-		os.flush();
+		bos.flush();
 	}
 
 }
