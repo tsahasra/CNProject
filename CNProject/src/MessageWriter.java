@@ -1,5 +1,6 @@
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class MessageWriter {
 	public Message m;
@@ -25,11 +26,13 @@ public class MessageWriter {
 			os.write(hs.peerID, 0, hs.peerID.length);
 		} else {
 			System.out.println(os.size());
-			//System.out.println(os.size());
 			os.writeInt(m.length);
+			os.flush();
 			os.writeByte(m.type);
+			os.flush();
 			System.out.println("payload length tp be sent:"+m.payload.length);
 			if ((m.payload != null) && (m.payload.length > 0)) {
+				System.out.println(Arrays.toString(m.payload));
 				os.write(m.payload, 0, m.payload.length);
 			}
 		}
