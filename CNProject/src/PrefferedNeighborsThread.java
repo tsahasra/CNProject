@@ -23,7 +23,7 @@ public class PrefferedNeighborsThread implements Runnable {
 		while (true) {
 			try {
 
-				Thread.sleep(peerProces.UnchokingInterval * 100);
+				Thread.sleep(peerProces.UnchokingInterval * 1000);
 				if (peerProces.peerList.size() > 0) {
 					peerProces.NewPrefNeighbors = new HashSet<Peer>();
 					if (peerProces.unchokingIntervalWisePeerDownloadingRate.size() == 0) {
