@@ -2,7 +2,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
  * 
@@ -45,9 +44,10 @@ public class MessageReader {
 				e.printStackTrace();
 				throw e;
 			}
-			byte[] payload = new byte[1];
-			Arrays.fill(payload, Byte.valueOf(Integer.toString(0)));
-			/*if(length>1){
+			byte[] payload = null;//new byte[1];
+			System.out.println("payload length available to be recieved:"+inputStream.available());
+			//Arrays.fill(payload, Byte.valueOf(Integer.toString(0)));
+			if(length>1){
 				payload = new byte[length-1];
 				try {
 					din.readFully(payload, 0, length-1);
@@ -55,7 +55,7 @@ public class MessageReader {
 					e.printStackTrace();
 					throw e;
 				}
-			}*/
+			}
 			Message m = new Message(length, type, payload);
 			return m;
 		}else{

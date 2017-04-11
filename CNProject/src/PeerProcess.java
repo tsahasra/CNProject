@@ -676,7 +676,6 @@ public class PeerProcess {
 			byte[] i = new byte[4];
 			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
-			System.out.println(index);
 			for (Peer p : PeerProcess.this.peerList) {
 				Message have = new Message(5, (byte) 4, i);
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
