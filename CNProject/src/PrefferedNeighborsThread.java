@@ -77,9 +77,8 @@ public class PrefferedNeighborsThread implements Runnable {
 
 						while (NewPreferedNeighbours.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							if (p.isHandShakeDone) {
-								NewPreferedNeighbours.add(p);
-							}
+							NewPreferedNeighbours.add(p);
+
 						}
 
 						// send unchoke only to the new ones
@@ -106,8 +105,6 @@ public class PrefferedNeighborsThread implements Runnable {
 					}
 					peerProces.bql.put("Peer " + peerProces.currentPeer.peerID + " has the preferred neighbors "
 							+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
-					// now send unchoke Messages to all the new preferred
-					// neighbors
 
 				}
 			} catch (InterruptedException e) {
