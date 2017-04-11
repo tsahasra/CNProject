@@ -24,7 +24,8 @@ class LogManager implements Runnable {
 			while (true) {
 				if (!bql.isEmpty())
 					logger.log(Level.INFO, bql.take());
-				else {
+				Thread.sleep(1);
+				/*else {
 					int peerCompleteFileReceived = 0;
 					for (Peer p : peerProcess.peerList) {
 						if (peerProcess.checkIfFullFileRecieved(p)) {
@@ -40,7 +41,7 @@ class LogManager implements Runnable {
 							break;
 						}
 					}
-				}
+				}*/
 			}
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();

@@ -23,7 +23,9 @@ public class MessageQueueProcess implements Runnable {
 				if (!peerProcess.bqm.isEmpty()) {
 					MessageWriter ms = peerProcess.bqm.take();
 					ms.writeObject();
-				} else {
+				} 
+				Thread.sleep(1);
+				/*else {
 					int peerCompleteFileReceived = 0;
 					for (Peer p : peerProcess.peerList) {
 						if (peerProcess.checkIfFullFileRecieved(p)) {
@@ -39,7 +41,7 @@ public class MessageQueueProcess implements Runnable {
 							break;
 						}
 					}
-				}
+				}*/
 			}
 		} catch (InterruptedException | IOException ex) {
 			ex.printStackTrace();
