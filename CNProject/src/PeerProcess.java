@@ -25,6 +25,7 @@ import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -76,6 +77,10 @@ public class PeerProcess {
 	int pieceMatrix[][];
 	// HashMap<Peer, OutputStream> peerObjectOutputStream;
 	public final Object inputSynchronize = new Object();
+	Future<?> prefNeighborTask;
+	Future<?> optimisticallyUnchokeNeighborTask;
+	Future<?> logManagerTask;
+	Future<?> messageQueueTask;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -315,10 +320,10 @@ public class PeerProcess {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(4);
-			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
-			exec.submit(new MessageQueueProcess(PeerProcess.this));
-			exec.submit(new LogManager(PeerProcess.this.bql, logger, this));
+			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
+			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
+			logManagerTask = exec.submit(new LogManager(PeerProcess.this.bql, logger, this));
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
@@ -354,6 +359,10 @@ public class PeerProcess {
 						// exec.shutdown();
 						
 						while(!exec.isTerminated()){
+							prefNeighborTask.cancel(true);
+							optimisticallyUnchokeNeighborTask.cancel(true);
+							logManagerTask.cancel(true);
+							messageQueueTask.cancel(true);
 							exec.shutdownNow();
 						}
 						for (Socket s : peerSocketMap.values()) {
@@ -364,17 +373,19 @@ public class PeerProcess {
 					}
 				}
 			}
-
+			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		} finally {
 			try {
 				serverSocket.close();
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				return;
 			}
+			
 		}
 
 	}
