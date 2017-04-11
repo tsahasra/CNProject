@@ -5,10 +5,12 @@ import java.util.logging.Logger;
 class LogManager implements Runnable {
 	BlockingQueue<String> bql;
 	Logger logger;
+	PeerProcess peerProcess;
 
-	public LogManager(BlockingQueue<String> b, Logger logger) {
+	public LogManager(BlockingQueue<String> b, Logger logger, PeerProcess peerProcess) {
 		this.bql = b;
 		this.logger = logger;
+		this.peerProcess = peerProcess;
 	}
 
 	/*
@@ -22,6 +24,21 @@ class LogManager implements Runnable {
 			while (true) {
 				if (!bql.isEmpty())
 					logger.log(Level.INFO, bql.take());
+				int peerCompleteFileReceived =0;
+				for (Peer p : peerProcess.peerList) {
+					if (peerProcess.checkIfFullFileRecieved(p)) {
+						peerCompleteFileReceived++;
+					}
+				}
+				if (peerCompleteFileReceived == peerProcess.peerList.size()) {
+					// check if you recievecd the whole file
+					if (peerProcess.checkIfFullFileRecieved(peerProcess.currentPeer)) {
+						// now terminate the process of executorService
+						// exec.shutdown();
+						
+						break;
+					}
+				}
 			}
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();

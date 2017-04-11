@@ -24,11 +24,23 @@ public class MessageQueueProcess implements Runnable {
 				if (!peerProcess.bqm.isEmpty()) {
 					MessageWriter ms = peerProcess.bqm.take();
 					ms.writeObject();
-				} /*
-					 * else { /*for (DataOutputStream o :
-					 * peerObjectOutputStream.values()) { o.writeObject(null);
-					 * o.flush(); } Thread.sleep(10000); }
-					 */
+				} 
+				
+				int peerCompleteFileReceived =0;
+				for (Peer p : peerProcess.peerList) {
+					if (peerProcess.checkIfFullFileRecieved(p)) {
+						peerCompleteFileReceived++;
+					}
+				}
+				if (peerCompleteFileReceived == peerProcess.peerList.size()) {
+					// check if you recievecd the whole file
+					if (peerProcess.checkIfFullFileRecieved(peerProcess.currentPeer)) {
+						// now terminate the process of executorService
+						// exec.shutdown();
+						
+						break;
+					}
+				}
 			}
 		} catch (InterruptedException | IOException ex) {
 			ex.printStackTrace();

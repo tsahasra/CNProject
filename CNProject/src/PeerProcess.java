@@ -318,7 +318,7 @@ public class PeerProcess {
 			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			exec.submit(new MessageQueueProcess(PeerProcess.this));
-			exec.submit(new LogManager(PeerProcess.this.bql, logger));
+			exec.submit(new LogManager(PeerProcess.this.bql, logger, this));
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
