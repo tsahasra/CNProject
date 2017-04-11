@@ -295,8 +295,9 @@ public class PeerProcess {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
 			ExecutorService exec = Executors.newFixedThreadPool(2);
-			//exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-			//exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+			// exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
+			// exec.submit(new
+			// OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			exec.submit(new MessageQueueProcess(PeerProcess.this));
 			exec.submit(new LogManager(PeerProcess.this.bql, logger));
 
@@ -478,22 +479,17 @@ public class PeerProcess {
 			while (true) {
 				try {
 					Object o;
-					try {
-						starttime = System.currentTimeMillis();
-						o = mread.readObject();
-						endtime = System.currentTimeMillis();
-					} catch (Exception e) {
-						System.out.println("is socket closed:" + socket.isClosed());
-						e.printStackTrace();
-						continue;
-					}
-					/*if (o == null) {
-						continue;
-					}*/
+					starttime = System.currentTimeMillis();
+					o = mread.readObject();
+					endtime = System.currentTimeMillis();
+
+					/*
+					 * if (o == null) { continue; }
+					 */
 					if (o instanceof HandShake) {
 						HandShake h = (HandShake) o;
 						if (ByteBuffer.wrap(h.peerID).getInt() == this.peer.peerID) {
-							
+
 							if (!initiateHandShake)
 								sendHandShake();
 							else {
@@ -608,9 +604,10 @@ public class PeerProcess {
 
 						}
 					}
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
-
+					Thread.dumpStack();
+					break;
 				}
 			}
 		}
@@ -909,8 +906,6 @@ public class PeerProcess {
 	 * @author apurv
 	 *
 	 */
-	
-
 
 	public class DownloadingRate {
 		Peer p;

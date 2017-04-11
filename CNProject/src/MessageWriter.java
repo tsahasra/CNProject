@@ -34,6 +34,7 @@ public class MessageWriter {
 		}
 		bos.flush();
 		os.write(bos.toByteArray());
+		os.flush();
 	}
 
 }
