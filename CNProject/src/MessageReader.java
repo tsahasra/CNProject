@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
  * @author Tejas
  *
  */
-public class MessageReader{
-	
+public class MessageReader {
+
 	InputStream inputStream;
 	/**
 	 * @param in
@@ -19,35 +19,45 @@ public class MessageReader{
 	 */
 
 	private boolean isHandshakeDone = false;
-	
 
 	public MessageReader(InputStream in) throws IOException {
 		inputStream = in;
 	}
 
-	public Object readObject() throws IOException {
+	public Object readObject() throws Exception {
 		Message m = null;
 		if (isHandshakeDone) {
 			byte[] ir = new byte[4];
-			while(inputStream.available()==0);
-			
+			try {
+				while (inputStream.available() == 0)
+					;
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception();
+			}
 			int hsmessage = 0;
 			int messageLength = 0;
-			
-			
-			hsmessage = inputStream.read(ir, 0, 4);
-			messageLength = ByteBuffer.wrap(ir).getInt();
 
-			System.out.println(messageLength);
-			byte[] b = new byte[messageLength];
+			try {
+				hsmessage = inputStream.read(ir, 0, 4);
+				messageLength = ByteBuffer.wrap(ir).getInt();
 
-			inputStream.read(b, 0, messageLength);
-			System.out.println("After reading message:" + messageLength);
-			byte type = b[0];
-			byte[] payload = null;
-			if (messageLength > 1) {
-				payload = new byte[messageLength - 1];
-				System.arraycopy(b, 1, payload, 0, messageLength - 1);
+				System.out.println(messageLength);
+				byte[] b = new byte[messageLength];
+
+				inputStream.read(b, 0, messageLength);
+				System.out.println("After reading message:" + messageLength);
+				byte type = b[0];
+				byte[] payload = null;
+				if (messageLength > 1) {
+					payload = new byte[messageLength - 1];
+					System.arraycopy(b, 1, payload, 0, messageLength - 1);
+				}
+				System.out.println("inputStream available:"+inputStream.available());
+				m = new Message(messageLength, type, payload);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception();
 			}
 			/*
 			 * byte[] ir = new byte[4]; readFully(ir,0,4); int messageLength =
@@ -63,10 +73,11 @@ public class MessageReader{
 			 * byte[messageLength-1]; readFully(payload, 0, messageLength-1); }
 			 */
 
-			m = new Message(messageLength, type, payload);
+			
 		} else {
 			byte[] b = new byte[32];
-			while(inputStream.available()<32);
+			while (inputStream.available() < 32)
+				;
 			inputStream.read(b);
 			byte[] peerid = new byte[4];
 			System.arraycopy(b, 28, peerid, 0, 4);
