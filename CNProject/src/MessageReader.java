@@ -27,7 +27,7 @@ public class MessageReader extends DataInputStream {
 	public Object readObject() throws IOException {
 		Message m = null;
 		if (isHandshakeDone) {
-			byte[] ir = new byte[4];
+			/*byte[] ir = new byte[4];
 			int hsmessage=0;
 			int messageLength = 0;
 			while(hsmessage<=0 || messageLength==0){
@@ -45,7 +45,7 @@ public class MessageReader extends DataInputStream {
 			if (messageLength > 1) {
 				payload = new byte[messageLength-1];
 				System.arraycopy(b, 1, payload, 0, messageLength-1);
-			}
+			}*/
 			/*byte[] ir = new byte[4];
 			readFully(ir,0,4);
 			int messageLength = ByteBuffer.wrap(ir).getInt();
@@ -56,6 +56,14 @@ public class MessageReader extends DataInputStream {
 				payload = new byte[messageLength-1];
 				readFully(payload, 0, messageLength-1);
 			}*/
+			
+			int messageLength = readInt();
+			byte type = readByte();
+			byte[] payload = null;
+			if (messageLength > 1) {
+				payload = new byte[messageLength-1];
+				readFully(payload, 0, messageLength-1);
+			}
 			m = new Message(messageLength, type, payload);
 		} else {
 			byte[] b = new byte[32];
