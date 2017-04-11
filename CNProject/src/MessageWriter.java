@@ -1,7 +1,5 @@
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class MessageWriter {
 	public Message m;
@@ -17,7 +15,7 @@ public class MessageWriter {
 	}
 
 	public void writeObject() throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		if (m instanceof HandShake) {
 			HandShake hs = (HandShake) m;
 

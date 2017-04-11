@@ -11,9 +11,9 @@ import java.nio.ByteBuffer;
  * @author Tejas
  *
  */
-public class MessageReader extends DataInputStream {
+public class MessageReader {
 
-	//InputStream inputStream;
+	InputStream inputStream;
 	/**
 	 * @param in
 	 * @throws IOException
@@ -22,12 +22,66 @@ public class MessageReader extends DataInputStream {
 	private boolean isHandshakeDone = false;
 
 	public MessageReader(InputStream in) throws IOException {
-		super(in);
-		//inputStream = in;
+		//super(in);
+		inputStream = in;
 	}
 
 	public Object readObject() throws Exception {
-		Message m = null;
+		if(isHandshakeDone){
+			DataInputStream din = new DataInputStream(inputStream);
+			int length;
+			try {
+				length = din.readInt();
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+			byte type;
+			try {
+				type = din.readByte();
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+			byte[] payload = null;
+			if(length>1){
+				payload = new byte[length-1];
+				try {
+					din.readFully(payload, 0, length-1);
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw e;
+				}
+			}
+			Message m = new Message(length, type, payload);
+			return m;
+		}else{
+			byte[] header = new byte[18];
+			try {
+				inputStream.read(header,0,18);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+			byte[] zerobits = new byte[10];
+			try {
+				inputStream.read(zerobits,0,10);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+			byte[] peerId = new byte[4];
+			try {
+				inputStream.read(peerId);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+			HandShake h = new HandShake(ByteBuffer.wrap(peerId).getInt());
+			return h;
+		}
+		
+		/*Message m = null;
 		if (isHandshakeDone) {
 			int messageLength = readInt();
             Byte type = readByte();
@@ -39,7 +93,7 @@ public class MessageReader extends DataInputStream {
             
             m = new Message(messageLength, type,payload);
 			System.out.println("message read: "  +type.intValue());
-			/*byte[] ir = new byte[4];
+			byte[] ir = new byte[4];
 			try {
 				while (inputStream.available() == 0)
 					;
@@ -77,13 +131,13 @@ public class MessageReader extends DataInputStream {
 			 * byte type = readByte(); byte[] payload = null; if (messageLength
 			 * > 1) { payload = new byte[messageLength-1]; readFully(payload, 0,
 			 * messageLength-1); }
-			 */
+			 
 
-			/*
+			
 			 * int messageLength = readInt(); byte type = readByte(); byte[]
 			 * payload = null; if (messageLength > 1) { payload = new
 			 * byte[messageLength-1]; readFully(payload, 0, messageLength-1); }
-			 */
+			 
 
 			
 		} else {
@@ -97,7 +151,7 @@ public class MessageReader extends DataInputStream {
 			System.out.println("Handshake sent");
 		}
 
-		return m;
+		return m;*/
 	}
 
 }
