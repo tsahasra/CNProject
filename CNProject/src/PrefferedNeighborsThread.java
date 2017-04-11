@@ -41,24 +41,21 @@ public class PrefferedNeighborsThread implements Runnable {
 						Random ran = new Random();
 						while (NewPreferedNeighbours.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							if (p.isHandShakeDone) {
-								NewPreferedNeighbours.add(p);
-							}
+							NewPreferedNeighbours.add(p);
 						}
-						//send unchoke only to the new ones
+						// send unchoke only to the new ones
 						List<Peer> sendUnchokePrefNeig = new ArrayList<>();
-						Collections.copy(sendUnchokePrefNeig,  new ArrayList<>(NewPreferedNeighbours));
+						Collections.copy(sendUnchokePrefNeig, new ArrayList<>(NewPreferedNeighbours));
 						sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
-						
+
 						// send choke messages to other who are not present
 						// in
 						// the
 						// new list of preferred neighbors
 						peerProces.PreferedNeighbours.removeAll(NewPreferedNeighbours);
-						
+
 						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
-						
-						
+
 						peerProces.sendUnChokeMessage(new HashSet<>(sendUnchokePrefNeig));
 						peerProces.PreferedNeighbours = NewPreferedNeighbours;
 					} else {
@@ -84,22 +81,21 @@ public class PrefferedNeighborsThread implements Runnable {
 								NewPreferedNeighbours.add(p);
 							}
 						}
-						
-						//send unchoke only to the new ones
+
+						// send unchoke only to the new ones
 						List<Peer> sendUnchokePrefNeig = new ArrayList<>();
-						Collections.copy(sendUnchokePrefNeig,  new ArrayList<>(NewPreferedNeighbours));
+						Collections.copy(sendUnchokePrefNeig, new ArrayList<>(NewPreferedNeighbours));
 						sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
-						
+
 						// send choke messages to other who are not present
 						// in
 						// the
 						// new list of preferred neighbors
 						peerProces.PreferedNeighbours.removeAll(NewPreferedNeighbours);
 						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
-						
-						
+
 						peerProces.sendUnChokeMessage(new HashSet<>(sendUnchokePrefNeig));
-						
+
 						// change to new preferred neighbors
 						peerProces.PreferedNeighbours = NewPreferedNeighbours;
 					}
@@ -108,11 +104,10 @@ public class PrefferedNeighborsThread implements Runnable {
 					for (Peer p : peerProces.PreferedNeighbours) {
 						peerIdList = p.peerID + ",";
 					}
-					peerProces.bql.put("Peer " + peerProces.currentPeer.peerID
-							+ " has the preferred neighbors " + peerIdList.substring(0, peerIdList.length() - 1) + ".");
+					peerProces.bql.put("Peer " + peerProces.currentPeer.peerID + " has the preferred neighbors "
+							+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 					// now send unchoke Messages to all the new preferred
 					// neighbors
-					
 
 				}
 			} catch (InterruptedException e) {

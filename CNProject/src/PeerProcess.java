@@ -331,10 +331,10 @@ public class PeerProcess {
 					// check if you recievecd the whole file
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
-						//exec.shutdown();
+						// exec.shutdown();
 						exec.shutdownNow();
 						for (Socket s : peerSocketMap.values()) {
-							if(s.isClosed())
+							if (s.isClosed())
 								s.close();
 						}
 						break;
@@ -568,7 +568,7 @@ public class PeerProcess {
 					System.out.println("Closing socket");
 					try {
 						// Thread.sleep(1000000);
-						if(!socket.isClosed())
+						if (!socket.isClosed())
 							socket.close();
 						break label;
 					} catch (IOException e1) {
@@ -710,7 +710,9 @@ public class PeerProcess {
 			for (Peer p : PeerProcess.this.peerList) {
 				boolean amIInterestedInAnyPiecesOfThisPeer = false;
 				for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
-					if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j) && !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j] && !sentRequestForIndex(j)) {
+					if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j)
+							&& !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j]
+							&& !sentRequestForIndex(j)) {
 						{
 							amIInterestedInAnyPiecesOfThisPeer = true;
 							break;
@@ -718,19 +720,16 @@ public class PeerProcess {
 					}
 
 				}
-				if(!amIInterestedInAnyPiecesOfThisPeer){
-					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null); 
+				if (!amIInterestedInAnyPiecesOfThisPeer) {
+					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null);
 					try {
-							PeerProcess.this.bqm .put(new MessageWriter(notinterested, new
-							DataOutputStream(peerSocketMap.get(p).getOutputStream()))); 
-						} 
-					catch (InterruptedException e)
-					{ e.printStackTrace();
-					} 
+						PeerProcess.this.bqm.put(new MessageWriter(notinterested,
+								new DataOutputStream(peerSocketMap.get(p).getOutputStream())));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
-				
-			
 
 			/*
 			 * for (int j = 0; j < PeerProcess.this.noOfPeers; j++) { for (int k
@@ -814,8 +813,9 @@ public class PeerProcess {
 		 */
 		private void processRequest(Message message) throws IOException {
 			// TODO Auto-generated method stub
-			if ((PeerProcess.this.PreferedNeighbours!=null && PeerProcess.this.PreferedNeighbours.contains(peer))
-					|| (PeerProcess.this.optimisticallyUnchokedNeighbor!=null && PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
+			if ((PeerProcess.this.PreferedNeighbours != null && PeerProcess.this.PreferedNeighbours.contains(peer))
+					|| (PeerProcess.this.optimisticallyUnchokedNeighbor != null
+							&& PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
 				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
 				System.arraycopy(message.payload, 0, piece, 0, 4);
@@ -1025,13 +1025,15 @@ public class PeerProcess {
 	public void sendChokeMessage(HashSet<Peer> peers) {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(0)), null);
 		for (Peer p : peers) {
-			try {
-				Socket socket = PeerProcess.this.peerSocketMap.get(p);
-				PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (p.isHandShakeDone) {
+				try {
+					Socket socket = PeerProcess.this.peerSocketMap.get(p);
+					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -1040,13 +1042,15 @@ public class PeerProcess {
 	public void sendUnChokeMessage(HashSet<Peer> peers) {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(1)), null);
 		for (Peer p : peers) {
-			try {
-				Socket socket = PeerProcess.this.peerSocketMap.get(p);
-				PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+			if (p.isHandShakeDone) {
+				try {
+					Socket socket = PeerProcess.this.peerSocketMap.get(p);
+					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
