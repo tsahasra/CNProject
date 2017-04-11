@@ -352,7 +352,10 @@ public class PeerProcess {
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
 						// exec.shutdown();
-						exec.shutdownNow();
+						
+						while(!exec.isTerminated()){
+							exec.shutdownNow();
+						}
 						for (Socket s : peerSocketMap.values()) {
 							if (s.isClosed())
 								s.close();
