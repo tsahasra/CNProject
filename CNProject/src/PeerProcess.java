@@ -542,6 +542,7 @@ public class PeerProcess {
 								sendBitfield();
 
 							if (!PeerProcess.this.isFilePresent) {
+								
 								sendInterestedifApplicable();
 								break label;
 							}
@@ -566,9 +567,14 @@ public class PeerProcess {
 				} finally {
 					System.out.println("Closing socket");
 					try {
+						Thread.sleep(1000000);
 						socket.close();
 						break label;
 					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						break label;
+					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						break label;
