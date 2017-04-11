@@ -16,6 +16,7 @@ public class MessageWriter {
 
 	public void writeObject() throws IOException {
 		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		System.out.println("Sending message :"+m);
 		if (m instanceof HandShake) {
 			HandShake hs = (HandShake) m;
 

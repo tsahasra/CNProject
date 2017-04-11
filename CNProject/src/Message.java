@@ -19,6 +19,14 @@ public class Message implements Serializable {
 		this.type = type;
 		this.payload = p;
 	}
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Message [length=" + length + ", type=" + Byte.toUnsignedInt(type) + "]";
+	}
+	
 	
 	
 }

@@ -502,7 +502,7 @@ public class PeerProcess {
 					} else if (o instanceof Message) {
 
 						Message message = (Message) o;
-
+						System.out.println(message);
 						switch (Byte.toUnsignedInt(message.type)) {
 
 						case 0:
@@ -544,7 +544,6 @@ public class PeerProcess {
 							if (!PeerProcess.this.isFilePresent) {
 								
 								sendInterestedifApplicable();
-								break label;
 							}
 
 							break;
