@@ -542,8 +542,8 @@ public class PeerProcess {
 								sendBitfield();
 
 							if (!PeerProcess.this.isFilePresent) {
+								sendInterestedifApplicable();
 								break label;
-								// sendInterestedifApplicable();
 							}
 
 							break;
