@@ -81,6 +81,7 @@ public class MessageReader {
 					}
 				}
 			}
+			System.out.println("available after reading payload:"+inputStream.available());
 			Message m = new Message(length, type, payload);
 			return m;
 		} else {
