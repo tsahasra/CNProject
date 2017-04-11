@@ -17,7 +17,7 @@ public class MessageWriter {
 	}
 
 	public void writeObject() throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		//ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		if (m instanceof HandShake) {
 			HandShake hs = (HandShake) m;
 
