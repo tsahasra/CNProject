@@ -701,35 +701,74 @@ public class PeerProcess {
 
 			List<Integer> NIIndices = new ArrayList<Integer>();
 
-			boolean sendNIMessage = true;
-
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 				if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 1)
 					NIIndices.add(i);
 			}
 
-			for (int j = 0; j < PeerProcess.this.noOfPeers; j++) {
-				for (int k = 0; k < PeerProcess.this.noOfPieces; k++)
-					if (getBit(PeerProcess.this.currentPeer.bitfield, k) == 1 && !NIIndices.contains(k)) {
-						for (int m = 0; m < PeerProcess.this.noOfPeers; m++)
-							if (PeerProcess.this.sentRequestMessageByPiece[m][k])
-								sendNIMessage = false;
-						break;
+			for (Peer p : PeerProcess.this.peerList) {
+				boolean amIInterestedInAnyPiecesOfThisPeer = false;
+				for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
+					if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j) && !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j] && !sentRequestForIndex(j)) {
+						{
+							amIInterestedInAnyPiecesOfThisPeer = true;
+							break;
+						}
 					}
 
-				if (sendNIMessage) {
-					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null);
-					try {
-						PeerProcess.this.bqm
-								.put(new MessageWriter(notinterested, new DataOutputStream(socket.getOutputStream())));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					break;
 				}
-
+				if(!amIInterestedInAnyPiecesOfThisPeer){
+					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null); 
+					try {
+							PeerProcess.this.bqm .put(new MessageWriter(notinterested, new
+							DataOutputStream(peerSocketMap.get(p).getOutputStream()))); 
+						} 
+					catch (InterruptedException e)
+					{ e.printStackTrace();
+					} 
+				}
 			}
+				
+			
 
+			/*
+			 * for (int j = 0; j < PeerProcess.this.noOfPeers; j++) { for (int k
+			 * = 0; k < PeerProcess.this.noOfPieces; k++){ if
+			 * (getBit(PeerProcess.this.peerList.get(j).bitfield, k) == 1 &&
+			 * !NIIndices.contains(k)) { for (int m = 0; m <
+			 * PeerProcess.this.noOfPeers; m++) if
+			 * (!PeerProcess.this.sentRequestMessageByPiece[m][k]) {
+			 * sendNIMessage = false; break; }
+			 * 
+			 * }
+			 * 
+			 * 
+			 * }
+			 * 
+			 * if (sendNIMessage) { Message notinterested = new Message(1,
+			 * Byte.valueOf(Integer.toString(3)), null); try {
+			 * PeerProcess.this.bqm .put(new MessageWriter(notinterested, new
+			 * DataOutputStream(socket.getOutputStream()))); } catch
+			 * (InterruptedException e) { e.printStackTrace(); } break; }
+			 * 
+			 * }
+			 */
+
+		}
+
+		/**
+		 * @param j
+		 * @return
+		 * 
+		 */
+		private boolean sentRequestForIndex(int j) {
+			// TODO Auto-generated method stub
+
+			for (int i = 0; i < PeerProcess.this.noOfPeers; i++)
+				if (sentRequestMessageByPiece[i][j])
+					return true;
+
+			return false;
 		}
 
 		/**
