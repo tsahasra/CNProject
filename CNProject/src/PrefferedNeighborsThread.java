@@ -67,6 +67,9 @@ public class PrefferedNeighborsThread implements Runnable {
 					// send unchoke only to the new ones
 					peerProces.sendUnchokePrefNeig = new HashSet<>();
 					//deep copying list
+					if(peerProces.PreferedNeighbours==null){
+						peerProces.PreferedNeighbours = new HashSet<>();
+					}
 					for(Peer p : peerProces.NewPrefNeighbors){
 						if(!peerProces.PreferedNeighbours.contains(p)){
 							peerProces.sendUnchokePrefNeig.add(p);
