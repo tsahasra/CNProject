@@ -815,8 +815,8 @@ public class PeerProcess {
 		 */
 		private void processRequest(Message message) throws IOException {
 			// TODO Auto-generated method stub
-			if (PeerProcess.this.PreferedNeighbours.contains(peer)
-					|| PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer)) {
+			if ((PeerProcess.this.PreferedNeighbours!=null && PeerProcess.this.PreferedNeighbours.contains(peer))
+					|| (PeerProcess.this.optimisticallyUnchokedNeighbor!=null && PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
 				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
 				System.arraycopy(message.payload, 0, piece, 0, 4);
