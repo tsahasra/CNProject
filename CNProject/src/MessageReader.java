@@ -46,7 +46,7 @@ public class MessageReader {
 				throw e;
 			}
 			byte[] payload = new byte[1];
-			Arrays.fill(payload, Byte.valueOf(Integer.toString(0)));
+			//Arrays.fill(payload, Byte.valueOf(Integer.toString(1)));
 			/*if(length>1){
 				payload = new byte[length-1];
 				try {
