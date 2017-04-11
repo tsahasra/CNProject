@@ -298,9 +298,9 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(4);
-			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+			ExecutorService exec = Executors.newFixedThreadPool(2);
+			//exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
+			//exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			exec.submit(new MessageQueueProcess(PeerProcess.this));
 			exec.submit(new LogManager(PeerProcess.this.bql, logger));
 
@@ -630,7 +630,7 @@ public class PeerProcess {
 				int bitAtIndexOfCurrPeer = getBit(currentPeer.bitfield, i);
 				int bitAtIndexOfPeer = getBit(peer.bitfield, i);
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
-					Message interested = new Message(1, (byte) 2, null);
+					Message interested = new Message(1, Byte.valueOf(Integer.toString(2)), null);
 					// update the interested from array
 					this.peer.interestedFromBitfield[i] = true;
 					try {
