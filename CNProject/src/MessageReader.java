@@ -33,7 +33,7 @@ public class MessageReader extends DataInputStream {
 			System.out.println(messageLength);
 			byte[] b = new byte[messageLength];
 			
-			messageLength = this.read(b);
+			readFully(b, 0, messageLength);
 			System.out.println("After reading message:"+messageLength);
 			byte type = b[0];
 			byte[] payload = null;
