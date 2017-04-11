@@ -38,9 +38,11 @@ public class PrefferedNeighborsThread implements Runnable {
 						Random ran = new Random();
 						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							peerProces.NewPrefNeighbors.add(p);
+							if (p.isHandShakeDone) {
+								peerProces.NewPrefNeighbors.add(p);
+							}
 						}
-						
+
 					} else {
 						// send unchoke
 
@@ -50,7 +52,8 @@ public class PrefferedNeighborsThread implements Runnable {
 						Random ran = new Random();
 						for (int i = 0; i < peerProces.NumberOfPreferredNeighbors; i++) {
 							if (!peerProces.unchokingIntervalWisePeerDownloadingRate.isEmpty()) {
-								peerProces.NewPrefNeighbors.add(peerProces.unchokingIntervalWisePeerDownloadingRate.poll().p);
+								peerProces.NewPrefNeighbors
+										.add(peerProces.unchokingIntervalWisePeerDownloadingRate.poll().p);
 							}
 						}
 						// if the previous downloading rates list is less
@@ -59,19 +62,20 @@ public class PrefferedNeighborsThread implements Runnable {
 
 						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							peerProces.NewPrefNeighbors.add(p);
+							if(p.isHandShakeDone)
+								peerProces.NewPrefNeighbors.add(p);
 
 						}
 					}
-					
+
 					// send unchoke only to the new ones
 					peerProces.sendUnchokePrefNeig = new HashSet<>();
-					//deep copying list
-					if(peerProces.PreferedNeighbours==null){
+					// deep copying list
+					if (peerProces.PreferedNeighbours == null) {
 						peerProces.PreferedNeighbours = new HashSet<>();
 					}
-					for(Peer p : peerProces.NewPrefNeighbors){
-						if(!peerProces.PreferedNeighbours.contains(p)){
+					for (Peer p : peerProces.NewPrefNeighbors) {
+						if (!peerProces.PreferedNeighbours.contains(p)) {
 							peerProces.sendUnchokePrefNeig.add(p);
 						}
 					}
