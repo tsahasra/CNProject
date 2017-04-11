@@ -81,6 +81,7 @@ public class PeerProcess {
 	Future<?> optimisticallyUnchokeNeighborTask;
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
+	ClientHandler clientHandler;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -340,7 +341,7 @@ public class PeerProcess {
 						PeerProcess.this.bql
 								.put("Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
 						peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
-						ClientHandler clientHandler = new ClientHandler(tempPeer, false);
+						clientHandler = new ClientHandler(tempPeer, false);
 						clientHandler.start();
 						totalConnectedPeers++;
 					}
@@ -369,6 +370,7 @@ public class PeerProcess {
 							if (s.isClosed())
 								s.close();
 						}
+						clientHandler.interrupt();
 						break;
 					}
 				}
@@ -514,6 +516,7 @@ public class PeerProcess {
 
 		@Override
 		public void run() {
+			
 			label: while (true) {
 				try {
 
@@ -598,18 +601,12 @@ public class PeerProcess {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					Thread.dumpStack();
-					System.out.println("Closing socket");
-					try {
-						// Thread.sleep(1000000);
-						if (!socket.isClosed())
-							socket.close();
-						break label;
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						break label;
-					}
+				}
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+					break;
 				}
 			}
 		}
