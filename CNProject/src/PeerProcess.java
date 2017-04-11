@@ -81,6 +81,7 @@ public class PeerProcess {
 	Future<?> optimisticallyUnchokeNeighborTask;
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
+	List<Future<?>> clientHandlerTasks;
 	ClientHandler clientHandler;
 
 	PeerProcess() {
@@ -308,6 +309,8 @@ public class PeerProcess {
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			proc.initializePeerList(proc, args[0]);
 
+			proc.clientHandlerTasks = new ArrayList<>();
+
 			proc.createServerSocket(proc.currentPeer.peerPort);
 
 		} catch (Exception e) {
@@ -340,8 +343,8 @@ public class PeerProcess {
 						PeerProcess.this.bql
 								.put("Peer " + this.currentPeer.peerID + " is connected from Peer " + tempPeer.peerID);
 						peerSocketMap.put(peerList.get(peerList.indexOf(tempPeer)), socket);
-						clientHandler = new ClientHandler(tempPeer, false);
-						clientHandler.start();
+						ClientHandler clientHandler = new ClientHandler(tempPeer, false);
+						clientHandlerTasks.add(exec.submit(clientHandler));
 						totalConnectedPeers++;
 					}
 				}
@@ -358,19 +361,20 @@ public class PeerProcess {
 						// now terminate the process of executorService
 						// exec.shutdown();
 
-						while (!exec.isTerminated()) {
-							prefNeighborTask.cancel(true);
-							optimisticallyUnchokeNeighborTask.cancel(true);
-							logManagerTask.cancel(true);
-							messageQueueTask.cancel(true);
-							exec.shutdownNow();
-						}
+						prefNeighborTask.cancel(true);
+						optimisticallyUnchokeNeighborTask.cancel(true);
+						logManagerTask.cancel(true);
+						messageQueueTask.cancel(true);
+
 						for (Socket s : peerSocketMap.values()) {
 							if (s.isClosed())
 								s.close();
 						}
-						while (!clientHandler.isAlive()) {
-							clientHandler.interrupt();
+						for (Future<?> t : clientHandlerTasks) {
+							t.cancel(true);
+						}
+						while (!exec.isTerminated()) {
+							exec.shutdownNow();
 						}
 						break;
 					}
