@@ -54,7 +54,6 @@ public class MessageReader {
 					payload = new byte[messageLength - 1];
 					System.arraycopy(b, 1, payload, 0, messageLength - 1);
 				}
-				System.out.println("inputStream available:"+inputStream.available());
 				m = new Message(messageLength, type, payload);
 			} catch (Exception e) {
 				e.printStackTrace();
