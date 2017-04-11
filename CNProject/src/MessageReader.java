@@ -28,7 +28,7 @@ public class MessageReader {
 
 	public Object readObject() throws Exception {
 		if(isHandshakeDone){
-			while(inputStream.available()<4);
+			//while(inputStream.available()<4);
 			DataInputStream din = new DataInputStream(inputStream);
 			int length;
 			try {
