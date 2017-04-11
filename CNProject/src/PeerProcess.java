@@ -865,7 +865,7 @@ public class PeerProcess {
 			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			RandomAccessFile rafw = new RandomAccessFile(new File(FileName), "rw");
 			rafw.seek(PeerProcess.this.pieceMatrix[index][0]);
-			rafw.write(piece, PeerProcess.this.pieceMatrix[index][0], PeerProcess.this.pieceMatrix[index][1]);
+			rafw.write(piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			rafw.close();
 			setBit(PeerProcess.this.currentPeer.bitfield, index);
 
