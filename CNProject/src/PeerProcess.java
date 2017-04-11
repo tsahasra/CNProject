@@ -129,7 +129,6 @@ public class PeerProcess {
 					peer.bitfield = new byte[bfsize];
 					Arrays.fill(peer.bitfield, (byte) 0);
 					if (Integer.parseInt(tokens[3]) == 0)
-
 						peer.isHandShakeDone = false;
 					p.peerList.add(peer);
 				} else {
@@ -332,9 +331,11 @@ public class PeerProcess {
 					// check if you recievecd the whole file
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
-						exec.shutdown();
+						//exec.shutdown();
+						exec.shutdownNow();
 						for (Socket s : peerSocketMap.values()) {
-							s.close();
+							if(s.isClosed())
+								s.close();
 						}
 						break;
 					}
@@ -568,7 +569,8 @@ public class PeerProcess {
 					System.out.println("Closing socket");
 					try {
 						// Thread.sleep(1000000);
-						socket.close();
+						if(!socket.isClosed())
+							socket.close();
 						break label;
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block

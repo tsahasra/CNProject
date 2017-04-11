@@ -55,6 +55,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						// the
 						// new list of preferred neighbors
 						peerProces.PreferedNeighbours.removeAll(NewPreferedNeighbours);
+						
 						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
 						
 						
@@ -101,7 +102,6 @@ public class PrefferedNeighborsThread implements Runnable {
 						
 						// change to new preferred neighbors
 						peerProces.PreferedNeighbours = NewPreferedNeighbours;
-						
 					}
 
 					String peerIdList = "";
