@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -71,7 +70,7 @@ public class PeerProcess {
 	BlockingQueue<MessageWriter> bqm;
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
-	HashMap<Peer, OutputStream> peerObjectOutputStream;
+	//HashMap<Peer, OutputStream> peerObjectOutputStream;
 	public final Object inputSynchronize = new Object();
 
 	PeerProcess() {
@@ -242,7 +241,7 @@ public class PeerProcess {
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.peerSocketMap = new HashMap<>();
-			PeerProcess.this.peerObjectOutputStream = new HashMap<>();
+			//PeerProcess.this.peerObjectOutputStream = new HashMap<>();
 			PeerProcess.this.bqm = new LinkedBlockingQueue<MessageWriter>();
 			PeerProcess.this.bql = new LinkedBlockingQueue<String>();
 			PeerProcess.this.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
@@ -296,10 +295,9 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(2);
-			// exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-			// exec.submit(new
-			// OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+			ExecutorService exec = Executors.newFixedThreadPool(4);
+			exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
+			exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			exec.submit(new MessageQueueProcess(PeerProcess.this));
 			exec.submit(new LogManager(PeerProcess.this.bql, logger));
 
@@ -450,7 +448,7 @@ public class PeerProcess {
 			socket.setSoLinger(true, 70);
 			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
 			//outputStream = new DataOutputStream(socket.getOutputStream());
-			PeerProcess.this.peerObjectOutputStream.put(p, new DataOutputStream(socket.getOutputStream()));
+			//PeerProcess.this.peerObjectOutputStream.put(p, new DataOutputStream(socket.getOutputStream()));
 			this.initiateHandShake = initiateHS;
 
 			this.peer.interestedFromBitfield = new boolean[PeerProcess.this.noOfPieces];
@@ -982,9 +980,12 @@ public class PeerProcess {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(0)), null);
 		for (Peer p : peers) {
 			try {
+				Socket socket = PeerProcess.this.peerSocketMap.get(p);
 				PeerProcess.this.bqm
-						.put(new MessageWriter(m, (DataOutputStream) PeerProcess.this.peerObjectOutputStream.get(p)));
+						.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
@@ -995,9 +996,12 @@ public class PeerProcess {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(1)), null);
 		for (Peer p : peers) {
 			try {
+				Socket socket = PeerProcess.this.peerSocketMap.get(p);
 				PeerProcess.this.bqm
-						.put(new MessageWriter(m, (DataOutputStream) PeerProcess.this.peerObjectOutputStream.get(p)));
+						.put(new MessageWriter(m,new DataOutputStream(socket.getOutputStream())));
 			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
