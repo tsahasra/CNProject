@@ -102,12 +102,12 @@ public class PeerProcess {
 		return count;
 	}
 
-	private void copyFileUsingStream(File source, File dest) throws IOException {
+	private void copyFileUsingStream(String source, String dest) throws IOException {
 		FileChannel sourceChannel = null;
 	    FileChannel destChannel = null;
 	    try {
-	        sourceChannel = new FileInputStream(source).getChannel();
-	        destChannel = new FileOutputStream(dest).getChannel();
+	        sourceChannel = new FileInputStream(new File(source)).getChannel();
+	        destChannel = new FileOutputStream(new File(dest)).getChannel();
 	        destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
 	       }finally{
 	           sourceChannel.close();
@@ -139,8 +139,8 @@ public class PeerProcess {
 					if (Integer.parseInt(tokens[3]) == 1)
 						p.isFilePresent = true;
 					if (p.isFilePresent) {
-						p.copyFileUsingStream(new File(System.getProperty("user.dir") + "\\" + this.FileName),
-								new File(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
+						p.copyFileUsingStream(new String(System.getProperty("user.dir") + "\\" + this.FileName),
+								new String(System.getProperty("user.dir") + "\\peer_" + peerID + "\\" + this.FileName));
 						FileName = System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\"
 								+ this.FileName;
 						System.out.println(FileName);
@@ -871,7 +871,7 @@ public class PeerProcess {
 
 			int nop = 0;
 
-			for (int j = 0; j < PeerProcess.this.currentPeer.bitfield.length; j++)
+			for (int j = 0; j < PeerProcess.this.noOfPieces; j++)
 				if (getBit(PeerProcess.this.currentPeer.bitfield, j) == 1)
 					nop++;
 
