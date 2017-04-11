@@ -447,7 +447,7 @@ public class PeerProcess {
 			this.socket = PeerProcess.this.peerSocketMap.get(p);
 			this.peer = p;
 
-			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
+			mread = new MessageReader(socket.getInputStream());
 			socket.setSoLinger(true, 70);
 			outputStream = new DataOutputStream(socket.getOutputStream());
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
