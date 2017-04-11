@@ -29,10 +29,12 @@ public class MessageReader extends DataInputStream {
 		if (isHandshakeDone) {
 			byte[] ir = new byte[4];
 			int hsmessage=0;
-			while(hsmessage<=0){
+			int messageLength = 0;
+			while(hsmessage<=0 && messageLength==0){
 				hsmessage = read(ir,0,4);
+				messageLength = ByteBuffer.wrap(ir).getInt();
 			}
-			int messageLength = ByteBuffer.wrap(ir).getInt();
+			
 			System.out.println(messageLength);
 			byte[] b = new byte[messageLength];
 			
