@@ -567,9 +567,11 @@ public class PeerProcess {
 					System.out.println("Closing socket");
 					try {
 						socket.close();
+						break label;
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						break label;
 					}
 				}
 			}
