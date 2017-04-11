@@ -24,19 +24,21 @@ class LogManager implements Runnable {
 			while (true) {
 				if (!bql.isEmpty())
 					logger.log(Level.INFO, bql.take());
-				int peerCompleteFileReceived =0;
-				for (Peer p : peerProcess.peerList) {
-					if (peerProcess.checkIfFullFileRecieved(p)) {
-						peerCompleteFileReceived++;
+				else {
+					int peerCompleteFileReceived = 0;
+					for (Peer p : peerProcess.peerList) {
+						if (peerProcess.checkIfFullFileRecieved(p)) {
+							peerCompleteFileReceived++;
+						}
 					}
-				}
-				if (peerCompleteFileReceived == peerProcess.peerList.size()) {
-					// check if you recievecd the whole file
-					if (peerProcess.checkIfFullFileRecieved(peerProcess.currentPeer)) {
-						// now terminate the process of executorService
-						// exec.shutdown();
-						
-						break;
+					if (peerCompleteFileReceived == peerProcess.peerList.size()) {
+						// check if you recievecd the whole file
+						if (peerProcess.checkIfFullFileRecieved(peerProcess.currentPeer)) {
+							// now terminate the process of executorService
+							// exec.shutdown();
+
+							break;
+						}
 					}
 				}
 			}
