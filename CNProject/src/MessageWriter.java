@@ -23,6 +23,7 @@ public class MessageWriter {
 			os.write(hs.zerobits, 0, hs.zerobits.length);
 			os.write(hs.peerID, 0, hs.peerID.length);
 		} else {
+			os.flush();
 			os.write(ByteBuffer.allocate(4).putInt(m.length).array());
 			os.write(new byte[]{m.type});
 			if ((m.payload != null) && (m.payload.length > 0)) {
