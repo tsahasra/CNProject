@@ -1,12 +1,9 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
@@ -28,7 +25,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -73,7 +69,7 @@ public class PeerProcess {
 	BlockingQueue<MessageWriter> bqm;
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
-	HashMap<Peer, DataOutputStream> peerObjectOutputStream;
+	HashMap<Peer, OutputStream> peerObjectOutputStream;
 	public final Object inputSynchronize = new Object();
 
 	PeerProcess() {
@@ -438,7 +434,7 @@ public class PeerProcess {
 	public class ClientHandler extends Thread {
 		private Socket socket;
 		MessageReader mread;
-		DataOutputStream outputStream;
+		OutputStream outputStream;
 		Peer peer;
 		boolean initiateHandShake;
 		long starttime, endtime;
@@ -449,7 +445,7 @@ public class PeerProcess {
 
 			mread = new MessageReader(socket.getInputStream());
 			socket.setSoLinger(true, 70);
-			outputStream = new DataOutputStream(socket.getOutputStream());
+			outputStream = socket.getOutputStream();
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 

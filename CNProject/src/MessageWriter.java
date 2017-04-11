@@ -1,16 +1,16 @@
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public class MessageWriter {
 	public Message m;
-	public DataOutputStream os;
+	public OutputStream os;
 
 	/**
 	 * @param m
 	 * @param os
 	 */
-	public MessageWriter(Message m, DataOutputStream os) {
+	public MessageWriter(Message m, OutputStream os) {
 		this.m = m;
 		this.os = os;
 	}
