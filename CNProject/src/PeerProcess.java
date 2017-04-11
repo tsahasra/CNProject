@@ -562,20 +562,18 @@ public class PeerProcess {
 				} catch (Exception e) {
 					e.printStackTrace();
 					Thread.dumpStack();
-					break;
-				} finally {
 					System.out.println("Closing socket");
 					try {
 						Thread.sleep(1000000);
 						socket.close();
 						break label;
-					} catch (IOException e) {
+					} catch (IOException e1) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						e1.printStackTrace();
 						break label;
-					} catch (InterruptedException e) {
+					} catch (InterruptedException e1) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						e1.printStackTrace();
 						break label;
 					}
 				}
@@ -721,7 +719,7 @@ public class PeerProcess {
 					}
 
 				if (sendNIMessage) {
-					Message notinterested = new Message(1, (byte) 3, null);
+					Message notinterested = new Message(1,Byte.valueOf(Integer.toString(3)), null);
 					try {
 						PeerProcess.this.bqm.put(new MessageWriter(notinterested, outputStream));
 					} catch (InterruptedException e) {

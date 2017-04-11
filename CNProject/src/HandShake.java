@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class HandShake extends Message implements Serializable{
 	
@@ -25,5 +26,15 @@ public class HandShake extends Message implements Serializable{
 		for(int i =0 ; i<10 ; i++)
 			zerobits[i] = (byte)0;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "HandShake [peerID=" + Arrays.toString(peerID) + "]";
+	}
+	
+	
 		
 }
