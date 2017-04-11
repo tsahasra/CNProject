@@ -90,7 +90,7 @@ public class PeerProcess {
 	}
 
 	/**
-	 * @param peerProcess 
+	 * @param peerProcess
 	 * @return
 	 * 
 	 */
@@ -112,15 +112,15 @@ public class PeerProcess {
 
 	private void copyFileUsingStream(String source, String dest) throws IOException {
 		FileChannel sourceChannel = null;
-	    FileChannel destChannel = null;
-	    try {
-	        sourceChannel = new FileInputStream(new File(source)).getChannel();
-	        destChannel = new FileOutputStream(new File(dest),false).getChannel();
-	        destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
-	       }finally{
-	           sourceChannel.close();
-	           destChannel.close();
-	   }
+		FileChannel destChannel = null;
+		try {
+			sourceChannel = new FileInputStream(new File(source)).getChannel();
+			destChannel = new FileOutputStream(new File(dest), false).getChannel();
+			destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+		} finally {
+			sourceChannel.close();
+			destChannel.close();
+		}
 	}
 
 	private void initializePeerList(PeerProcess p, String peerID) throws IOException {
@@ -245,23 +245,22 @@ public class PeerProcess {
 
 				lineno++;
 			}
-			p.noOfPieces = (p.FileSize / p.PieceSize) +1  ;
+			p.noOfPieces = (p.FileSize / p.PieceSize) + 1;
 			pieceMatrix = new int[noOfPieces][2];
 			int startPos = 0;
 			int psize = p.PieceSize;
 			int cumpsize = p.PieceSize;
-			for(int i = 0 ; i<noOfPieces;i++)
-			{
+			for (int i = 0; i < noOfPieces; i++) {
 				pieceMatrix[i][0] = startPos;
 				pieceMatrix[i][1] = psize;
-				
+
 				startPos += psize;
-				
-				if(!(p.FileSize-cumpsize > p.PieceSize))
-				 psize = p.FileSize - cumpsize;
-				
+
+				if (!(p.FileSize - cumpsize > p.PieceSize))
+					psize = p.FileSize - cumpsize;
+
 				cumpsize += psize;
-				
+
 			}
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
@@ -358,8 +357,8 @@ public class PeerProcess {
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
 						// exec.shutdown();
-						
-						while(!exec.isTerminated()){
+
+						while (!exec.isTerminated()) {
 							prefNeighborTask.cancel(true);
 							optimisticallyUnchokeNeighborTask.cancel(true);
 							logManagerTask.cancel(true);
@@ -370,7 +369,9 @@ public class PeerProcess {
 							if (s.isClosed())
 								s.close();
 						}
-						clientHandler.interrupt();
+						while (!clientHandler.isAlive()) {
+							clientHandler.interrupt();
+						}
 						break;
 					}
 				}
@@ -382,12 +383,12 @@ public class PeerProcess {
 		} finally {
 			try {
 				serverSocket.close();
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				return;
 			}
-			
+
 		}
 
 	}
@@ -516,7 +517,7 @@ public class PeerProcess {
 
 		@Override
 		public void run() {
-			
+
 			label: while (true) {
 				try {
 
@@ -852,7 +853,7 @@ public class PeerProcess {
 				System.arraycopy(message.payload, 0, piece, 0, 4);
 				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
 				rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
-				rafr.readFully(piece, 4,PeerProcess.this.pieceMatrix[index][1] );
+				rafr.readFully(piece, 4, PeerProcess.this.pieceMatrix[index][1]);
 				rafr.close();
 				Message mpiece = new Message(PeerProcess.this.PieceSize + 5, (byte) 7, piece);
 				try {
@@ -860,7 +861,7 @@ public class PeerProcess {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 		}
 
@@ -880,7 +881,7 @@ public class PeerProcess {
 			rafw.seek(PeerProcess.this.pieceMatrix[index][0]);
 			rafw.write(piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			rafw.close();
-			
+
 			int nop = 0;
 
 			for (int j = 0; j < PeerProcess.this.noOfPieces; j++)
@@ -889,7 +890,7 @@ public class PeerProcess {
 
 			try {
 				PeerProcess.this.bql.put("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece "
-						+ index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + (nop +1));
+						+ index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + (nop + 1));
 				setBit(PeerProcess.this.currentPeer.bitfield, index);
 
 			} catch (InterruptedException e) {
