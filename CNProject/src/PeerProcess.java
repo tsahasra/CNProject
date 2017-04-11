@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -435,7 +437,7 @@ public class PeerProcess {
 	public class ClientHandler extends Thread {
 		private Socket socket;
 		MessageReader mread;
-		OutputStream outputStream;
+		DataOutputStream outputStream;
 		Peer peer;
 		boolean initiateHandShake;
 		long starttime, endtime;
@@ -444,9 +446,9 @@ public class PeerProcess {
 			this.socket = PeerProcess.this.peerSocketMap.get(p);
 			this.peer = p;
 
-			mread = new MessageReader(socket.getInputStream());
+			mread = new MessageReader(new DataInputStream(socket.getInputStream()));
 			socket.setSoLinger(true, 70);
-			outputStream = socket.getOutputStream();
+			outputStream = new DataOutputStream(socket.getOutputStream());
 			PeerProcess.this.peerObjectOutputStream.put(p, outputStream);
 			this.initiateHandShake = initiateHS;
 
@@ -969,7 +971,7 @@ public class PeerProcess {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(0)), null);
 		for (Peer p : peers) {
 			try {
-				PeerProcess.this.bqm.put(new MessageWriter(m, PeerProcess.this.peerObjectOutputStream.get(p)));
+				PeerProcess.this.bqm.put(new MessageWriter(m, (DataOutputStream) PeerProcess.this.peerObjectOutputStream.get(p)));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -981,7 +983,7 @@ public class PeerProcess {
 		Message m = new Message(1, Byte.valueOf(Integer.toString(1)), null);
 		for (Peer p : peers) {
 			try {
-				PeerProcess.this.bqm.put(new MessageWriter(m, PeerProcess.this.peerObjectOutputStream.get(p)));
+				PeerProcess.this.bqm.put(new MessageWriter(m, (DataOutputStream) PeerProcess.this.peerObjectOutputStream.get(p)));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

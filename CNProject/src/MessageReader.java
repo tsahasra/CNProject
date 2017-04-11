@@ -1,3 +1,4 @@
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -10,9 +11,9 @@ import java.nio.ByteBuffer;
  * @author Tejas
  *
  */
-public class MessageReader {
+public class MessageReader extends DataInputStream {
 
-	InputStream inputStream;
+	//InputStream inputStream;
 	/**
 	 * @param in
 	 * @throws IOException
@@ -21,13 +22,24 @@ public class MessageReader {
 	private boolean isHandshakeDone = false;
 
 	public MessageReader(InputStream in) throws IOException {
-		inputStream = in;
+		super(in);
+		//inputStream = in;
 	}
 
 	public Object readObject() throws Exception {
 		Message m = null;
 		if (isHandshakeDone) {
-			byte[] ir = new byte[4];
+			int messageLength = readInt();
+            byte type = readByte();
+            byte[] payload = null;
+            if ((messageLength) > 1) {
+            	payload = new byte[messageLength -1];
+                readFully(payload, 0, messageLength -1);
+            }
+            
+            m = new Message(messageLength, type,payload);
+			
+			/*byte[] ir = new byte[4];
 			try {
 				while (inputStream.available() == 0)
 					;
@@ -76,9 +88,7 @@ public class MessageReader {
 			
 		} else {
 			byte[] b = new byte[32];
-			while (inputStream.available() < 32)
-				;
-			inputStream.read(b);
+			read(b);
 			byte[] peerid = new byte[4];
 			System.arraycopy(b, 28, peerid, 0, 4);
 			int peerID = ByteBuffer.wrap(peerid).getInt();
