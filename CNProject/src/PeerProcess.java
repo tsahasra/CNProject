@@ -1,15 +1,16 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -102,17 +103,16 @@ public class PeerProcess {
 	}
 
 	private void copyFileUsingStream(File source, File dest) throws IOException {
-		BufferedReader freader = new BufferedReader(new FileReader(source));
-		BufferedWriter fwriter = new BufferedWriter(new FileWriter(dest));
-		String line;
-		try {
-			while ((line = freader.readLine()) != null)
-				fwriter.write(line + "\n");
-
-		} finally {
-			freader.close();
-			fwriter.close();
-		}
+		FileChannel sourceChannel = null;
+	    FileChannel destChannel = null;
+	    try {
+	        sourceChannel = new FileInputStream(source).getChannel();
+	        destChannel = new FileOutputStream(dest).getChannel();
+	        destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+	       }finally{
+	           sourceChannel.close();
+	           destChannel.close();
+	   }
 	}
 
 	private void initializePeerList(PeerProcess p, String peerID) throws IOException {
