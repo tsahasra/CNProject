@@ -70,6 +70,7 @@ public class PeerProcess {
 	BlockingQueue<MessageWriter> bqm;
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
+	int pieceMatrix[][];
 	// HashMap<Peer, OutputStream> peerObjectOutputStream;
 	public final Object inputSynchronize = new Object();
 
@@ -236,7 +237,24 @@ public class PeerProcess {
 
 				lineno++;
 			}
-			p.noOfPieces = p.FileSize / p.PieceSize;
+			p.noOfPieces = (p.FileSize / p.PieceSize) +1  ;
+			/*pieceMatrix = new int[noOfPieces][2];
+			int startPos = 0;
+			int psize = p.PieceSize;
+			int cumpsize = p.PieceSize;
+			for(int i = 0 ; i<noOfPieces;i++)
+			{
+				pieceMatrix[i][0] = startPos;
+				pieceMatrix[i][1] = psize;
+				
+				startPos += psize;
+				
+				if(!(p.FileSize-cumpsize > p.PieceSize))
+				 psize = p.FileSize - cumpsize;
+				
+				cumpsize += psize;
+				
+			}*/
 			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
 			PeerProcess.this.chokedfrom = new HashSet<>();
 			PeerProcess.this.peerSocketMap = new HashMap<>();
