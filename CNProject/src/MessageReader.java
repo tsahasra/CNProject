@@ -30,7 +30,7 @@ public class MessageReader extends DataInputStream {
 			byte[] ir = new byte[4];
 			int hsmessage=0;
 			int messageLength = 0;
-			while(hsmessage<=0 && messageLength==0){
+			while(hsmessage<=0 || messageLength==0){
 				hsmessage = read(ir,0,4);
 				messageLength = ByteBuffer.wrap(ir).getInt();
 			}
@@ -46,8 +46,6 @@ public class MessageReader extends DataInputStream {
 				payload = new byte[messageLength-1];
 				System.arraycopy(b, 1, payload, 0, messageLength-1);
 			}
-			
-			
 			/*byte[] ir = new byte[4];
 			readFully(ir,0,4);
 			int messageLength = ByteBuffer.wrap(ir).getInt();
