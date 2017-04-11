@@ -28,9 +28,10 @@ public class MessageWriter {
 			//System.out.println(os.size());
 			os.writeInt(m.length);
 			os.writeByte(m.type);
-			/*if ((m.payload != null) && (m.payload.length > 0)) {
+			System.out.println("payload length tp be sent:"+m.payload.length);
+			if ((m.payload != null) && (m.payload.length > 0)) {
 				os.write(m.payload, 0, m.payload.length);
-			}*/
+			}
 		}
 		//bos.flush();
 		//os.write(bos.toByteArray());
