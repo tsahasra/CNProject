@@ -44,7 +44,8 @@ public class MessageReader {
 
 				System.out.println(messageLength);
 				byte[] b = new byte[messageLength];
-
+				while (inputStream.available() < messageLength)
+					;
 				inputStream.read(b, 0, messageLength);
 				System.out.println("After reading message:" + messageLength);
 				byte type = b[0];
