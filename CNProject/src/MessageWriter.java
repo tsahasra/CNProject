@@ -25,6 +25,7 @@ public class MessageWriter {
 			os.write(hs.peerID, 0, hs.peerID.length);
 		} else {
 			System.out.println(os.size());
+			System.out.println(os.size());
 			os.writeInt(m.length);
 			os.writeByte(m.type);
 			System.out.println("payload length tp be sent:"+m.payload.length);
