@@ -82,7 +82,6 @@ public class PeerProcess {
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
 	List<Future<?>> clientHandlerTasks;
-	ClientHandler clientHandler;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -322,7 +321,7 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(4);
+			ExecutorService exec = Executors.newFixedThreadPool(4+PeerProcess.this.peerList.size());
 			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
