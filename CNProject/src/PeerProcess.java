@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,6 +80,7 @@ public class PeerProcess {
 	Future<?> optimisticallyUnchokeNeighborTask;
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
+	public volatile boolean exit=false;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -370,6 +370,7 @@ public class PeerProcess {
 						while (!exec.isTerminated()) {
 							exec.shutdownNow();
 						}
+						PeerProcess.this.exit = true;
 						break;
 					}
 				}
@@ -471,6 +472,8 @@ public class PeerProcess {
 	 */
 
 	public class ClientHandler extends Thread {
+		
+		
 		private Socket socket;
 		MessageReader mread;
 		DataOutputStream outputStream;
@@ -483,7 +486,7 @@ public class PeerProcess {
 			this.peer = p;
 
 			socket.setSoLinger(true, 70);
-			mread = new MessageReader(socket);
+			mread = new MessageReader(socket, PeerProcess.this);
 			// outputStream = new DataOutputStream(socket.getOutputStream());
 			// PeerProcess.this.peerObjectOutputStream.put(p, new
 			// DataOutputStream(socket.getOutputStream()));
@@ -502,7 +505,6 @@ public class PeerProcess {
 		 * 
 		 */
 		private void sendHandShake() throws IOException {
-			// TODO Auto-generated method stub
 			HandShake hs = new HandShake(PeerProcess.this.currentPeer.peerID);
 
 			try {
@@ -516,7 +518,7 @@ public class PeerProcess {
 		@Override
 		public void run() {
 
-			label: while (true) {
+			while (!PeerProcess.this.exit) {
 				try {
 
 					Object o;

@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 public class MessageReader {
 
 	Socket socket;
+	PeerProcess peerProcess;
 	/**
 	 * @param in
 	 * @throws IOException
@@ -21,19 +22,18 @@ public class MessageReader {
 
 	private boolean isHandshakeDone = false;
 
-	public MessageReader(Socket socket) throws IOException {
+	public MessageReader(Socket socket, PeerProcess p) throws IOException {
 		// super(in);
 		this.socket = socket;
+		this.peerProcess = p;
 	}
 
 	public Object readObject() throws Exception {
 		InputStream inputStream = socket.getInputStream();
 		if (isHandshakeDone) {
-			while (!socket.isClosed() && inputStream.available() < 4)
+			while (!peerProcess.exit && inputStream.available() < 4)
 				;
-			if(socket.isClosed()){
-				throw new Exception();
-			}
+			
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
 			int length = ByteBuffer.wrap(lengthBytes).getInt();
