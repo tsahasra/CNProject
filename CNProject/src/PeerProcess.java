@@ -852,7 +852,7 @@ public class PeerProcess {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				setBit(peer.bitfield, index);
+				
 			}
 		}
 
@@ -872,8 +872,7 @@ public class PeerProcess {
 			rafw.seek(PeerProcess.this.pieceMatrix[index][0]);
 			rafw.write(piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			rafw.close();
-			setBit(PeerProcess.this.currentPeer.bitfield, index);
-
+			
 			int nop = 0;
 
 			for (int j = 0; j < PeerProcess.this.noOfPieces; j++)
@@ -882,7 +881,9 @@ public class PeerProcess {
 
 			try {
 				PeerProcess.this.bql.put("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece "
-						+ index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + nop);
+						+ index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + (nop +1));
+				setBit(PeerProcess.this.currentPeer.bitfield, index);
+
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
