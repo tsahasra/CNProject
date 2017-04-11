@@ -58,7 +58,7 @@ public class MessageReader extends DataInputStream {
 			byte[] b = new byte[32];
 			int messageLength = this.read(b);
 			byte[] peerid = new byte[4];
-			System.arraycopy(peerid, 0,b,28, 4);
+			System.arraycopy(b, 28,peerid,0, 4);
 			int peerID = ByteBuffer.wrap(peerid).getInt();
 			m = new HandShake(peerID);
 			isHandshakeDone = true;
