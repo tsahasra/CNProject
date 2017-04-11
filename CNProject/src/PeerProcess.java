@@ -109,7 +109,7 @@ public class PeerProcess {
 	    FileChannel destChannel = null;
 	    try {
 	        sourceChannel = new FileInputStream(new File(source)).getChannel();
-	        destChannel = new FileOutputStream(new File(dest)).getChannel();
+	        destChannel = new FileOutputStream(new File(dest),false).getChannel();
 	        destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
 	       }finally{
 	           sourceChannel.close();
