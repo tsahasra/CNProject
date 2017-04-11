@@ -30,7 +30,7 @@ public class MessageReader extends DataInputStream {
 		Message m = null;
 		if (isHandshakeDone) {
 			int messageLength = readInt();
-            byte type = readByte();
+            Byte type = readByte();
             byte[] payload = null;
             if ((messageLength) > 1) {
             	payload = new byte[messageLength -1];
@@ -38,7 +38,7 @@ public class MessageReader extends DataInputStream {
             }
             
             m = new Message(messageLength, type,payload);
-			
+			System.out.println("message read: "  +type.intValue());
 			/*byte[] ir = new byte[4];
 			try {
 				while (inputStream.available() == 0)
@@ -94,6 +94,7 @@ public class MessageReader extends DataInputStream {
 			int peerID = ByteBuffer.wrap(peerid).getInt();
 			m = new HandShake(peerID);
 			isHandshakeDone = true;
+			System.out.println("Handshake sent");
 		}
 
 		return m;
