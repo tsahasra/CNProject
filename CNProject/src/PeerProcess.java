@@ -809,7 +809,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(message.payload).getInt();
 
 			if (getBit(this.peer.bitfield, index) == 0)
-				setBit(this.peer.bitfield, index);
+				setBit(this.peer.bitfield, index); 
 
 			try {
 				PeerProcess.this.bql.put("Peer " + PeerProcess.this.currentPeer.peerID
@@ -885,7 +885,7 @@ public class PeerProcess {
 			try {
 				PeerProcess.this.bql.put("Peer " + PeerProcess.this.currentPeer.peerID + " has downloaded the piece "
 						+ index + " from " + this.peer.peerID + ". Now the number of pieces it has is " + (nop + 1));
-				setBit(PeerProcess.this.currentPeer.bitfield, index);
+				//setBit(PeerProcess.this.currentPeer.bitfield, index);
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
