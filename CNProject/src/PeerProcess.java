@@ -564,18 +564,14 @@ public class PeerProcess {
 					Thread.dumpStack();
 					System.out.println("Closing socket");
 					try {
-						Thread.sleep(1000000);
+						//Thread.sleep(1000000);
 						socket.close();
 						break label;
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 						break label;
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						break label;
-					}
+					} 
 				}
 			}
 		}

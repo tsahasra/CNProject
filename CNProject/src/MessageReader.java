@@ -78,6 +78,7 @@ public class MessageReader {
 				throw e;
 			}
 			HandShake h = new HandShake(ByteBuffer.wrap(peerId).getInt());
+			isHandshakeDone=true;
 			return h;
 		}
 		
