@@ -62,6 +62,8 @@ public class PeerProcess {
 	HashSet<Peer> chokedfrom;
 	// HashSet<Peer> chokedto;
 	HashSet<Peer> PreferedNeighbours;
+	HashSet<Peer> NewPrefNeighbors;
+	HashSet<Peer> sendUnchokePrefNeig;
 	Peer optimisticallyUnchokedNeighbor;
 	PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
