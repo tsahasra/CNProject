@@ -102,6 +102,7 @@ public class PrefferedNeighborsThread implements Runnable {
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+				peerProces.exit=true;
 				break;
 			}
 

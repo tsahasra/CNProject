@@ -45,6 +45,7 @@ class LogManager implements Runnable {
 			}
 		} catch (InterruptedException ex) {
 			ex.printStackTrace();
+			peerProcess.exit=true;
 		}
 
 	}

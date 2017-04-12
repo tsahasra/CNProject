@@ -45,6 +45,7 @@ public class MessageQueueProcess implements Runnable {
 			}
 		} catch (InterruptedException | IOException ex) {
 			ex.printStackTrace();
+			peerProcess.exit=true;
 		}
 
 	}
