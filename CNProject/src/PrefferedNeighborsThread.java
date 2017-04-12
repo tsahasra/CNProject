@@ -62,47 +62,48 @@ public class PrefferedNeighborsThread implements Runnable {
 
 						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							if(p.interestedInPieces)
+							if (p.interestedInPieces)
 								peerProces.NewPrefNeighbors.add(p);
 
 						}
 					}
+					if (peerProces.NewPrefNeighbors.size() > 0) {
 
-					// send unchoke only to the new ones
-					peerProces.sendUnchokePrefNeig = new HashSet<>();
-					// deep copying list
-					if (peerProces.PreferedNeighbours == null) {
-						peerProces.PreferedNeighbours = new HashSet<>();
-					}
-					for (Peer p : peerProces.NewPrefNeighbors) {
-						if (!peerProces.PreferedNeighbours.contains(p)) {
-							peerProces.sendUnchokePrefNeig.add(p);
+						// send unchoke only to the new ones
+						peerProces.sendUnchokePrefNeig = new HashSet<>();
+						// deep copying list
+						if (peerProces.PreferedNeighbours == null) {
+							peerProces.PreferedNeighbours = new HashSet<>();
 						}
+						for (Peer p : peerProces.NewPrefNeighbors) {
+							if (!peerProces.PreferedNeighbours.contains(p)) {
+								peerProces.sendUnchokePrefNeig.add(p);
+							}
+						}
+						peerProces.sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
+
+						// send choke messages to other who are not present
+						// in
+						// the
+						// new list of preferred neighbors
+						peerProces.PreferedNeighbours.removeAll(peerProces.NewPrefNeighbors);
+
+						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
+
+						peerProces.sendUnChokeMessage(new HashSet<>(peerProces.sendUnchokePrefNeig));
+						peerProces.PreferedNeighbours = peerProces.NewPrefNeighbors;
+
+						String peerIdList = "";
+						for (Peer p : peerProces.PreferedNeighbours) {
+							peerIdList = p.peerID + ",";
+						}
+						peerProces.bql.put("Peer " + peerProces.currentPeer.peerID + " has the preferred neighbors "
+								+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 					}
-					peerProces.sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
-
-					// send choke messages to other who are not present
-					// in
-					// the
-					// new list of preferred neighbors
-					peerProces.PreferedNeighbours.removeAll(peerProces.NewPrefNeighbors);
-
-					peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
-
-					peerProces.sendUnChokeMessage(new HashSet<>(peerProces.sendUnchokePrefNeig));
-					peerProces.PreferedNeighbours = peerProces.NewPrefNeighbors;
-
-					String peerIdList = "";
-					for (Peer p : peerProces.PreferedNeighbours) {
-						peerIdList = p.peerID + ",";
-					}
-					peerProces.bql.put("Peer " + peerProces.currentPeer.peerID + " has the preferred neighbors "
-							+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
-
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				peerProces.exit=true;
+				peerProces.exit = true;
 				break;
 			}
 
