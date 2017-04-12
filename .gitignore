@@ -13,3 +13,16 @@ CNProject/src/PeerProcess$OptimisticallyUnchokedNeighborThread.class
 CNProject/src/PeerProcess$PrefferedNeighborsThread$1.class
 CNProject/src/PeerProcess$PrefferedNeighborsThread.class
 CNProject/peer_1002/log_peer_1002.log.lck
+CNProject/peer_1001/apurv.png
+CNProject/peer_1001/log_peer_1001.log
+CNProject/peer_1002/apurv.png
+CNProject/peer_1002/log_peer_1002.log
+CNProject/src/LogFormatter.class
+CNProject/src/LogManager.class
+CNProject/src/MessageQueueProcess.class
+CNProject/src/MessageReader.class
+CNProject/src/MessageWriter.class
+CNProject/src/OptimisticallyUnchokedNeighborThread.class
+CNProject/src/PeerProcess$1.class
+CNProject/src/PrefferedNeighborsThread.class
+CNProject/src/startPeerProcesses.class
