@@ -361,7 +361,6 @@ public class PeerProcess {
 
 						prefNeighborTask.cancel(true);
 						optimisticallyUnchokeNeighborTask.cancel(true);
-						
 
 						for (Socket s : peerSocketMap.values()) {
 							if (!s.isClosed())
@@ -372,12 +371,11 @@ public class PeerProcess {
 							exec.shutdownNow();
 						}
 						PeerProcess.this.exit = true;
-						while(!logManagerTask.isDone()){
-							logManagerTask.cancel(true);
-						}
-						while(!messageQueueTask.isDone()){
-							messageQueueTask.cancel(true);
-						}
+
+						logManagerTask.cancel(true);
+
+						messageQueueTask.cancel(true);
+
 						break;
 					}
 				}
@@ -692,7 +690,7 @@ public class PeerProcess {
 			// TODO Auto-generated method stub
 
 			DownloadingRate dr = new DownloadingRate(peer,
-					(double) (PeerProcess.this.PieceSize / ((this.endtime - this.starttime)+1)));
+					(double) (PeerProcess.this.PieceSize / ((this.endtime - this.starttime) + 1)));
 
 			if (!unchokingIntervalWisePeerDownloadingRate.contains(dr))
 				unchokingIntervalWisePeerDownloadingRate.add(dr);
