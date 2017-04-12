@@ -330,7 +330,7 @@ public class PeerProcess {
 			serverSocket = new ServerSocket(portNo);
 			int totalConnectedPeers = 0;
 
-			while (true) {
+			while (!PeerProcess.this.exit) {
 				peerCompleteFileReceived = 0;
 				if (currentPeer.peerID != lastPeerID && totalConnectedPeers < peerList.size()) {
 
@@ -603,6 +603,7 @@ public class PeerProcess {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
+					PeerProcess.this.exit=true;
 					break;
 				}
 
@@ -851,17 +852,20 @@ public class PeerProcess {
 					|| (PeerProcess.this.optimisticallyUnchokedNeighbor != null
 							&& PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
-				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
-				System.arraycopy(message.payload, 0, piece, 0, 4);
-				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
-				rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
-				rafr.readFully(piece, 4, PeerProcess.this.pieceMatrix[index][1]);
-				rafr.close();
-				Message mpiece = new Message(PeerProcess.this.PieceSize + 5, (byte) 7, piece);
-				try {
-					PeerProcess.this.bqm.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (getBit(PeerProcess.this.currentPeer.bitfield, index)==1) {
+					byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
+					System.arraycopy(message.payload, 0, piece, 0, 4);
+					RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
+					rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
+					rafr.readFully(piece, 4, PeerProcess.this.pieceMatrix[index][1]);
+					rafr.close();
+					Message mpiece = new Message(PeerProcess.this.PieceSize + 5, (byte) 7, piece);
+					try {
+						PeerProcess.this.bqm
+								.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 
 			}
@@ -979,7 +983,6 @@ public class PeerProcess {
 		}
 
 		private void sendRequest(Peer p, int pieceIndex) {
-			
 
 			Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
