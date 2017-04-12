@@ -18,15 +18,15 @@ public class test {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 			//File testFile = new File(args[0]);
-			byte[] b = {(byte)255,((byte)15)};
+			byte[] b = {(byte)0,((byte)15)};
 			
-			for(int i = 8 ; i<16 ; i++)
-				System.out.println(getBit(b,i) + " " + Byte.toUnsignedInt(b[1]));
+			for(int i = 0 ; i<8 ; i++)
+				System.out.println(getBit(b,i) + " " + Byte.toUnsignedInt(b[0]));
 			
-			setBit(b,12);
+			setBit(b,0);
 			
-			for(int i = 8 ; i<16 ; i++)
-				System.out.println(getBit(b,i) + " " + Byte.toUnsignedInt(b[1]));
+			for(int i = 0 ; i<8 ; i++)
+				System.out.println(getBit(b,i) + " " + Byte.toUnsignedInt(b[0]));
 			
 			//for(int i = 0 ; i<8 ; i++)
 				//System.out.println(getBit(b,i) + " " + Byte.toUnsignedInt(b[1]));
