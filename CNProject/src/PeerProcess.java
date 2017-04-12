@@ -658,7 +658,7 @@ public class PeerProcess {
 				 * has not yet been sent
 				 */
 				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-					if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 1) {
+					if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 0 && getBit(peer.bitfield, i)==1) {
 						boolean indexRequestSentFlag = false;
 
 						for (int j = 0; j < PeerProcess.this.noOfPeers; j++)
@@ -953,7 +953,8 @@ public class PeerProcess {
 			int indexOfPeer = peerList.indexOf(peer2);
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 				int bitPresent = getBit(currentPeer.bitfield, i);
-				if (bitPresent == 0) {
+				int bitPresentAtPeerWeRequesting = getBit(peer2.bitfield, i);
+				if (bitPresent == 0 && bitPresentAtPeerWeRequesting==1) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
 						if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
