@@ -359,7 +359,8 @@ public class PeerProcess {
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
 						// exec.shutdown();
-
+						PeerProcess.this.exit = true;
+						
 						break;
 					}
 				}
@@ -370,24 +371,26 @@ public class PeerProcess {
 			return;
 		} finally {
 			try {
-				prefNeighborTask.cancel(true);
-				optimisticallyUnchokeNeighborTask.cancel(true);
+				
+				while (!exec.isTerminated()) {
+					prefNeighborTask.cancel(true);
+					optimisticallyUnchokeNeighborTask.cancel(true);
+					logManagerTask.cancel(true);
+
+					messageQueueTask.cancel(true);
+					exec.shutdownNow();
+				}
 
 				for (Socket s : peerSocketMap.values()) {
 					if (!s.isClosed())
 						s.close();
 				}
 
-				while (!exec.isTerminated()) {
-					exec.shutdownNow();
-				}
-				PeerProcess.this.exit = true;
+				
 
-				logManagerTask.cancel(true);
-
-				messageQueueTask.cancel(true);
-
+				
 				serverSocket.close();
+				
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -712,16 +715,27 @@ public class PeerProcess {
 			byte[] i = new byte[4];
 			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
-			setBit(PeerProcess.this.currentPeer.bitfield, index);
-			for (Peer p : PeerProcess.this.peerList) {
-				if (p.isHandShakeDone) {
-					Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
-					this.socket = PeerProcess.this.peerSocketMap.get(p);
+			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
+				setBit(PeerProcess.this.currentPeer.bitfield, index);
+				for (Peer p : PeerProcess.this.peerList) {
+					if (p.isHandShakeDone) {
+						Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
+						this.socket = PeerProcess.this.peerSocketMap.get(p);
+						try {
+							PeerProcess.this.bqm
+									.put(new MessageWriter(have, new DataOutputStream(socket.getOutputStream())));
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				//if file complete set the bit
+				if(checkIfFullFileRecieved(PeerProcess.this.currentPeer)){
 					try {
-						PeerProcess.this.bqm
-								.put(new MessageWriter(have, new DataOutputStream(socket.getOutputStream())));
+						PeerProcess.this.bql.put("Peer "+PeerProcess.this.currentPeer.peerID+" has downloaded the complete file.");
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						
 					}
 				}
 			}
