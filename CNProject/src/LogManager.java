@@ -22,7 +22,7 @@ class LogManager implements Runnable {
 	public void run() {
 		try {
 			while (!peerProcess.exit) {
-				if (!bql.isEmpty())
+				while (!bql.isEmpty())
 					logger.log(Level.INFO, bql.take());
 				Thread.sleep(1);
 				/*else {

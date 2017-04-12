@@ -20,7 +20,7 @@ public class MessageQueueProcess implements Runnable {
 	public void run() {
 		try {
 			while (!peerProcess.exit) {
-				if (!peerProcess.bqm.isEmpty()) {
+				while (!peerProcess.bqm.isEmpty()) {
 					MessageWriter ms = peerProcess.bqm.take();
 					ms.writeObject();
 				} 
