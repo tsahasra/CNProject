@@ -673,13 +673,13 @@ public class PeerProcess {
 						}
 
 					}
-					if (pieceIndex.size() > 0) {
-						Random rnd = new Random();
-						int selectedIndex = rnd.nextInt(pieceIndex.size());
-						sendRequest(peer, pieceIndex.get(selectedIndex));
-					}
+					
 				}
-
+				if (pieceIndex.size() > 0) {
+					Random rnd = new Random();
+					int selectedIndex = rnd.nextInt(pieceIndex.size());
+					sendRequest(peer, pieceIndex.get(selectedIndex));
+				}
 			}
 		}
 
