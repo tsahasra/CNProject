@@ -317,10 +317,11 @@ public class PeerProcess {
 	}
 
 	public void createServerSocket(int portNo) {
+		ExecutorService exec = Executors.newFixedThreadPool(4);
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			ExecutorService exec = Executors.newFixedThreadPool(4);
+			
 			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
@@ -359,23 +360,6 @@ public class PeerProcess {
 						// now terminate the process of executorService
 						// exec.shutdown();
 
-						prefNeighborTask.cancel(true);
-						optimisticallyUnchokeNeighborTask.cancel(true);
-
-						for (Socket s : peerSocketMap.values()) {
-							if (!s.isClosed())
-								s.close();
-						}
-
-						while (!exec.isTerminated()) {
-							exec.shutdownNow();
-						}
-						PeerProcess.this.exit = true;
-
-						logManagerTask.cancel(true);
-
-						messageQueueTask.cancel(true);
-
 						break;
 					}
 				}
@@ -386,6 +370,23 @@ public class PeerProcess {
 			return;
 		} finally {
 			try {
+				prefNeighborTask.cancel(true);
+				optimisticallyUnchokeNeighborTask.cancel(true);
+
+				for (Socket s : peerSocketMap.values()) {
+					if (!s.isClosed())
+						s.close();
+				}
+
+				while (!exec.isTerminated()) {
+					exec.shutdownNow();
+				}
+				PeerProcess.this.exit = true;
+
+				logManagerTask.cancel(true);
+
+				messageQueueTask.cancel(true);
+				
 				serverSocket.close();
 
 			} catch (Exception e) {
