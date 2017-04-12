@@ -740,25 +740,27 @@ public class PeerProcess {
 			}
 
 			for (Peer p : PeerProcess.this.peerList) {
-				boolean amIInterestedInAnyPiecesOfThisPeer = false;
-				for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
-					if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j)
-							&& !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j]
-							&& !sentRequestForIndex(j)) {
-						{
-							amIInterestedInAnyPiecesOfThisPeer = true;
-							break;
+				if (p.isHandShakeDone) {
+					boolean amIInterestedInAnyPiecesOfThisPeer = false;
+					for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
+						if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j)
+								&& !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j]
+								&& !sentRequestForIndex(j)) {
+							{
+								amIInterestedInAnyPiecesOfThisPeer = true;
+								break;
+							}
 						}
-					}
 
-				}
-				if (!amIInterestedInAnyPiecesOfThisPeer) {
-					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null);
-					try {
-						PeerProcess.this.bqm.put(new MessageWriter(notinterested,
-								new DataOutputStream(peerSocketMap.get(p).getOutputStream())));
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+					}
+					if (!amIInterestedInAnyPiecesOfThisPeer) {
+						Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null);
+						try {
+							PeerProcess.this.bqm.put(new MessageWriter(notinterested,
+									new DataOutputStream(peerSocketMap.get(p).getOutputStream())));
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
