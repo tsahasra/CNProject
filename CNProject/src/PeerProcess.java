@@ -772,8 +772,7 @@ public class PeerProcess {
 					boolean amIInterestedInAnyPiecesOfThisPeer = false;
 					for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
 						if (getBit(p.bitfield, j) == 1 && !NIIndices.contains(j)
-								&& !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j]
-								&& !sentRequestForIndex(j)) {
+								&& !PeerProcess.this.sentRequestMessageByPiece[peerList.indexOf(p)][j]) {
 							{
 								amIInterestedInAnyPiecesOfThisPeer = true;
 								break;
