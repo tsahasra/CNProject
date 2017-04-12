@@ -603,7 +603,7 @@ public class PeerProcess {
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
-					PeerProcess.this.exit=true;
+					PeerProcess.this.exit = true;
 					break;
 				}
 
@@ -669,13 +669,11 @@ public class PeerProcess {
 						}
 
 					}
-
-				}
-
-				if (pieceIndex.size() > 0) {
-					Random rnd = new Random();
-					int selectedIndex = rnd.nextInt(pieceIndex.size());
-					sendRequest(peer, pieceIndex.get(selectedIndex));
+					if (pieceIndex.size() > 0) {
+						Random rnd = new Random();
+						int selectedIndex = rnd.nextInt(pieceIndex.size());
+						sendRequest(peer, pieceIndex.get(selectedIndex));
+					}
 				}
 
 			}
@@ -852,7 +850,7 @@ public class PeerProcess {
 					|| (PeerProcess.this.optimisticallyUnchokedNeighbor != null
 							&& PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
 				int index = ByteBuffer.wrap(message.payload).getInt();
-				if (getBit(PeerProcess.this.currentPeer.bitfield, index)==1) {
+				if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 1) {
 					byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
 					System.arraycopy(message.payload, 0, piece, 0, 4);
 					RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
@@ -949,36 +947,41 @@ public class PeerProcess {
 				e.printStackTrace();
 			}
 			chokedfrom.remove(peer2);
-			// after receiving unchoke, check if this peer is interested in any
-			// of the pieces of the peerUnchokedFrom
-			// if interested, check if that piece is not requested to any other
-			// peer
-			List<Integer> interestedPieces = new ArrayList<Integer>();
-			int indexOfPeer = peerList.indexOf(peer2);
-			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-				int bitPresent = getBit(currentPeer.bitfield, i);
-				int bitPresentAtPeerWeRequesting = getBit(peer2.bitfield, i);
-				if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
-					boolean alreadySentRequestToSomeOtherPeer = false;
-					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
-						if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
-							alreadySentRequestToSomeOtherPeer = true;
-							break;
+
+			if (!isFilePresent) {
+				// after receiving unchoke, check if this peer is interested in
+				// any
+				// of the pieces of the peerUnchokedFrom
+				// if interested, check if that piece is not requested to any
+				// other
+				// peer
+				List<Integer> interestedPieces = new ArrayList<Integer>();
+				int indexOfPeer = peerList.indexOf(peer2);
+				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+					int bitPresent = getBit(currentPeer.bitfield, i);
+					int bitPresentAtPeerWeRequesting = getBit(peer2.bitfield, i);
+					if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
+						boolean alreadySentRequestToSomeOtherPeer = false;
+						for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
+							if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
+								alreadySentRequestToSomeOtherPeer = true;
+								break;
+							}
+						}
+						if (!alreadySentRequestToSomeOtherPeer) {
+							interestedPieces.add(i);
 						}
 					}
-					if (!alreadySentRequestToSomeOtherPeer) {
-						interestedPieces.add(i);
-					}
 				}
-			}
-			if (interestedPieces.size() > 0) {
-				// select any one piece randomly
-				Random ran = new Random();
-				int index = ran.nextInt(interestedPieces.size());
-				// PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index]
-				// =
-				// true;
-				sendRequest(peer2, interestedPieces.get(index));
+				if (interestedPieces.size() > 0) {
+					// select any one piece randomly
+					Random ran = new Random();
+					int index = ran.nextInt(interestedPieces.size());
+					// PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][index]
+					// =
+					// true;
+					sendRequest(peer2, interestedPieces.get(index));
+				}
 			}
 		}
 
