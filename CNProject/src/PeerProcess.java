@@ -651,9 +651,9 @@ public class PeerProcess {
 
 			writePieceToFile(message.payload);
 
-			sendHaveMessageToAll(message.payload);
+			
 
-			sendNIToSomeNeighbours();
+			sendHaveMessageToAll(message.payload);
 
 			if (!fileComplete) {
 				List<Integer> pieceIndex = new ArrayList<Integer>();
@@ -685,6 +685,9 @@ public class PeerProcess {
 					sendRequest(peer, pieceIndex.get(selectedIndex));
 				}
 			}
+			
+			
+			sendNIToSomeNeighbours();
 		}
 
 		/**
@@ -716,8 +719,11 @@ public class PeerProcess {
 			byte[] i = new byte[4];
 			System.arraycopy(payload, 0, i, 0, 4);
 			int index = ByteBuffer.wrap(i).getInt();
+			
 			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
 				setBit(PeerProcess.this.currentPeer.bitfield, index);
+				//if file complete set the bit
+				
 				for (Peer p : PeerProcess.this.peerList) {
 					if (p.isHandShakeDone) {
 						Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
@@ -730,15 +736,16 @@ public class PeerProcess {
 						}
 					}
 				}
-				//if file complete set the bit
 				if(checkIfFullFileRecieved(PeerProcess.this.currentPeer)){
 					try {
 						PeerProcess.this.bql.put("Peer "+PeerProcess.this.currentPeer.peerID+" has downloaded the complete file.");
+						PeerProcess.this.exit=true;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 						
 					}
 				}
+				
 			}
 		}
 
