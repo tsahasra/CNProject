@@ -24,7 +24,6 @@ public class MessageQueueProcess implements Runnable {
 					MessageWriter ms = peerProcess.bqm.take();
 					ms.writeObject();
 				} 
-				Thread.sleep(1);
 				/*else {
 					int peerCompleteFileReceived = 0;
 					for (Peer p : peerProcess.peerList) {
