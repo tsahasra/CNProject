@@ -158,6 +158,7 @@ public class PeerProcess {
 					} else {
 						FileName = System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\"
 								+ this.FileName;
+						new File(FileName).delete();
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 0);
 					}
@@ -180,6 +181,8 @@ public class PeerProcess {
 		}
 
 	}
+
+	
 
 	private void initateLogFile(String peerId) {
 		logger = Logger.getLogger("LogFormatter");
