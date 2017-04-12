@@ -361,8 +361,7 @@ public class PeerProcess {
 
 						prefNeighborTask.cancel(true);
 						optimisticallyUnchokeNeighborTask.cancel(true);
-						logManagerTask.cancel(true);
-						messageQueueTask.cancel(true);
+						
 
 						for (Socket s : peerSocketMap.values()) {
 							if (!s.isClosed())
@@ -373,6 +372,12 @@ public class PeerProcess {
 							exec.shutdownNow();
 						}
 						PeerProcess.this.exit = true;
+						while(!logManagerTask.isDone()){
+							logManagerTask.cancel(true);
+						}
+						while(!messageQueueTask.isDone()){
+							messageQueueTask.cancel(true);
+						}
 						break;
 					}
 				}
