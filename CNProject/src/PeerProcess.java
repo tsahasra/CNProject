@@ -711,7 +711,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(i).getInt();
 			setBit(PeerProcess.this.currentPeer.bitfield,index);
 			for (Peer p : PeerProcess.this.peerList) {
-				Message have = new Message(5, (byte) 4, i);
+				Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
 				this.socket = PeerProcess.this.peerSocketMap.get(p);
 				try {
 					PeerProcess.this.bqm.put(new MessageWriter(have, new DataOutputStream(socket.getOutputStream())));
@@ -821,8 +821,9 @@ public class PeerProcess {
 				e1.printStackTrace();
 			}
 
-			if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
-				Message interested = new Message(1, (byte) 2, null);
+			sendInterestedifApplicable();
+			/*if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 0) {
+				Message interested = new Message(1, Byte.valueOf(Integer.toString(2)), null);
 				try {
 					PeerProcess.this.bqm
 							.put(new MessageWriter(interested, new DataOutputStream(socket.getOutputStream())));
@@ -831,7 +832,7 @@ public class PeerProcess {
 				}
 				// update the interested from array
 				this.peer.interestedFromBitfield[index] = true;
-			}
+			}*/
 		}
 
 		/**
@@ -920,8 +921,8 @@ public class PeerProcess {
 			int indexOfPeer = peerList.indexOf(p);
 			// reset the sentRequestMessageBy Piece array by comparing the
 			// bitfield array and request array
-			for (int i = 0; i < PeerProcess.this.sentRequestMessageByPiece[indexOfPeer].length; i++) {
-				if (PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+				if (PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i] && getBit(PeerProcess.this.currentPeer.bitfield, i)==0) {
 					// check if piece received, if not reset the request message
 					// field
 					PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i] = false;
