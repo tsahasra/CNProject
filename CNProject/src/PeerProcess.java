@@ -159,6 +159,7 @@ public class PeerProcess {
 						FileName = System.getProperty("user.dir") + "\\peer_" + currentPeer.peerID + "\\"
 								+ this.FileName;
 						new File(FileName).delete();
+						new File(FileName).createNewFile();
 						currentPeer.bitfield = new byte[bfsize];
 						Arrays.fill(currentPeer.bitfield, (byte) 0);
 					}
