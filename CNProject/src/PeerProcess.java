@@ -375,9 +375,12 @@ public class PeerProcess {
 				while (!exec.isTerminated()) {
 					prefNeighborTask.cancel(true);
 					optimisticallyUnchokeNeighborTask.cancel(true);
-					logManagerTask.cancel(true);
-
+					while(!bqm.isEmpty());
+					while(!bql.isEmpty());
 					messageQueueTask.cancel(true);
+					logManagerTask.cancel(true);
+					
+					
 					exec.shutdownNow();
 				}
 
