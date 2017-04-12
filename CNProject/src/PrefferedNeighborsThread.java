@@ -38,7 +38,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						Random ran = new Random();
 						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							if (p.isHandShakeDone) {
+							if (p.interestedInPieces) {
 								peerProces.NewPrefNeighbors.add(p);
 							}
 						}
@@ -62,7 +62,7 @@ public class PrefferedNeighborsThread implements Runnable {
 
 						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
-							if(p.isHandShakeDone)
+							if(p.interestedInPieces)
 								peerProces.NewPrefNeighbors.add(p);
 
 						}
