@@ -321,7 +321,7 @@ public class PeerProcess {
 		try {
 
 			// PeerProcess.this.chokedto = new HashSet<>();
-			
+
 			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
@@ -386,7 +386,7 @@ public class PeerProcess {
 				logManagerTask.cancel(true);
 
 				messageQueueTask.cancel(true);
-				
+
 				serverSocket.close();
 
 			} catch (Exception e) {
@@ -990,20 +990,20 @@ public class PeerProcess {
 		}
 
 		private void sendRequest(Peer p, int pieceIndex) {
+			if (getBit(PeerProcess.this.currentPeer.bitfield, pieceIndex) == 0 && getBit(p.bitfield, pieceIndex) == 1) {
+				Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
+						ByteBuffer.allocate(4).putInt(pieceIndex).array());
 
-			Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
-					ByteBuffer.allocate(4).putInt(pieceIndex).array());
-
-			try {
-				PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				try {
+					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				PeerProcess.this.sentRequestMessageByPiece[PeerProcess.this.peerList.indexOf(p)][pieceIndex] = true;
 			}
-			PeerProcess.this.sentRequestMessageByPiece[PeerProcess.this.peerList.indexOf(p)][pieceIndex] = true;
-
 		}
 	}
 
