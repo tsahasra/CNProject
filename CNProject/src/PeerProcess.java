@@ -123,7 +123,7 @@ public class PeerProcess {
 	}
 
 	private void initializePeerList(PeerProcess p, String peerID) throws IOException {
-		BufferedReader pireader = new BufferedReader(new FileReader("peerInfo.cfg"));
+		BufferedReader pireader = new BufferedReader(new FileReader(System.getProperty("user.dir") +"\\"+"peerInfo.cfg"));
 		String line, tokens[];
 		int currPeerNo = 0;
 		try {
