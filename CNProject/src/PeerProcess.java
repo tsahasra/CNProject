@@ -366,7 +366,7 @@ public class PeerProcess {
 						messageQueueTask.cancel(true);
 
 						for (Socket s : peerSocketMap.values()) {
-							if (s.isClosed())
+							if (!s.isClosed())
 								s.close();
 						}
 						
@@ -651,14 +651,15 @@ public class PeerProcess {
 			if (!fileComplete) {
 				List<Integer> pieceIndex = new ArrayList<Integer>();
 
-				boolean indexRequestSentFlag = false;
-
+				
 				/*
 				 * Get list of all pieces not yet received and for which request
 				 * has not yet been sent
 				 */
 				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-					if (getBit(PeerProcess.this.currentPeer.bitfield, i) != 1) {
+					if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 1) {
+						boolean indexRequestSentFlag = false;
+
 						for (int j = 0; j < PeerProcess.this.noOfPeers; j++)
 							if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
 								indexRequestSentFlag = true;
@@ -667,7 +668,6 @@ public class PeerProcess {
 
 						if (!indexRequestSentFlag) {
 							pieceIndex.add(i);
-							indexRequestSentFlag = false;
 						}
 
 					}
@@ -679,7 +679,7 @@ public class PeerProcess {
 					int selectedIndex = rnd.nextInt(pieceIndex.size());
 					sendRequest(peer, pieceIndex.get(selectedIndex));
 				}
-
+				
 			}
 		}
 
@@ -952,10 +952,10 @@ public class PeerProcess {
 			int indexOfPeer = peerList.indexOf(peer2);
 			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 				int bitPresent = getBit(currentPeer.bitfield, i);
-				if (bitPresent == 0 && !PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+				if (bitPresent == 0) {
 					boolean alreadySentRequestToSomeOtherPeer = false;
 					for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
-						if (PeerProcess.this.sentRequestMessageByPiece[j][i] && j != indexOfPeer) {
+						if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
 							alreadySentRequestToSomeOtherPeer = true;
 							break;
 						}
