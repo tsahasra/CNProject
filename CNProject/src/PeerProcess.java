@@ -980,19 +980,20 @@ public class PeerProcess {
 		}
 
 		private void sendRequest(Peer p, int pieceIndex) {
-			Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
-					ByteBuffer.allocate(4).putInt(pieceIndex).array());
+			if (getBit(p.bitfield, pieceIndex) == 1 && getBit(PeerProcess.this.currentPeer.bitfield, pieceIndex) == 0) {
+				Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
+						ByteBuffer.allocate(4).putInt(pieceIndex).array());
 
-			try {
-				PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				try {
+					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				PeerProcess.this.sentRequestMessageByPiece[PeerProcess.this.peerList.indexOf(p)][pieceIndex] = true;
 			}
-			PeerProcess.this.sentRequestMessageByPiece[PeerProcess.this.peerList.indexOf(peer)][pieceIndex] = true;
-
 		}
 	}
 
