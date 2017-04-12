@@ -687,7 +687,7 @@ public class PeerProcess {
 			// TODO Auto-generated method stub
 
 			DownloadingRate dr = new DownloadingRate(peer,
-					(double) (PeerProcess.this.PieceSize / (this.endtime - this.starttime)+1));
+					(double) (PeerProcess.this.PieceSize / ((this.endtime - this.starttime)+1)));
 
 			if (!unchokingIntervalWisePeerDownloadingRate.contains(dr))
 				unchokingIntervalWisePeerDownloadingRate.add(dr);
