@@ -23,7 +23,7 @@ public class OptimisticallyUnchokedNeighborThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while (true) {
+		while (!peerProcess.exit) {
 			try {
 
 				Thread.sleep(peerProcess.OptimisticUnchokingInterval * 1000);

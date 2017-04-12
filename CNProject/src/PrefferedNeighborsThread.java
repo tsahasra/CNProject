@@ -20,7 +20,7 @@ public class PrefferedNeighborsThread implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while (true) {
+		while (!peerProces.exit) {
 			try {
 
 				Thread.sleep(peerProces.UnchokingInterval * 1000);
