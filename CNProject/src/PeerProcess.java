@@ -414,7 +414,9 @@ public class PeerProcess {
 
 		Iterator<Peer> it = this.peerList.iterator();
 		while (it.hasNext()) {
+			
 			Peer tempPeer = (Peer) it.next();
+			System.out.println(port);
 			if (tempPeer.peerIP.equals(hostAddress))
 				return tempPeer;
 		}
@@ -668,16 +670,12 @@ public class PeerProcess {
 				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
 					if (getBit(PeerProcess.this.currentPeer.bitfield, i) == 0 && getBit(peer.bitfield, i) == 1) {
 						boolean indexRequestSentFlag = false;
-
-						for (int j = 0; j < PeerProcess.this.noOfPeers; j++)
+						pieceIndex.add(i);
+						/*for (int j = 0; j < PeerProcess.this.noOfPeers; j++)
 							if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
 								indexRequestSentFlag = true;
 								break;
-							}
-
-						if (!indexRequestSentFlag) {
-							pieceIndex.add(i);
-						}
+							}*/
 
 					}
 					
@@ -990,7 +988,8 @@ public class PeerProcess {
 					int bitPresentAtPeerWeRequesting = getBit(peer2.bitfield, i);
 					if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
 						boolean alreadySentRequestToSomeOtherPeer = false;
-						for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
+						interestedPieces.add(i);
+						/*for (int j = 0; j < PeerProcess.this.sentRequestMessageByPiece.length; j++) {
 							if (PeerProcess.this.sentRequestMessageByPiece[j][i]) {
 								alreadySentRequestToSomeOtherPeer = true;
 								break;
@@ -998,7 +997,7 @@ public class PeerProcess {
 						}
 						if (!alreadySentRequestToSomeOtherPeer) {
 							interestedPieces.add(i);
-						}
+						}*/
 					}
 				}
 				if (interestedPieces.size() > 0) {

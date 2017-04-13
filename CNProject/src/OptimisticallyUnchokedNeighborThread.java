@@ -40,7 +40,7 @@ public class OptimisticallyUnchokedNeighborThread implements Runnable {
 						// check if not a preferred neighbor then only
 						// send
 						// choke message
-						if (!peerProcess.PreferedNeighbours.contains(peerProcess.optimisticallyUnchokedNeighbor)) {
+						if (peerProcess.PreferedNeighbours!=null && !peerProcess.PreferedNeighbours.contains(peerProcess.optimisticallyUnchokedNeighbor)) {
 							// send a choke message to the previous
 							// neighbor
 							peerProcess.sendChokeMessage(new HashSet<>(Arrays.asList(peerProcess.optimisticallyUnchokedNeighbor)));
