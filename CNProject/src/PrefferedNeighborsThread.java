@@ -36,7 +36,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						// thus select any random peers and add them to the
 						// preferred neighbors list
 						Random ran = new Random();
-						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
+						for(int i=0;i<peerProces.peerList.size()  && peerProces.NewPrefNeighbors.size()<peerProces.NumberOfPreferredNeighbors;i++)  {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
 							if (p.interestedInPieces) {
 								peerProces.NewPrefNeighbors.add(p);
@@ -60,7 +60,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						// than
 						// preffered neighbors size
 
-						while (peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors) {
+						for(int i=0;i<peerProces.peerList.size() && peerProces.NewPrefNeighbors.size()<peerProces.NumberOfPreferredNeighbors;i++) {
 							Peer p = peerProces.peerList.get(ran.nextInt(peerProces.peerList.size()));
 							if (p.interestedInPieces)
 								peerProces.NewPrefNeighbors.add(p);
