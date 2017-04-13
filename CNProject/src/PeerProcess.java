@@ -872,9 +872,9 @@ public class PeerProcess {
 		 */
 		private void processRequest(Message message) throws IOException {
 			// TODO Auto-generated method stub
-			if ((PeerProcess.this.PreferedNeighbours != null && PeerProcess.this.PreferedNeighbours.contains(peer))
+			/*if ((PeerProcess.this.PreferedNeighbours != null && PeerProcess.this.PreferedNeighbours.contains(peer))
 					|| (PeerProcess.this.optimisticallyUnchokedNeighbor != null
-							&& PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {
+							&& PeerProcess.this.optimisticallyUnchokedNeighbor.equals(peer))) {*/
 				int index = ByteBuffer.wrap(message.payload).getInt();
 				if (getBit(PeerProcess.this.currentPeer.bitfield, index) == 1) {
 					byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
@@ -883,7 +883,7 @@ public class PeerProcess {
 					rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
 					rafr.readFully(piece, 4, PeerProcess.this.pieceMatrix[index][1]);
 					rafr.close();
-					Message mpiece = new Message(PeerProcess.this.PieceSize + 5, (byte) 7, piece);
+					Message mpiece = new Message(PeerProcess.this.PieceSize + 5, Byte.valueOf(Integer.toString(7)), piece);
 					try {
 						PeerProcess.this.bqm
 								.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
@@ -892,7 +892,7 @@ public class PeerProcess {
 					}
 				}
 
-			}
+			//}
 		}
 
 		/**
@@ -1115,6 +1115,7 @@ public class PeerProcess {
 		for (Peer p : peers) {
 			if (p.isHandShakeDone) {
 				try {
+					System.out.println("sent unchoke to "+p.peerID);
 					Socket socket = PeerProcess.this.peerSocketMap.get(p);
 					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
